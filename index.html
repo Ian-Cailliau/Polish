@@ -244,6 +244,8 @@ p.diff{font-size:21px;font-weight:600;letter-spacing:.01em;line-height:1.5;overf
 .drills{display:flex;flex-wrap:wrap;gap:8px}
 .drill{background:var(--card);color:var(--ink);font-weight:600;font-size:15px;padding:10px 12px;border-radius:12px}
 
+.tag.burst{background:var(--ink);color:var(--paper)}
+
 /* nav */
 .nav{position:fixed;left:0;right:0;bottom:0;z-index:5;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;justify-content:center;gap:8px}
 .nav button{flex:1;max-width:220px;background:none;border:0;padding:12px 8px 14px;font-weight:700;font-size:15.5px;color:var(--muted);border-top:3px solid transparent}
@@ -774,11 +776,29 @@ function planRound(pool){const P=piles(pool),M=mix(),B=newBudget(P);let {fresh,u
  fresh=fresh.filter(it=>keep(it)||!!it.group);fix=fix.filter(keep);rev=rev.filter(keep);
  return{...P,fresh,fixSel:fix,revSel:rev,due:dueRev,why:used<M.n&&B.why?B.why:null,cut:B.n<M.n}}
 const warm=it=>{const t=S[it.id];if(it.pattern||(it.group&&BLOCKS[it.group]&&BLOCKS[it.group].concept))return false;return !!t&&((t.b===0&&!t.lr&&!(t.n>0))||!!t.dr)};
+/* pattern cases in a round come as one rapid-fire block of 5: your real cases count, extra varied cases are practice */
+const FAM=[['formal',/^qa:[a-z]+:form$/],['third',/^qa:[a-z]+:(3|a3)$/],['sentence',/^vs:/],['oni',/^oni:/],['gen',/^kr:/],['ile',/^ile:/]];
+const famOf=it=>{const f=FAM.find(([,re])=>re.test(it.id));return f?f[0]:null};
+const BURST=5;
+function makeBurst(fam,entries,usedKeys,R0){const d=DRILLS.find(x=>x[0]===fam),name=d?d[1]:fam;
+ const have=new Set(entries.map(e=>e.it.id)),fill=[],re=(FAM.find(f=>f[0]===fam)||[])[1];
+ const add=(it,slot,practice)=>{if(entries.length+fill.length>=BURST||have.has(it.id)||hidden(it))return;const k=it.tmp?null:answerKey(it);if(k&&usedKeys.has(k))return;if(k)usedKeys.add(k);have.add(it.id);fill.push({it,st:'write',slot,...(practice?{practice:1}:{})})};
+ if(re){shuffle(R0.fix.filter(it=>re.test(it.id))).forEach(it=>add(it,'fix'));R0.rev.filter(it=>re.test(it.id)&&(S[it.id].due??0)<=round()).forEach(it=>add(it,'rev'))}
+ if(d)shuffle(d[2]()).filter(it=>it.tmp||S[it.id]).forEach(it=>add(it,'fix',1));
+ const all=[...entries.filter(e=>e.st==='intro'),...shuffle([...entries.filter(e=>e.st!=='intro'),...fill])];
+ all.forEach((e,k)=>{e.burst={name,k:k+1,n:all.length}});return all}
 function buildRound(pool){const R0=planRound(pool);
- const rest=shuffle([...R0.fixSel.map(it=>({it,st:warm(it)?'pick':'write',slot:'fix'})),...R0.revSel.map(it=>({it,st:'write',slot:'rev'}))]);
+ let rest=shuffle([...R0.fixSel.map(it=>({it,st:warm(it)?'pick':'write',slot:'fix'})),...R0.revSel.map(it=>({it,st:'write',slot:'rev'}))]);
  const firsts=R0.fresh.filter((it,k)=>!it.group||R0.fresh.findIndex(x=>x.group===it.group)===k);
- firsts.forEach((it,k)=>rest.splice(Math.min(rest.length,k*2),0,{it,st:'intro',slot:'new'}));
- return{queue:rest,info:R0}}
+ const fresh=firsts.map(it=>({it,st:'intro',slot:'new'}));
+ const usedKeys=new Set([...R0.fresh,...R0.fixSel,...R0.revSel].map(answerKey).filter(Boolean));
+ const byFam={},plain=[];
+ [...fresh,...rest].forEach(e=>{const f=famOf(e.it);if(f&&!(e.it.group&&e.st==='intro'))(byFam[f]=byFam[f]||[]).push(e);else plain.push(e)});
+ const blocks=Object.entries(byFam).map(([f,es])=>makeBurst(f,es,usedKeys,R0));
+ const pFresh=plain.filter(e=>e.st==='intro'),pRest=shuffle(plain.filter(e=>e.st!=='intro'));
+ pFresh.forEach((e,k)=>pRest.splice(Math.min(pRest.length,k*2),0,e));
+ blocks.forEach(bl=>{const at=Math.floor(Math.random()*(pRest.length+1));pRest.splice(at,0,...bl)});
+ return{queue:pRest,info:R0}}
 const GROUP_COST_NOTE='a card of k terms counts as 60% of k';
 function currentStage(){const it=ORDER.find(it=>!hidden(it)&&(!S[it.id]||S[it.id].b<2));return it?it.stage:STAGES.length-1}
 const hintOf=q=>{const a=q.accept?q.accept[0]:(q.mcAnswer||q.answer);const w=a.replace(/[.!?]$/,'').split(' ');
@@ -822,9 +842,6 @@ function home(){
  ${(()=>{const h=hardest(10);return h.length>=3?`<button class="cta2" id="go-nut"><b>Twardy orzech</b> · drill your ${h.length} hardest terms</button>`:''})()}
  <button class="cta2" id="go-test" style="border-color:var(--blue);color:var(--blue);background:var(--blue-soft)">Próbny test · mock test: 20 written questions from everything, no hints</button>
  ${P.fix.length?`<button class="cta2" id="go-weak">Popraw błędy · only mistakes: ${Math.min(P.fix.length,total)} to fix</button>`:''}
- <h2 class="sec">Wzorce · rapid fire</h2>
- <p class="note" style="margin-top:-8px">Five cases of one pattern in a row, all written.</p>
- <div class="drills">${DRILLS.map(([k,l])=>`<button class="ghost drill" data-drill="${k}">${esc(l)}</button>`).join('')}</div>
  <h2 class="sec">Działy · practise one topic</h2>
  <div class="decks">${Object.entries(DECKS).map(([k,d])=>{const its=vis().filter(i=>i.deck===k),dm=Math.round(mastery(its)*100);
    return `<button class="deck" data-deck="${k}"><span class="dn">${d.pl}</span><span class="dp">${dm}%</span><span class="de">${d.en}</span><span class="meter"><i style="width:${dm}%"></i></span></button>`}).join('')}</div>
@@ -844,14 +861,13 @@ function home(){
  const a=$('#aud');if(a)a.onchange=()=>{autoAudio=a.checked;try{localStorage.setItem('pl-test1-audio',a.checked?'1':'0')}catch(e){}};
  app.querySelectorAll('.stp button').forEach(b=>b.onclick=()=>{const M=mix(),k=b.dataset.k;M[k]=Math.max(0,Math.min(20,M[k]+ +b.dataset.d));if(M.n+M.m+M.c>0){S._mix=M;save()}home()});
  app.querySelectorAll('[data-show]').forEach(b=>b.onclick=()=>{showTerm(b.dataset.show);home()});
- app.querySelectorAll('[data-drill]').forEach(b=>b.onclick=()=>startDrill(b.dataset.drill));
  const r=$('#reset');r.onclick=()=>{if(r.classList.contains('armed')){S={};save();home()}else{r.classList.add('armed');r.textContent='Tap again to erase all progress'}};
 }
 
 /* an unfinished round is kept on this device, so stopping (✕, closing the app) resumes at the same exercise */
 const SK='pl-test1-round';
 function saveSess(){if(!sess)return;try{localStorage.setItem(SK,JSON.stringify({title:sess.title,test:!!sess.test,nut:!!sess.nut,drill:!!sess.drill,i:sess.i,answeredAt:sess.answeredAt,fresh:sess.fresh,stage0:sess.stage0,
- queue:sess.queue.map(e=>({id:e.it.id,st:e.st,slot:e.slot,retry:!!e.retry,again:!!e.again,tries:e.tries||0})),
+ queue:sess.queue.map(e=>({id:e.it.id,st:e.st,slot:e.slot,retry:!!e.retry,again:!!e.again,tries:e.tries||0,practice:!!e.practice,burst:e.burst||null})),
  log:sess.log.map(l=>({id:l.it.id,res:l.res,given:l.given,retry:!!l.retry,counts:!!l.counts,firstTry:!!l.firstTry,slot:l.slot})),done:[...(sess.done||[])],at:Date.now()}))}catch(e){}}
 function savedSess(){try{const o=JSON.parse(localStorage.getItem(SK)||'null');if(!o||!o.queue||o.i>=o.queue.length)return null;
  if(Date.now()-(o.at||0)>3*864e5)return null;return o}catch(e){return null}}
@@ -910,7 +926,8 @@ function showBlock(cur,name){
  const concept=!!(BLOCKS[name]&&BLOCKS[name].concept);
  $('#got').onclick=()=>{mark(concept?1:0,round());
   if(isMem){const fresh=shuffle(mem.filter(it=>S[it.id]&&S[it.id].n===0));
-   fresh.forEach((it,k)=>sess.put({it,st:concept?'write':'pick',slot:'new'},2+k*2));next()}
+   if(concept)fresh.forEach((it,k)=>sess.put({it,st:'write',slot:'new',burst:{name:B.title,k:k+1,n:fresh.length}},1+k));
+   else fresh.forEach((it,k)=>sess.put({it,st:'pick',slot:'new'},2+k*2));next()}
   else ask()};
  const kb=$('#knowit');if(kb)kb.onclick=()=>{mark(1,round()+2);if(isMem){mem.filter(it=>S[it.id].n===0).forEach((it,k)=>sess.put({it,st:'write',slot:'new'},2+k*2));next()}else ask()};
  $('#got').focus({preventScroll:true});
@@ -953,7 +970,9 @@ function ask(){
  if(cur.st==='intro'&&cur.it.pattern){if(!S[cur.it.id]){S[cur.it.id]={b:1,n:0,w:0,due:round(),f:dayKey()};sess.fresh++;save()}cur.st='write'}
  q.kind=cur.st==='intro'?'intro':cur.st==='pick'?'mc':q.reveal?'reveal':'type';
  const canHint=!sess.test&&q.kind==='type';let usedHint=false;
- const level=sess.test?'':q.kind==='intro'?'<span class="tag">nowe</span>':q.kind==='mc'?`<span class="tag">warm-up${cur.slot==='fix'&&S[cur.it.id]&&S[cur.it.id].dr?' · dropped a level':cur.slot==='new'?' · new':''}</span>`:q.kind==='type'?`<span class="tag">write · counts${cur.slot==='fix'?' · to fix':cur.slot==='rev'?' · review':cur.slot==='new'?' · new':''}</span>`:'';
+ const burstTag=cur.burst?`<span class="tag burst">Rapid fire ${cur.burst.k}/${cur.burst.n} · ${esc(cur.burst.name)}${cur.practice?' · extra, does not count':''}</span>`:'';
+ const level0=sess.test?'':q.kind==='intro'?'<span class="tag">nowe</span>':q.kind==='mc'?`<span class="tag">warm-up${cur.slot==='fix'&&S[cur.it.id]&&S[cur.it.id].dr?' · dropped a level':cur.slot==='new'?' · new':''}</span>`:q.kind==='type'?`<span class="tag">write · counts${cur.slot==='fix'?' · to fix':cur.slot==='rev'?' · review':cur.slot==='new'?' · new':''}</span>`:'';
+ const level=cur.burst?burstTag:level0;
 
  if(q.kind==='intro'){
   const inBlank=q.prompt.includes('___');
@@ -1012,14 +1031,14 @@ function finish(res,given,msg,quick){
  const cur=sess.queue[sess.i],q=cur.q,id=cur.it.id;
  const prev=S[id]?{...S[id]}:null,prevDay=S._d?{...S._d}:null;
  sess.done=sess.done||new Set();
- const warmup=q.kind==='mc'&&!sess.test,counts=!warmup&&!cur.retry&&!sess.done.has(id)&&!cur.it.tmp;if(counts)sess.done.add(id);
+ const warmup=q.kind==='mc'&&!sess.test,counts=!warmup&&!cur.retry&&!sess.done.has(id)&&!cur.it.tmp&&!cur.practice;if(counts)sess.done.add(id);
  if(counts)record(id,res);else{S._d={d:dayKey(),n:todayCount()+1};save()}
  const entry={it:cur.it,q,res,given,retry:cur.retry,counts,firstTry:!warmup&&!cur.retry,slot:cur.slot};sess.log.push(entry);
  let requeued=false;
  /* warm-up: a miss gets one more warm-up; after that (right or not) the written answer follows, exactly once */
  if(warmup){if(res!=='right'&&!cur.again)sess.put({it:cur.it,st:'pick',slot:cur.slot,again:1},2);else sess.put({it:cur.it,st:'write',slot:cur.slot},3)}
  else if(res!=='right'&&sess.nut&&(cur.tries||1)<3){sess.put({it:cur.it,st:'write',retry:true,tries:(cur.tries||1)+1,slot:cur.slot},3);requeued=true}
- else if(res!=='right'&&!cur.retry&&!sess.nut){sess.queue.push({it:cur.it,st:'write',retry:true,slot:cur.slot});requeued=true}
+ else if(res!=='right'&&!cur.retry&&!sess.nut&&!cur.practice){sess.queue.push({it:cur.it,st:'write',retry:true,slot:cur.slot});requeued=true}
  sess.answeredAt=sess.i;saveSess();
  if(quick)return next();
  let shown=q.kind==='mc'?(q.mcAnswer||q.answer):q.answer;
@@ -1045,7 +1064,7 @@ function finish(res,given,msg,quick){
   ${warmup?'<p class="note">Warm-up: you write it later this round, and that answer counts. Tap any option to see what it means.</p>':''}
   ${res==='right'&&counts&&!sess.test?'<button class="ghost ov" id="easy">Too easy · push it further back</button>':''}
   <button class="next" id="nx">Dalej →</button>
-  ${sess.test?'':'<button class="ghost ov hidebtn" id="hideit">Hide this term</button>'}</div>`;
+  ${sess.test||cur.it.tmp||cur.practice?'':'<button class="ghost ov hidebtn" id="hideit">Hide this term</button>'}</div>`;
  $('#nx').onclick=next;const hb2=$('#hideit');if(hb2)hb2.onclick=()=>hideAndSkip(id);
  const dr=$('#drill');if(dr)dr.onclick=()=>drill(tgt,q);
  const ez=$('#easy');if(ez)ez.onclick=()=>{
@@ -1193,7 +1212,7 @@ document.addEventListener('keydown',e=>{
 document.addEventListener('click',e=>{const b=e.target.closest('[data-say]');if(b&&!e.target.closest('.gw'))say(b.dataset.say)});
 $('#t-home').onclick=home;$('#t-sheet').onclick=sheet;
 /* progress carried over from the Claude version: merged once per seed, the more-practised copy of each term wins */
-const SEED={"_bk": {"pron:sg": 1}, "_d": {"d": "2026-10-23", "n": 13}, "_p": 8, "_r": 4, "_t": {"d": "2026-10-23", "r": 1, "u0": 186}, "cl:13": {"b": 2, "due": 5, "n": 5, "w": 1}, "cl:14": {"b": 3, "due": 6, "n": 3, "w": 0}, "cl:15": {"b": 2, "due": 3, "n": 5, "w": 1}, "cl:16": {"b": 3, "due": 5, "n": 3, "w": 0}, "cl:17": {"b": 1, "due": 3, "n": 4, "w": 1}, "cl:18": {"b": 2, "due": 3, "n": 2, "w": 0}, "cl:19": {"b": 1, "due": 3, "n": 3, "w": 1}, "cl:20": {"b": 2, "due": 4, "n": 2, "w": 0}, "cl:21": {"b": 2, "due": 5, "n": 4, "w": 1}, "n:0": {"b": 2, "due": 6, "n": 2, "w": 0}, "n:1": {"b": 1, "due": 3, "n": 1, "w": 0}, "n:10": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:2": {"b": 1, "due": 3, "n": 1, "w": 0}, "n:3": {"b": 0, "due": 3, "n": 2, "w": 1}, "n:4": {"b": 1, "due": 5, "f": "2026-10-22", "n": 3, "w": 1}, "n:5": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:6": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:7": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:8": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:9": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pn:ja": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:on": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ona": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ono": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ty": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pr:0": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:1": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:2": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:3": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:4": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:5": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:6": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "pr:7": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "pr:8": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:gdzie:ans": {"b": 4, "due": 9, "n": 4, "w": 0}, "qa:imie:ans": {"b": 2, "due": 4, "n": 2, "w": 0}, "qa:imie:en": {"b": 2, "due": 6, "n": 2, "w": 0}, "qa:ma:ans": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:ma:en": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:milo": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "qa:nazwisko:ans": {"b": 2, "due": 5, "n": 2, "w": 0}, "qa:nazwisko:en": {"b": 1, "due": 2, "n": 7, "w": 2}, "qa:nazywa:ans": {"b": 1, "due": 2, "n": 1, "w": 0}, "qa:nazywa:en": {"b": 1, "due": 5, "n": 3, "w": 1}, "qa:skad:ans": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:skad:en": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:slychac": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "v:być:0": {"b": 2, "due": 5, "n": 2, "w": 0}, "v:być:1": {"b": 1, "due": 2, "n": 1, "w": 0}, "v:być:2": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:3": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:4": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:5": {"b": 2, "due": 6, "n": 2, "w": 0}, "w:4": {"b": 1, "due": 2, "n": 1, "w": 0}, "w:5": {"b": 2, "due": 5, "n": 2, "w": 0}},SEED_ID='1792784163';
+const SEED={"_bk": {"pron:sg": 1}, "_d": {"d": "2026-10-23", "n": 13}, "_p": 8, "_r": 4, "_t": {"d": "2026-10-23", "r": 1, "u0": 186}, "cl:13": {"b": 2, "due": 5, "n": 5, "w": 1}, "cl:14": {"b": 3, "due": 6, "n": 3, "w": 0}, "cl:15": {"b": 2, "due": 3, "n": 5, "w": 1}, "cl:16": {"b": 3, "due": 5, "n": 3, "w": 0}, "cl:17": {"b": 1, "due": 3, "n": 4, "w": 1}, "cl:18": {"b": 2, "due": 3, "n": 2, "w": 0}, "cl:19": {"b": 1, "due": 3, "n": 3, "w": 1}, "cl:20": {"b": 2, "due": 4, "n": 2, "w": 0}, "cl:21": {"b": 2, "due": 5, "n": 4, "w": 1}, "n:0": {"b": 2, "due": 6, "n": 2, "w": 0}, "n:1": {"b": 1, "due": 3, "n": 1, "w": 0}, "n:10": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:2": {"b": 1, "due": 3, "n": 1, "w": 0}, "n:3": {"b": 0, "due": 3, "n": 2, "w": 1}, "n:4": {"b": 1, "due": 5, "f": "2026-10-22", "n": 3, "w": 1}, "n:5": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:6": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:7": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:8": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:9": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pn:ja": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:on": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ona": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ono": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ty": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pr:0": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:1": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:2": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:3": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:4": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:5": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:6": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "pr:7": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "pr:8": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:gdzie:ans": {"b": 4, "due": 9, "n": 4, "w": 0}, "qa:imie:ans": {"b": 2, "due": 4, "n": 2, "w": 0}, "qa:imie:en": {"b": 2, "due": 6, "n": 2, "w": 0}, "qa:ma:ans": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:ma:en": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:milo": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "qa:nazwisko:ans": {"b": 2, "due": 5, "n": 2, "w": 0}, "qa:nazwisko:en": {"b": 1, "due": 2, "n": 7, "w": 2}, "qa:nazywa:ans": {"b": 1, "due": 2, "n": 1, "w": 0}, "qa:nazywa:en": {"b": 1, "due": 5, "n": 3, "w": 1}, "qa:skad:ans": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:skad:en": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:slychac": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "v:być:0": {"b": 2, "due": 5, "n": 2, "w": 0}, "v:być:1": {"b": 1, "due": 2, "n": 1, "w": 0}, "v:być:2": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:3": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:4": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:5": {"b": 2, "due": 6, "n": 2, "w": 0}, "w:4": {"b": 1, "due": 2, "n": 1, "w": 0}, "w:5": {"b": 2, "due": 5, "n": 2, "w": 0}},SEED_ID='1792784359';
 if(S._seed!==SEED_ID){S=Object.keys(S).length?mergeS(S,SEED):JSON.parse(JSON.stringify(SEED));S._seed=SEED_ID;saveLocal()}
 if(!resumeSess())home();
 </script>
