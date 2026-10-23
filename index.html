@@ -207,6 +207,13 @@ p.diff{font-size:21px;font-weight:600;letter-spacing:.01em;line-height:1.5;overf
 .diff ins,.dkey ins{color:var(--ok);text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px;background:var(--ok-soft);border-radius:3px}
 .dkey{white-space:nowrap}
 
+.mix{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.mixl{grid-column:1/-1;font-size:14px;color:var(--muted)}
+.stp{display:grid;grid-template-columns:32px 1fr 32px;grid-template-rows:auto auto;align-items:center;justify-items:center;column-gap:4px;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:5px 5px 3px}
+.stp button{width:32px;height:32px;padding:0;border-radius:9px;border:1px solid var(--line);background:var(--card);font-size:19px;font-weight:700;line-height:1}
+.stp b{font-family:var(--f-display);font-size:20px;min-width:24px;text-align:center;font-variant-numeric:tabular-nums}
+.stp small{grid-column:1/-1;font-size:12px;color:var(--muted)}
+
 /* nav */
 .nav{position:fixed;left:0;right:0;bottom:0;z-index:5;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;justify-content:center;gap:8px}
 .nav button{flex:1;max-width:220px;background:none;border:0;padding:12px 8px 14px;font-weight:700;font-size:15.5px;color:var(--muted);border-top:3px solid transparent}
@@ -430,7 +437,7 @@ function mergeS(a,b){const out={};
  if(da||db_)out._d={d:t,n:Math.max(da,db_)};
  const r=Math.max(a._r||0,b._r||0);if(r)out._r=r;
  const ta=a._t&&a._t.d===t?a._t:null,tb=b._t&&b._t.d===t?b._t:null;
- if(tb||ta)out._t={...(tb||ta),r:Math.max(ta?ta.r:0,tb?tb.r:0)};const pc=a._p||b._p;if(pc)out._p=pc;
+ if(tb||ta)out._t={...(tb||ta),r:Math.max(ta?ta.r:0,tb?tb.r:0)};const pc=a._p||b._p;if(pc)out._p=pc;const mx=a._mix||b._mix;if(mx)out._mix=mx;const ac=a._acc||b._acc;if(ac)out._acc=ac;
  if(a._bk||b._bk)out._bk={...(a._bk||{}),...(b._bk||{})};return out}
 function updSync(){const el=document.getElementById('sync');if(el)el.textContent=syncState==='cloud'?'Progress saved to your Claude account, so it follows you to any device.':'Progress saved on this device only.'}
 (async()=>{try{
@@ -455,14 +462,16 @@ const weakItems=()=>ITEMS.filter(it=>S[it.id]&&S[it.id].w>0&&(S[it.id].b<2||S[it
 const dayKey=()=>{const d=new Date();return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`};
 const todayCount=()=>S._d&&S._d.d===dayKey()?S._d.n:0;
 /* spacing: a right answer sits out 1, 2, 4, 7… rounds; a mistake is due again right away */
-const round=()=>S._r||0,pace=()=>S._p||5;
+const round=()=>S._r||0;
+/* round mix: new / mistakes to fix / review of last-time-right; 20 written answers by default */
+const DEF_MIX={n:8,m:8,c:4};const mix=()=>({...DEF_MIX,...(S._mix||{})}),pace=()=>mix().n;
 const GAP=[0,1,2,4,7,12,20];
 /* right: up a level · wrong: back next round, and down one level only after 3 wrong in a row ·
    minor slip (accent, hint): no change in level */
 function record(id,res){const s=S[id]||{b:0,n:0,w:0,f:dayKey()};s.n++;
- if(res==='right'){s.b=Math.min(s.b+1,6);s.ws=0;s.due=round()+1+GAP[s.b]}
- else if(res==='wrong'){s.w++;s.ws=(s.ws||0)+1;if(s.ws>=3){s.b=Math.max(0,s.b-1);s.ws=0}s.due=round()}
- else s.due=round()+1;
+ if(res==='right'){s.b=Math.min(s.b+1,6);s.ws=0;s.due=round()+1+GAP[s.b];s.lr='r'}
+ else if(res==='wrong'){s.w++;s.ws=(s.ws||0)+1;if(s.ws>=3){s.b=Math.max(0,s.b-1);s.ws=0}s.due=round();s.lr='w'}
+ else{s.due=round()+1;s.lr='w'}
  S[id]=s;S._d={d:dayKey(),n:todayCount()+1};save()}
 const dueNow=it=>S[it.id]&&(S[it.id].due??0)<=round();
 function wsample(items,n){const pool=items.map(it=>({it,w:weight(it.id)}));const out=[];
@@ -645,27 +654,35 @@ let sess=null;
 function today(){if(!S._t||S._t.d!==dayKey()){S._t={d:dayKey(),u0:ORDER.filter(it=>!S[it.id]).length,r:0};save()}return S._t}
 const GROUP_COST=k=>Math.ceil(k*0.6);
 function slotsFor(list){const gs=new Set();let n=0;list.forEach(it=>{if(it.group)gs.add(it.group);else n++});gs.forEach(g=>n+=GROUP_COST(list.filter(x=>x.group===g).length));return n}
-function plan(pool){
- const ord=ORDER.filter(it=>pool.includes(it));
- const seen=ord.filter(it=>S[it.id]),unseen=ord.filter(it=>!S[it.id]);
- const shaky=seen.filter(it=>S[it.id].b===0||(S[it.id].b<2&&dueNow(it))).length,p=pace();
- const budget=shaky<p*2?p:shaky<p*3?Math.ceil(p/2):0,maxG=p>=12?2:1;
- const fresh=[],taken=new Set();let used=0,groups=0;
+/* which pile a term is in: new, fix (last written answer wrong, or never written yet), rev (last written answer right) */
+function pile(id){const t=S[id];if(!t)return 'new';if(t.lr)return t.lr==='r'?'rev':'fix';return t.w>0&&t.b<2?'fix':t.b>=2?'rev':'fix'}
+function piles(pool){const ord=ORDER.filter(it=>pool.includes(it));
+ return{unseen:ord.filter(it=>!S[it.id]),fix:ord.filter(it=>S[it.id]&&pile(it.id)==='fix'),rev:ord.filter(it=>S[it.id]&&pile(it.id)==='rev')}}
+/* new terms are cut first when things go badly: a weak last round, or a pile of mistakes */
+function newBudget(P){const M=mix(),acc=S._acc;let n=M.n,why=null;
+ if(acc&&acc.n>=8&&acc.ok/acc.n<0.5){n=Math.floor(M.n/2);why=`last round ${acc.ok}/${acc.n} right`}
+ if(acc&&acc.n>=8&&acc.ok/acc.n<0.3)n=Math.min(n,2);
+ if(P.fix.length>3*Math.max(M.m,4)){n=Math.min(n,Math.floor(M.n/2));why=why||`${P.fix.length} terms waiting to be fixed`}
+ return{n,why}}
+function pickNew(unseen,budget){const fresh=[],taken=new Set();let used=0,groups=0;const maxG=budget>=12?2:1;
  for(const it of unseen){if(used>=budget)break;if(taken.has(it))continue;
   if(it.group){if(groups>=maxG)continue;const mem=unseen.filter(x=>x.group===it.group),cost=GROUP_COST(mem.length);
    if(used+cost>budget&&used>0)continue;mem.forEach(x=>{taken.add(x);fresh.push(x)});used+=cost;groups++}
   else{taken.add(it);fresh.push(it);used++}}
- return{seen,unseen,due:seen.filter(dueNow),nNew:fresh.length,fresh}}
-const revCount=(P,n)=>Math.min(P.due.length,Math.max(n-P.nNew*2,5));
-function buildQueue(pool,n){
- const P=plan(pool);
- let rev=wsample(P.due,revCount(P,n));
- if(!rev.length&&!P.fresh.length)rev=P.seen.slice().sort((a,b)=>(S[a.id].due??0)-(S[b.id].due??0)).slice(0,n);
- const q=shuffle(rev).map(it=>({it,retry:false}));
- const firsts=P.fresh.filter((it,k)=>!it.group||P.fresh.findIndex(x=>x.group===it.group)===k);
- firsts.forEach((it,k)=>q.splice(Math.min(q.length,k*2),0,{it,retry:false}));
- return q;
-}
+ return{fresh,used}}
+function planRound(pool){const P=piles(pool),M=mix(),B=newBudget(P),{fresh,used}=pickNew(P.unseen,B.n);
+ let free=M.n-used,nFix=Math.min(P.fix.length,M.m+free),nRev=Math.min(P.rev.length,M.c);
+ const spare=(M.m+free-nFix)+(M.c-nRev);if(spare>0){const addRev=Math.min(P.rev.length-nRev,spare);nRev+=addRev;nFix=Math.min(P.fix.length,nFix+spare-addRev)}
+ const fix=shuffle(P.fix).slice(0,nFix);
+ const rev=P.rev.slice().sort((a,b)=>((S[a.id].due??0)-(S[b.id].due??0))||Math.random()-.5).slice(0,nRev);
+ return{...P,fresh,fixSel:fix,revSel:rev,why:used<M.n&&B.why?B.why:null,cut:B.n<M.n}}
+const warm=it=>S[it.id]&&S[it.id].b===0;
+function buildRound(pool){const R0=planRound(pool);
+ const rest=shuffle([...R0.fixSel.map(it=>({it,st:warm(it)?'pick':'write',slot:'fix'})),...R0.revSel.map(it=>({it,st:'write',slot:'rev'}))]);
+ const firsts=R0.fresh.filter((it,k)=>!it.group||R0.fresh.findIndex(x=>x.group===it.group)===k);
+ firsts.forEach((it,k)=>rest.splice(Math.min(rest.length,k*2),0,{it,st:'intro',slot:'new'}));
+ return{queue:rest,info:R0}}
+const GROUP_COST_NOTE='a card of k terms counts as 60% of k';
 function currentStage(){const it=ORDER.find(it=>!S[it.id]||S[it.id].b<2);return it?it.stage:STAGES.length-1}
 const hintOf=q=>{const a=q.accept?q.accept[0]:(q.mcAnswer||q.answer);const w=a.replace(/[.!?]$/,'').split(' ');
  return w.length>2?w.slice(0,Math.ceil(w.length/2)).join(' ')+' …':w.length===2?w[0]+' …':a.slice(0,Math.max(1,Math.ceil(a.length/2)))+'…'};
@@ -674,7 +691,7 @@ function home(){
  view='home';sess=null;nav.hidden=false;app.className='app';setTab('home');
  const m=mastery(ITEMS),g=gradeOf(m),weak=weakItems(),cs=currentStage(),st=STAGES[cs];
  const known=ITEMS.filter(it=>isKnown(it.id)).length,started=ITEMS.filter(it=>S[it.id]).length;
- const P=plan(ITEMS),rl=Math.ceil(slotsFor(P.unseen)/pace()),dl=daysLeft(),perDay=dl>0?Math.ceil(rl/dl):rl;
+ const P=planRound(ITEMS),M=mix(),total=M.n+M.m+M.c,rl=Math.ceil(slotsFor(P.unseen)/pace()),dl=daysLeft(),perDay=dl>0?Math.ceil(rl/dl):rl;
  /* f = day a term was first met; terms from before day-tracking existed were all met on 22.10, the app's first day */
  const T=today(),met=ITEMS.filter(it=>S[it.id]&&(S[it.id].f||'2026-10-22')===dayKey()).length,u0=P.unseen.length+met;
  const goal=dl>0?Math.ceil(u0/dl):u0,left=Math.max(0,goal-met);
@@ -694,14 +711,17 @@ function home(){
   <div class="stats">
    <div class="stat gw gw-plain" data-g="${ig(P.unseen.length?`${P.unseen.length} new terms still to meet`:'Every term met','At your current pace'+(dl>0?`: about ${perDay} rounds a day until Monday`:''),'')}"><b>${P.unseen.length?'≈'+rl:'0'}</b><span>rounds left</span></div>
    <div class="stat gw gw-plain" data-g="${ig(`${met} of ${goal} new terms met today`,`${T.r} round${T.r===1?'':'s'} done today`,goal===0?'Nothing new left: keep reviews at zero and do a mock test.':onTrack?'Today is done. More rounds are a head start for tomorrow.':`${left} more to stay on track: about ${rToGo} round${rToGo>1?'s':''}.`)}"><b>${met}<small>/${goal}</small></b><span>new today</span></div>
-   <div class="stat gw gw-plain" data-g="${ig(`${P.due.length} term${P.due.length===1?'':'s'} due for review`,'Terms you get right sit out 1, 2, 4, 7… rounds, longer each time','A mistake brings a term straight back.')}"><b>${P.due.length}</b><span>due now</span></div>
+   <div class="stat gw gw-plain" data-g="${ig(`${P.fix.length} term${P.fix.length===1?'':'s'} to fix`,'Your last written answer was wrong, or you have not written them yet','Each round takes some at random. A term only drops a level after 3 wrong in a row.')}"><b>${P.fix.length}</b><span>to fix</span></div>
   </div>
   <div class="trow"><div class="meter tm"><i style="width:${tpct}%"></i></div><span class="pill ${onTrack?'ok':'behind'}">${onTrack?'On track today':`${rToGo} round${rToGo>1?'s':''} to go today`}</span></div>
-  <div class="seg" role="group" aria-label="New terms per round"><span>New per round</span>${[3,5,8,12].map(v=>`<button data-p="${v}" aria-pressed="${pace()===v}">${v}</button>`).join('')}</div>
+  <div class="mix" role="group" aria-label="Round mix">
+   <span class="mixl gw gw-plain" data-g="${ig(`Round mix · ${total} written answers`,'Only a written answer counts; see and pick are warm-ups','New terms are cut first when a round goes badly or mistakes pile up. A card of k terms counts as 60% of k.')}">Round mix</span>
+   ${[['n','new'],['m','to fix'],['c','review']].map(([k,l])=>`<span class="stp"><button data-k="${k}" data-d="-1" aria-label="fewer ${l}">−</button><b>${M[k]}</b><button data-k="${k}" data-d="1" aria-label="more ${l}">+</button><small>${l}</small></span>`).join('')}
+  </div>
  </section>
- <button class="cta" id="go-learn"><span>${started?'Ucz się dalej':'Zaczynamy'}</span><small>Round ${round()+1} · ${P.fresh.length} new, ${revCount(P,15)} to review</small></button>
+ <button class="cta" id="go-learn"><span>${started?'Ucz się dalej':'Zaczynamy'}</span><small>Round ${round()+1} · ${P.fresh.length} new · ${P.fixSel.length} to fix · ${P.revSel.length} review${P.why?`<br>New lowered: ${esc(P.why)}`:''}</small></button>
  <button class="cta2" id="go-test" style="border-color:var(--blue);color:var(--blue);background:var(--blue-soft)">Próbny test · mock test: 20 written questions from everything, no hints</button>
- ${weak.length?`<button class="cta2" id="go-weak">Popraw błędy · fix ${Math.min(weak.length,20)} recent mistakes</button>`:''}
+ ${P.fix.length?`<button class="cta2" id="go-weak">Popraw błędy · only mistakes: ${Math.min(P.fix.length,total)} to fix</button>`:''}
  <h2 class="sec">Działy · practise one topic</h2>
  <div class="decks">${Object.entries(DECKS).map(([k,d])=>{const its=ITEMS.filter(i=>i.deck===k),dm=Math.round(mastery(its)*100);
    return `<button class="deck" data-deck="${k}"><span class="dn">${d.pl}</span><span class="dp">${dm}%</span><span class="de">${d.en}</span><span class="meter"><i style="width:${dm}%"></i></span></button>`}).join('')}</div>
@@ -711,16 +731,17 @@ function home(){
  </div>
  <p class="note" id="sync"></p>`;
  updSync();
- $('#go-learn').onclick=()=>start(buildQueue(ITEMS,15),'Nauka',false);
- $('#go-test').onclick=()=>start(wsample(ITEMS,20).map(it=>({it,retry:false})),'Próbny test',true);
- if(weak.length)$('#go-weak').onclick=()=>start(shuffle(weak).slice(0,20).map(it=>({it,retry:false})),'Popraw błędy',false);
- app.querySelectorAll('.deck').forEach(b=>b.onclick=()=>start(buildQueue(ITEMS.filter(i=>i.deck===b.dataset.deck),15),DECKS[b.dataset.deck].pl,false));
+ $('#go-learn').onclick=()=>{const r=buildRound(ITEMS);start(r.queue,'Nauka',false)};
+ $('#go-test').onclick=()=>start(wsample(ITEMS.filter(it=>S[it.id]).length>=20?ITEMS.filter(it=>S[it.id]):ITEMS,20).map(it=>({it,st:'write'})),'Próbny test',true);
+ if(P.fix.length)$('#go-weak').onclick=()=>start(shuffle(P.fix).slice(0,total).map(it=>({it,st:warm(it)?'pick':'write',slot:'fix'})),'Popraw błędy',false);
+ app.querySelectorAll('.deck').forEach(b=>b.onclick=()=>{const r=buildRound(ITEMS.filter(i=>i.deck===b.dataset.deck));start(r.queue,DECKS[b.dataset.deck].pl,false)});
  const a=$('#aud');if(a)a.onchange=()=>{autoAudio=a.checked;try{localStorage.setItem('pl-test1-audio',a.checked?'1':'0')}catch(e){}};
- app.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{S._p=+b.dataset.p;save();home()});
+ app.querySelectorAll('.stp button').forEach(b=>b.onclick=()=>{const M=mix(),k=b.dataset.k;M[k]=Math.max(0,Math.min(20,M[k]+ +b.dataset.d));if(M.n+M.m+M.c>0){S._mix=M;save()}home()});
  const r=$('#reset');r.onclick=()=>{if(r.classList.contains('armed')){S={};save();home()}else{r.classList.add('armed');r.textContent='Tap again to erase all progress'}};
 }
 
-function start(queue,title,test){sess={title,test,queue,i:0,log:[],fresh:0,stage0:currentStage()};nav.hidden=true;app.className='app quiz';ask()}
+function start(queue,title,test){sess={title,test,queue,i:0,log:[],fresh:0,stage0:currentStage()};
+ const put=(e,off)=>sess.queue.splice(Math.min(sess.queue.length,sess.i+off),0,e);sess.put=put;nav.hidden=true;app.className='app quiz';ask()}
 
 function promptHTML(q,fill,g){const f=g?gl:esc;let p=f(q.prompt);p=fill!=null?p.replace('___',`<b class="fill">${f(fill)}</b>`):p.replace('___','<span class="blank"></span>');return `<h2 class="prompt${q.big?' big':''}">${p}</h2>`}
 const topBar=(cur)=>`<div class="qtop"><button class="qx" id="qx" aria-label="Stop and go home">✕</button><div class="bar"><i style="width:${Math.round(sess.i/sess.queue.length*100)}%"></i></div><span class="count">${sess.i+1}/${sess.queue.length}</span></div>`;
@@ -758,9 +779,9 @@ function showBlock(cur,name){
  const mark=(bx,due)=>{S._bk={...(S._bk||{}),[name]:1};let n=0;mem.forEach(it=>{if(!S[it.id]){S[it.id]={b:bx,n:0,w:0,due,f:dayKey()};n++}});sess.fresh+=n;save()};
  $('#got').onclick=()=>{mark(0,round());
   if(isMem){const fresh=shuffle(mem.filter(it=>S[it.id]&&S[it.id].n===0));
-   fresh.forEach((it,k)=>sess.queue.splice(Math.min(sess.queue.length,sess.i+2+k*2),0,{it,retry:false}));next()}
+   fresh.forEach((it,k)=>sess.put({it,st:'pick',slot:'new'},2+k*2));next()}
   else ask()};
- const kb=$('#knowit');if(kb)kb.onclick=()=>{mark(1,round()+2);if(isMem)next();else ask()};
+ const kb=$('#knowit');if(kb)kb.onclick=()=>{mark(1,round()+2);if(isMem){mem.filter(it=>S[it.id].n===0).forEach((it,k)=>sess.put({it,st:'write',slot:'new'},2+k*2));next()}else ask()};
  $('#got').focus({preventScroll:true});
 }
 function showTable(cur,q,level){
@@ -792,11 +813,14 @@ function showTable(cur,q,level){
 function ask(){
  if(sess.i>=sess.queue.length)return results();
  const cur=sess.queue[sess.i],q=cur.it.make();cur.q=q;const b=box(cur.it.id);
- if(!sess.test&&cur.it.block&&b<0&&!blockSeen(cur.it.block))return showBlock(cur,cur.it.block);
- if(q.table){q.kind='table';return showTable(cur,q,sess.test?'':'<span class="tag">write</span>')}
- q.kind=!sess.test&&b<0?'intro':!sess.test&&b<1&&q.options?'mc':q.reveal?'reveal':'type';
+ if(!cur.st)cur.st=sess.test?'write':b<0?'intro':b<1&&q.options?'pick':'write';
+ if(sess.test)cur.st='write';
+ if(cur.st==='intro'&&b>=0)cur.st=b<1&&q.options?'pick':'write';
+ if(cur.st==='pick'&&!q.options)cur.st='write';
+ if(cur.st==='intro'&&cur.it.block&&!blockSeen(cur.it.block))return showBlock(cur,cur.it.block);
+ q.kind=cur.st==='intro'?'intro':cur.st==='pick'?'mc':q.reveal?'reveal':'type';
  const canHint=!sess.test&&q.kind==='type';let usedHint=false;
- const level=sess.test?'':q.kind==='intro'?'<span class="tag">nowe</span>':q.kind==='mc'?'<span class="tag">pick</span>':q.kind==='type'?'<span class="tag">write</span>':'';
+ const level=sess.test?'':q.kind==='intro'?'<span class="tag">nowe</span>':q.kind==='mc'?'<span class="tag">warm-up</span>':q.kind==='type'?'<span class="tag">write · counts</span>':'';
 
  if(q.kind==='intro'){
   const inBlank=q.prompt.includes('___');
@@ -811,9 +835,8 @@ function ask(){
   <div class="two"><button class="check" id="got">Mam! · Got it</button><button class="next" id="knowit" style="background:var(--blue-soft);color:var(--blue)">I know this · test me later</button></div>`;
   $('#qx').onclick=home;
   if(autoAudio)say(q.sayAns);
-  $('#knowit').onclick=()=>{S[cur.it.id]={b:1,n:0,w:0,due:round()+2,f:dayKey()};save();sess.fresh++;next()};
-  $('#got').onclick=()=>{S[cur.it.id]={b:0,n:0,w:0,due:round(),f:dayKey()};save();sess.fresh++;
-   sess.queue.splice(Math.min(sess.queue.length,sess.i+4),0,{it:cur.it,retry:false});next()};
+  $('#knowit').onclick=()=>{S[cur.it.id]={b:1,n:0,w:0,due:round()+2,f:dayKey()};save();sess.fresh++;sess.put({it:cur.it,st:'write',slot:'new'},3);next()};
+  $('#got').onclick=()=>{S[cur.it.id]={b:0,n:0,w:0,due:round(),f:dayKey()};save();sess.fresh++;sess.put({it:cur.it,st:'pick',slot:'new'},3);next()};
   $('#got').focus({preventScroll:true});
   return;
  }
@@ -852,8 +875,12 @@ const MARKS={hint:['Dobrze, z podpowiedzią.'],right:['Dobrze!','Bardzo dobrze!'
 function finish(res,given,msg,quick){
  const cur=sess.queue[sess.i],q=cur.q,id=cur.it.id;
  const prev=S[id]?{...S[id]}:null,prevDay=S._d?{...S._d}:null;
- record(id,res);const entry={it:cur.it,q,res,given,retry:cur.retry};sess.log.push(entry);
- let requeued=false;if(res==='wrong'&&!cur.retry){sess.queue.push({it:cur.it,retry:true});requeued=true}
+ const warmup=q.kind==='mc'&&!sess.test,counts=!warmup&&!cur.retry;
+ if(counts)record(id,res);else{S._d={d:dayKey(),n:todayCount()+1};save()}
+ const entry={it:cur.it,q,res,given,retry:cur.retry,counts,slot:cur.slot};sess.log.push(entry);
+ let requeued=false;
+ if(warmup){if(res!=='right'&&!cur.again){sess.put({it:cur.it,st:'pick',slot:cur.slot,again:1},2);sess.put({it:cur.it,st:'write',slot:cur.slot},5)}else sess.put({it:cur.it,st:'write',slot:cur.slot},3)}
+ else if(res!=='right'&&!cur.retry){sess.queue.push({it:cur.it,st:'write',retry:true,slot:cur.slot});requeued=true}
  if(quick)return next();
  let shown=q.kind==='mc'?(q.mcAnswer||q.answer):q.answer;
  if(q.open&&res==='right')shown=given;else if(q.open&&q.kind==='mc'){const vo=q.options.find(o=>q.valid.includes(o));if(vo)shown=vo}
@@ -873,13 +900,13 @@ function finish(res,given,msg,quick){
   ${q.also?`<p class="note"><b>Also correct:</b> ${gl(q.also)}</p>`:''}
   ${res==='hint'?'<p class="note">Write it once without the hint and it counts as known.</p>':''}
   ${res==='accent'?'<p class="note">The ogonki (ą ę ł ó ś ż…) count on the test, so this one stays on your list.</p>':''}
-  ${res==='wrong'&&q.kind==='type'?'<button class="ghost ov" id="ov">My answer was correct too</button>':''}
-  ${res==='right'&&!sess.test?`<button class="ghost ov" id="easy">${q.kind==='mc'&&!q.reveal?'Too easy · let me write it':'Too easy · push it further back'}</button>`:''}
+  ${res==='wrong'&&q.kind==='type'&&counts?'<button class="ghost ov" id="ov">My answer was correct too</button>':''}
+  ${warmup?'<p class="note">Warm-up: you write it later this round, and that answer counts.</p>':''}
+  ${res==='right'&&counts&&!sess.test?'<button class="ghost ov" id="easy">Too easy · push it further back</button>':''}
   <button class="next" id="nx">Dalej →</button></div>`;
  $('#nx').onclick=next;
  const dr=$('#drill');if(dr)dr.onclick=()=>drill(tgt,q);
  const ez=$('#easy');if(ez)ez.onclick=()=>{
-  if(q.kind==='mc'&&!q.reveal){sess.queue.splice(Math.min(sess.queue.length,sess.i+3),0,{it:cur.it,retry:false});next();return}
   const t=S[id];t.b=Math.min(t.b+1,6);t.due=round()+1+GAP[t.b];save();next()};
  const ov=$('#ov');if(ov)ov.onclick=()=>{if(prev)S[id]=prev;else delete S[id];if(prevDay)S._d=prevDay;record(id,'right');entry.res='right';if(requeued)sess.queue.pop();next()};
  if(q.kind!=='type')$('#nx').focus({preventScroll:true});
@@ -913,21 +940,21 @@ function drill(t,q){let n=0;const fb=$('#fb');
 }
 
 function results(){
- if(!sess.counted){sess.counted=1;S._r=round()+1;today().r++;save()}
- const first=sess.log.filter(l=>!l.retry),ok=first.filter(l=>l.res==='right').length;
+ const first=sess.log.filter(l=>l.counts),ok=first.filter(l=>l.res==='right').length;
+ if(!sess.counted){sess.counted=1;S._r=round()+1;today().r++;if(!sess.test&&first.length)S._acc={ok,n:first.length};save()}
  const missed=[];first.forEach(l=>{if(l.res!=='right'&&!missed.find(m=>m.it===l.it))missed.push(l)});
  const cs=currentStage(),up=cs>sess.stage0;
  app.innerHTML=`
  <header class="row"><p class="eyebrow">${esc(sess.title)} · round ${round()} done</p>
-  <p class="score">${ok}<small> / ${first.length} right first time</small></p>
-  <p class="lede">${sess.fresh?`${sess.fresh} new term${sess.fresh>1?'s':''} this round. `:''}${up?`<b>Next stage unlocked: ${esc(STAGES[cs].n)}.</b> `:''}${missed.length?'Missed questions came back once at the end. Here they are again:':'Clean round.'}</p></header>
+  <p class="score">${ok}<small> / ${first.length} written right</small></p>
+  <p class="lede">${sess.fresh?`${sess.fresh} new term${sess.fresh>1?'s':''} this round. `:''}${!sess.test&&first.length&&ok/first.length<0.5?'Next round brings fewer new terms, so you can fix these first. ':''}${up?`<b>Next stage unlocked: ${esc(STAGES[cs].n)}.</b> `:''}${missed.length?'Missed questions came back once at the end. Here they are again:':'Clean round.'}</p></header>
  ${missed.length?`<div class="miss"><ul>${missed.map(l=>`<li><p class="q">${(l.q.say||l.q.prompt.includes('___')?gl:esc)(l.q.prompt.replace('___','…'))}${l.q.sub?' · '+esc(l.q.sub):''}</p><p class="a">${l.q.table?l.q.rows.map(r=>`${esc(r.label)}: ${gl(r.answer)}`).join(' · '):l.q.reveal?esc(l.q.answer):gl(l.q.answer)}</p></li>`).join('')}</ul></div>`:''}
  <div class="row">
-  <button class="cta" id="more"><span>${sess.test?'Ucz się dalej':'Następna runda'}</span><small>${sess.test?'Back to the learning path':'Next round · about 15 steps'}</small></button>
+  <button class="cta" id="more"><span>${sess.test?'Ucz się dalej':'Następna runda'}</span><small>${sess.test?'Back to the learning path':`Next round · ${mix().n+mix().m+mix().c} written answers`}</small></button>
   ${missed.length?'<button class="cta2" id="again">Again: just the ones I missed</button>':''}
   <button class="ghost" id="hm">Back to overview</button></div>`;
- if(missed.length)$('#again').onclick=()=>start(shuffle(missed.map(m=>({it:m.it,retry:false}))),'Powtórka',sess.test);
- $('#more').onclick=()=>start(buildQueue(ITEMS,15),'Nauka',false);
+ if(missed.length)$('#again').onclick=()=>start(shuffle(missed.map(m=>({it:m.it,st:'write'}))),'Powtórka',sess.test);
+ $('#more').onclick=()=>{const r=buildRound(ITEMS);start(r.queue,'Nauka',false)};
  $('#hm').onclick=home;
 }
 
@@ -973,7 +1000,7 @@ function sheet(){
 document.addEventListener('click',e=>{const b=e.target.closest('[data-say]');if(b&&!e.target.closest('.gw'))say(b.dataset.say)});
 $('#t-home').onclick=home;$('#t-sheet').onclick=sheet;
 /* progress carried over from the Claude version: merged once per seed, the more-practised copy of each term wins */
-const SEED={"_bk": {"pron:sg": 1}, "_d": {"d": "2026-10-23", "n": 13}, "_p": 8, "_r": 4, "_t": {"d": "2026-10-23", "r": 1, "u0": 186}, "cl:13": {"b": 2, "due": 5, "n": 5, "w": 1}, "cl:14": {"b": 3, "due": 6, "n": 3, "w": 0}, "cl:15": {"b": 2, "due": 3, "n": 5, "w": 1}, "cl:16": {"b": 3, "due": 5, "n": 3, "w": 0}, "cl:17": {"b": 1, "due": 3, "n": 4, "w": 1}, "cl:18": {"b": 2, "due": 3, "n": 2, "w": 0}, "cl:19": {"b": 1, "due": 3, "n": 3, "w": 1}, "cl:20": {"b": 2, "due": 4, "n": 2, "w": 0}, "cl:21": {"b": 2, "due": 5, "n": 4, "w": 1}, "n:0": {"b": 2, "due": 6, "n": 2, "w": 0}, "n:1": {"b": 1, "due": 3, "n": 1, "w": 0}, "n:10": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:2": {"b": 1, "due": 3, "n": 1, "w": 0}, "n:3": {"b": 0, "due": 3, "n": 2, "w": 1}, "n:4": {"b": 1, "due": 5, "f": "2026-10-22", "n": 3, "w": 1}, "n:5": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:6": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:7": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:8": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:9": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pn:ja": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:on": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ona": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ono": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ty": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pr:0": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:1": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:2": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:3": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:4": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:5": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:6": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "pr:7": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "pr:8": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:gdzie:ans": {"b": 4, "due": 9, "n": 4, "w": 0}, "qa:imie:ans": {"b": 2, "due": 4, "n": 2, "w": 0}, "qa:imie:en": {"b": 2, "due": 6, "n": 2, "w": 0}, "qa:ma:ans": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:ma:en": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:milo": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "qa:nazwisko:ans": {"b": 2, "due": 5, "n": 2, "w": 0}, "qa:nazwisko:en": {"b": 1, "due": 2, "n": 7, "w": 2}, "qa:nazywa:ans": {"b": 1, "due": 2, "n": 1, "w": 0}, "qa:nazywa:en": {"b": 1, "due": 5, "n": 3, "w": 1}, "qa:skad:ans": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:skad:en": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:slychac": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "v:być:0": {"b": 2, "due": 5, "n": 2, "w": 0}, "v:być:1": {"b": 1, "due": 2, "n": 1, "w": 0}, "v:być:2": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:3": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:4": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:5": {"b": 2, "due": 6, "n": 2, "w": 0}, "w:4": {"b": 1, "due": 2, "n": 1, "w": 0}, "w:5": {"b": 2, "due": 5, "n": 2, "w": 0}},SEED_ID='1792761008';
+const SEED={"_bk": {"pron:sg": 1}, "_d": {"d": "2026-10-23", "n": 13}, "_p": 8, "_r": 4, "_t": {"d": "2026-10-23", "r": 1, "u0": 186}, "cl:13": {"b": 2, "due": 5, "n": 5, "w": 1}, "cl:14": {"b": 3, "due": 6, "n": 3, "w": 0}, "cl:15": {"b": 2, "due": 3, "n": 5, "w": 1}, "cl:16": {"b": 3, "due": 5, "n": 3, "w": 0}, "cl:17": {"b": 1, "due": 3, "n": 4, "w": 1}, "cl:18": {"b": 2, "due": 3, "n": 2, "w": 0}, "cl:19": {"b": 1, "due": 3, "n": 3, "w": 1}, "cl:20": {"b": 2, "due": 4, "n": 2, "w": 0}, "cl:21": {"b": 2, "due": 5, "n": 4, "w": 1}, "n:0": {"b": 2, "due": 6, "n": 2, "w": 0}, "n:1": {"b": 1, "due": 3, "n": 1, "w": 0}, "n:10": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:2": {"b": 1, "due": 3, "n": 1, "w": 0}, "n:3": {"b": 0, "due": 3, "n": 2, "w": 1}, "n:4": {"b": 1, "due": 5, "f": "2026-10-22", "n": 3, "w": 1}, "n:5": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:6": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:7": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:8": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:9": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pn:ja": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:on": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ona": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ono": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ty": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pr:0": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:1": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:2": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:3": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:4": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:5": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:6": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "pr:7": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "pr:8": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:gdzie:ans": {"b": 4, "due": 9, "n": 4, "w": 0}, "qa:imie:ans": {"b": 2, "due": 4, "n": 2, "w": 0}, "qa:imie:en": {"b": 2, "due": 6, "n": 2, "w": 0}, "qa:ma:ans": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:ma:en": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:milo": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "qa:nazwisko:ans": {"b": 2, "due": 5, "n": 2, "w": 0}, "qa:nazwisko:en": {"b": 1, "due": 2, "n": 7, "w": 2}, "qa:nazywa:ans": {"b": 1, "due": 2, "n": 1, "w": 0}, "qa:nazywa:en": {"b": 1, "due": 5, "n": 3, "w": 1}, "qa:skad:ans": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:skad:en": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:slychac": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "v:być:0": {"b": 2, "due": 5, "n": 2, "w": 0}, "v:być:1": {"b": 1, "due": 2, "n": 1, "w": 0}, "v:być:2": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:3": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:4": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:5": {"b": 2, "due": 6, "n": 2, "w": 0}, "w:4": {"b": 1, "due": 2, "n": 1, "w": 0}, "w:5": {"b": 2, "due": 5, "n": 2, "w": 0}},SEED_ID='1792761363';
 if(S._seed!==SEED_ID){S=Object.keys(S).length?mergeS(S,SEED):JSON.parse(JSON.stringify(SEED));S._seed=SEED_ID;saveLocal()}
 home();
 </script>
