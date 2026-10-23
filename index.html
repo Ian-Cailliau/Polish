@@ -166,13 +166,17 @@ td.say:active{opacity:.6}
 
 .gw{border-bottom:1.5px dotted currentColor;cursor:help;border-radius:3px}
 .gw.on{background:var(--blue-soft)}
-#tip{position:fixed;z-index:30;max-width:min(280px,calc(100vw - 32px));background:var(--ink);color:var(--paper);font-family:var(--f-body);font-size:14.5px;font-weight:600;line-height:1.3;padding:7px 11px;border-radius:9px;pointer-events:none;box-shadow:0 6px 18px rgba(0,0,0,.2)}
+#tip{position:fixed;z-index:30;display:flex;flex-direction:column;gap:3px;max-width:min(300px,calc(100vw - 32px));background:var(--ink);color:var(--paper);font-family:var(--f-body);font-size:14.5px;font-weight:600;line-height:1.3;padding:7px 11px;border-radius:9px;pointer-events:none;box-shadow:0 6px 18px rgba(0,0,0,.2)}
 
 .pill{font-size:13px;font-weight:700;border-radius:999px;padding:3px 10px;flex:none}
 .pill.ok{background:var(--ok-soft);color:var(--ok)}
 .pill.behind{background:var(--pen-soft);color:var(--pen)}
 .meter.tm{height:10px;margin-top:0;border-radius:5px}
 .today .tline{font-size:15.5px;font-variant-numeric:tabular-nums}
+
+#tip b{font-size:15.5px}
+#tip .tf{font-weight:600;opacity:.8;font-size:13.5px}
+#tip .ty{font-weight:400;opacity:.92;font-size:13.5px}
 
 /* nav */
 .nav{position:fixed;left:0;right:0;bottom:0;z-index:5;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;justify-content:center;gap:8px}
@@ -389,52 +393,153 @@ const SPK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-wid
 const spkBtn=t=>canSpeak&&t?`<button class="spk" data-say="${esc(t)}" aria-label="Play audio">${SPK}</button>`:'';
 let autoAudio=true;try{autoAudio=localStorage.getItem('pl-test1-audio')!=='0'}catch(e){}
 
-/* ---------- word glosses (tap or hover a Polish word on teaching screens) ---------- */
+/* ---------- word glosses (tap or hover a Polish word on teaching screens) ----------
+   Each entry: "meaning | which form of which word | why this form here" (later parts optional). */
 const GL={
-'ja':'I','ty':'you (one friend)','on':'he','ona':'she','ono':'it','my':'we','wy':'you (several people)',
-'oni':'they (men, or a mixed group)','one':'they (only women, children or things)',
-'pan':'you (formal, to a man) · Mr','pani':'you (formal, to a woman) · Mrs / Ms','państwo':'you (formal, a mixed group) · Mr and Mrs',
-'panowie':'gentlemen · you (formal, several men)','panie':'ladies · you (formal, several women)',
-'być':'to be','jestem':'I am','jesteś':'you are','jest':'is (he / she / it is)','jesteśmy':'we are','jesteście':'you (all) are','są':'they are',
-'mieć':'to have','mam':'I have','masz':'you have','ma':'has (he / she has)','mamy':'we have','macie':'you (all) have','mają':'they have',
-'mieszkać':'to live','mieszkam':'I live','mieszkasz':'you live','mieszka':'lives (he / she lives)','mieszkamy':'we live','mieszkacie':'you (all) live','mieszkają':'they live',
-'nazywać':'to call · nazywać się = to be called','nazywam':'nazywam się = my name is','nazywasz':'nazywasz się = you are called','nazywa':'nazywa się = he / she is called','nazywamy':'nazywamy się = we are called','nazywacie':'nazywacie się = you (all) are called','nazywają':'nazywają się = they are called',
-'się':'oneself (makes the verb reflexive)',
-'czytać':'to read','czytam':'I read','czytasz':'you read','czyta':'reads','czytamy':'we read','czytacie':'you (all) read','czytają':'they read',
-'pytać':'to ask','pytam':'I ask','pytasz':'you ask','pyta':'asks','pytamy':'we ask','pytacie':'you (all) ask','pytają':'they ask',
-'przepraszać':'to apologise','przepraszam':'sorry · excuse me','przepraszasz':'you apologise','przeprasza':'apologises','przepraszamy':'we apologise','przepraszacie':'you (all) apologise','przepraszają':'they apologise',
-'jak':'how','jaki':'what · which','skąd':'where from','gdzie':'where','co':'what','kto':'who','ile':'how much · how many','czy':'turns a sentence into a yes/no question',
-'na':'on · mam na imię = my first name is','imię':'first name','nazwisko':'surname','adres':'address','numer':'number','telefonu':'of the phone · numer telefonu = phone number','telefon':'phone',
-'z':'from','ze':'from (before some consonant clusters)','w':'in','we':'in (before some consonant clusters)','i':'and','to':'this · it','nie':'not · no','tak':'yes',
-'dobrze':'well · fine','świetnie':'great','dziękuję':'thank you','wszystko':'everything','porządku':'order · w porządku = fine, OK','słychać':'(can be) heard · co słychać? = how is it going?',
-'miło':'nice · pleasant','mi':'to me · miło mi = nice to meet you','bardzo':'very',
-'dzień':'day','dobry':'good','do':'to · until','widzenia':'seeing · do widzenia = goodbye','cześć':'hi · bye (informal)','dobranoc':'good night',
-'proszę':'please · here you are','rozumiem':'I understand','wiem':'I know','znaczy':'means','po':'po polsku = in Polish','polsku':'po polsku = in Polish','niderlandzku':'po niderlandzku = in Dutch',
-'mówić':'to speak','wolniej':'more slowly','napisać':'to write (down)','przeczytać':'to read (out)','powtórzyć':'to repeat','przeliterować':'to spell',
-'pytanie':'question','toaleta':'toilet','sekretariat':'office · secretariat','odpowiedź':'answer','kontakt':'contact','oficjalny':'formal','nieoficjalny':'informal',
-'ulica':'street','ul':'street (short for ulica)','aleja':'avenue','al':'avenue (short for aleja)','osiedle':'housing estate','os':'housing estate (short for osiedle)','plac':'square','pl':'square (short for plac)',
-'kraj':'country','prosta':'Prosta (a street name: “Straight”)','mickiewicza':'Mickiewicz (street named after the poet)','miasto':'city · town',
-'belgia':'Belgium','belgii':'Belgium · z Belgii = from Belgium','niemcy':'Germany (also: Germans)','niemiec':'Germany · z Niemiec = from Germany',
-'anglia':'England','anglii':'England · z Anglii = from England','francja':'France','francji':'France · z Francji = from France',
-'włochy':'Italy','włoch':'Italy · z Włoch = from Italy','japonia':'Japan','japonii':'Japan · z Japonii = from Japan',
-'holandia':'the Netherlands','holandii':'the Netherlands · z Holandii = from the Netherlands','polska':'Poland','polski':'Poland · z Polski = from Poland (also: Polish)',
-'rosja':'Russia','rosji':'Russia · z Rosji = from Russia','hiszpania':'Spain','hiszpanii':'Spain · z Hiszpanii = from Spain',
-'ameryka':'America','ameryki':'America · z Ameryki = from America','stany':'states','zjednoczone':'united','stanów':'states · ze Stanów Zjednoczonych = from the USA','zjednoczonych':'united · ze Stanów Zjednoczonych = from the USA',
-'flandria':'Flanders','flandrii':'Flanders · z Flandrii = from Flanders',
-'gandawa':'Ghent','gandawie':'Ghent · w Gandawie = in Ghent','bruksela':'Brussels','brukseli':'Brussels · w Brukseli = in Brussels','antwerpia':'Antwerp','antwerpii':'Antwerp · w Antwerpii = in Antwerp',
-'warszawa':'Warsaw','warszawie':'Warsaw · w Warszawie = in Warsaw','kraków':'Kraków','krakowie':'Kraków · w Krakowie = in Kraków','gdańsk':'Gdańsk','gdańsku':'Gdańsk · w Gdańsku = in Gdańsk',
-'poznań':'Poznań','poznaniu':'Poznań · w Poznaniu = in Poznań','łódź':'Łódź','łodzi':'Łódź · w Łodzi = in Łódź','wrocław':'Wrocław','wrocławiu':'Wrocław · we Wrocławiu = in Wrocław',
-'barcelonie':'Barcelona · w Barcelonie = in Barcelona','berlinie':'Berlin · w Berlinie = in Berlin','nowym':'New · w Nowym Jorku = in New York','jorku':'York · w Nowym Jorku = in New York',
-'rzymie':'Rome · w Rzymie = in Rome','moskwie':'Moscow · w Moskwie = in Moscow','paryżu':'Paris · w Paryżu = in Paris','londynie':'London · w Londynie = in London','tokio':'Tokyo',
-'zero':'zero','jeden':'one','dwa':'two','trzy':'three','cztery':'four','pięć':'five','sześć':'six','siedem':'seven','osiem':'eight','dziewięć':'nine','dziesięć':'ten','plus':'plus','minus':'minus',
-'teraz':'now','problem':'problem','dom':'house · home','nowe':'new','auto':'car','dzisiaj':'today','dziecko':'child','kowalski':'a common surname','nowak':'a common surname'
+/* pronouns */
+'ja':'I|personal pronoun, “I”','ty':'you (one person, informal)|personal pronoun|for friends, family, children; formal is pan / pani',
+'on':'he|personal pronoun','ona':'she|personal pronoun','ono':'it|personal pronoun|used for neuter nouns, e.g. dziecko (child)',
+'my':'we|personal pronoun','wy':'you (several people, informal)|personal pronoun, plural of ty',
+'oni':'they (men, or a mixed group)|pronoun, plural|used as soon as at least one man is in the group',
+'one':'they (no men in the group)|pronoun, plural|women, children, animals, things',
+'pan':'you (formal, to a man) · Mr|a noun, not a pronoun|that is why the verb takes the on / ona form: pan jest, pan ma',
+'pani':'you (formal, to a woman) · Mrs / Ms|a noun, not a pronoun|that is why the verb takes the on / ona form: pani jest, pani ma',
+'państwo':'you (formal, a mixed group) · Mr and Mrs …|a noun, used like oni|the verb takes the oni form: państwo są, państwo mają',
+'panowie':'gentlemen · you (formal, several men)|plural of pan|verb in the oni form','panie':'ladies · you (formal, several women)|plural of pani|verb in the oni form',
+/* być */
+'być':'to be|infinitive (dictionary form)|irregular verb: learn its six forms by heart',
+'jestem':'I am|być, ja-form','jesteś':'you are|być, ty-form','jest':'is (he / she / it is)|być, on / ona-form|also used with pan / pani: pan jest = you are',
+'jesteśmy':'we are|być, my-form','jesteście':'you (all) are|być, wy-form','są':'they are|być, oni / one-form|also used with państwo',
+/* mieć */
+'mieć':'to have|infinitive|forms follow the -am / -asz pattern: mam, masz, ma…',
+'mam':'I have|mieć, ja-form','masz':'you have|mieć, ty-form','ma':'has (he / she has)|mieć, on / ona-form|also with pan / pani: pan ma = you have',
+'mamy':'we have|mieć, my-form','macie':'you (all) have|mieć, wy-form','mają':'they have|mieć, oni / one-form',
+/* mieszkać, nazywać się */
+'mieszkać':'to live (reside)|infinitive|-am / -asz group: mieszkam, mieszkasz, mieszka…',
+'mieszkam':'I live|mieszkać, ja-form','mieszkasz':'you live|mieszkać, ty-form','mieszka':'lives (he / she lives)|mieszkać, on / ona-form|also with pan / pani',
+'mieszkamy':'we live|mieszkać, my-form','mieszkacie':'you (all) live|mieszkać, wy-form','mieszkają':'they live|mieszkać, oni / one-form',
+'nazywać':'to call|infinitive|nazywać się = to be called (literally “to call oneself”)',
+'nazywam':'I am called|nazywać się, ja-form|literally “I call myself”','nazywasz':'you are called|nazywać się, ty-form',
+'nazywa':'is called|nazywać się, on / ona-form|also with pan / pani','nazywamy':'we are called|nazywać się, my-form',
+'nazywacie':'you (all) are called|nazywać się, wy-form','nazywają':'they are called|nazywać się, oni / one-form',
+'się':'oneself (myself, yourself…)|reflexive pronoun, never changes form|makes a verb reflexive; it can stand before or after the verb',
+/* bonus verbs */
+'czytać':'to read|infinitive, -am / -asz group','czytam':'I read|czytać, ja-form','czytasz':'you read|czytać, ty-form','czyta':'reads|czytać, on / ona-form','czytamy':'we read|czytać, my-form','czytacie':'you (all) read|czytać, wy-form','czytają':'they read|czytać, oni / one-form',
+'pytać':'to ask|infinitive, -am / -asz group','pytam':'I ask|pytać, ja-form','pytasz':'you ask|pytać, ty-form','pyta':'asks|pytać, on / ona-form','pytamy':'we ask|pytać, my-form','pytacie':'you (all) ask|pytać, wy-form','pytają':'they ask|pytać, oni / one-form',
+'przepraszać':'to apologise|infinitive, -am / -asz group','przepraszam':'sorry · excuse me|przepraszać, ja-form|literally “I apologise”',
+'przepraszasz':'you apologise|przepraszać, ty-form','przeprasza':'apologises|przepraszać, on / ona-form','przepraszamy':'we apologise|przepraszać, my-form','przepraszacie':'you (all) apologise|przepraszać, wy-form','przepraszają':'they apologise|przepraszać, oni / one-form',
+/* question words */
+'jak':'how|question word',
+'jaki':'what · which (what kind of)|question word, masculine form|masculine because adres and numer are masculine nouns; with a feminine noun it is jaka',
+'skąd':'where from|question word|answer with z + genitive: z Belgii',
+'gdzie':'where|question word (location)|answer with w + locative: w Gandawie',
+'co':'what|question word','kto':'who|question word','ile':'how much · how many|question word',
+'czy':'(marks a yes / no question)|question particle, no English equivalent|like “est-ce que” in French: Czy macie auto? = Do you have a car?',
+/* name, address */
+'na':'on · onto|preposition|its basic meaning; in mam na imię it means “as” (see that phrase)',
+'imię':'first name|noun, neuter','nazwisko':'surname|noun, neuter (ends in -o)',
+'adres':'address|noun, masculine','numer':'number|noun, masculine',
+'telefonu':'of the phone|telefon (phone) in the genitive|genitive = “of”: numer telefonu is “number of the phone”',
+'telefon':'phone|noun, masculine (dictionary form)',
+/* prepositions */
+'z':'from (out of)|preposition, always followed by the genitive|that is why countries change: Polska → z Polski, Belgia → z Belgii',
+'ze':'from|z with an extra e|added before awkward consonant clusters: ze Stanów',
+'w':'in|preposition, followed by the locative for “where”|that is why places change: Gandawa → w Gandawie, Kraków → w Krakowie',
+'we':'in|w with an extra e|added before awkward clusters: we Wrocławiu (w + Wr is hard to say)',
+'do':'to · until|preposition, always followed by the genitive|do widzenia = until seeing (again)',
+'po':'after · (po polsku) in Polish|preposition|po + -sku form = “in [language]”: po polsku, po niderlandzku',
+'i':'and|conjunction','to':'this · it|pronoun|Co to znaczy? = What does this mean?','nie':'no · not|negation','tak':'yes',
+/* greetings and classroom */
+'dzień':'day|noun, masculine|Dzień dobry = good day = hello (formal, until evening)',
+'dobry':'good|adjective, masculine|masculine to agree with dzień',
+'widzenia':'seeing|widzenie (seeing) in the genitive|genitive because of do: do widzenia = until seeing (again) = goodbye',
+'cześć':'hi · bye (informal)|interjection|literally “honour”; only with people you say ty to',
+'dobranoc':'good night|dobra (good) + noc (night) written as one word|said when going to bed',
+'dziękuję':'thank you|dziękować, ja-form|literally “I thank”',
+'proszę':'please · here you are · you’re welcome|prosić, ja-form|literally “I ask”; proszę + infinitive is a polite request: Proszę powtórzyć = Please repeat',
+'rozumiem':'I understand|rozumieć, ja-form (-em group)','wiem':'I know|wiedzieć, ja-form (irregular)',
+'znaczy':'means|znaczyć, on / ona-form|Co to znaczy? = What does this mean?',
+'polsku':'Polish (po polsku = in Polish)|special form used only after po|po + -sku means “in [language]”',
+'niderlandzku':'Dutch (po niderlandzku = in Dutch)|special form used only after po',
+'mówić':'to speak|infinitive|after proszę the verb stays in the infinitive','wolniej':'more slowly|comparative of wolno (slowly)',
+'napisać':'to write (down)|infinitive|after proszę the verb stays in the infinitive','przeczytać':'to read (out)|infinitive|after proszę the verb stays in the infinitive',
+'powtórzyć':'to repeat|infinitive|after proszę the verb stays in the infinitive','przeliterować':'to spell|infinitive|after proszę the verb stays in the infinitive',
+'pytanie':'question|noun, neuter (from pytać, to ask)','toaleta':'toilet|noun, feminine','sekretariat':'(school) office|noun, masculine',
+'odpowiedź':'answer|noun, feminine','kontakt':'contact|noun, masculine','oficjalny':'formal · official|adjective','nieoficjalny':'informal|adjective, nie + oficjalny',
+'wszystko':'everything|pronoun','porządku':'order|porządek (order) in the locative|locative because of w: w porządku = “in order” = fine, OK',
+'słychać':'(it can be) heard|impersonal verb form|Co słychać? = “What is heard?” = How’s it going?',
+'miło':'nice · pleasant|adverb of miły (nice)|Miło mi = “(it is) pleasant to me” = nice to meet you',
+'mi':'(to) me|ja in the dative|dative = “to me”: miło mi = pleasant to me','bardzo':'very',
+'dobrze':'well · fine|adverb of dobry (good)','świetnie':'great · excellently|adverb of świetny (great)',
+/* address words */
+'ulica':'street|noun, feminine','ul':'street|abbreviation of ulica','aleja':'avenue|noun, feminine','al':'avenue|abbreviation of aleja',
+'osiedle':'housing estate|noun, neuter','os':'housing estate|abbreviation of osiedle','plac':'square|noun, masculine','pl':'square|abbreviation of plac',
+'kraj':'country|noun, masculine','miasto':'city · town|noun, neuter',
+'prosta':'straight|adjective, feminine|a street name: ulica Prosta = Straight Street; feminine to agree with ulica',
+'mickiewicza':'of Mickiewicz|Mickiewicz (Poland’s national poet) in the genitive|streets named after people use the genitive: “street of Mickiewicz”',
+/* countries: dictionary form */
+'belgia':'Belgium','niemcy':'Germany|plural-only noun|literally “the Germans”',
+'anglia':'England','francja':'France','włochy':'Italy|plural-only noun','japonia':'Japan','holandia':'the Netherlands','polska':'Poland',
+'rosja':'Russia','hiszpania':'Spain','ameryka':'America','stany':'states|plural of stan|Stany Zjednoczone = the United States','zjednoczone':'united|adjective, plural','flandria':'Flanders',
+/* countries after z: genitive */
+'belgii':'Belgium|Belgia in the genitive|genitive because of z (from): -ia → -ii',
+'niemiec':'Germany|Niemcy in the genitive (plural)|genitive because of z (from); Niemcy is plural, so this is genitive plural',
+'anglii':'England|Anglia in the genitive|genitive because of z (from): -ia → -ii','francji':'France|Francja in the genitive|genitive because of z (from): -ja → -ji',
+'włoch':'Italy|Włochy in the genitive (plural)|genitive because of z (from); Włochy is plural','japonii':'Japan|Japonia in the genitive|genitive because of z (from): -ia → -ii',
+'holandii':'the Netherlands|Holandia in the genitive|genitive because of z (from): -ia → -ii',
+'polski':'Poland · Polish|Polska in the genitive|genitive because of z (from): -ka → -ki. Also the adjective “Polish”',
+'rosji':'Russia|Rosja in the genitive|genitive because of z (from): -ja → -ji','hiszpanii':'Spain|Hiszpania in the genitive|genitive because of z (from): -ia → -ii',
+'ameryki':'America|Ameryka in the genitive|genitive because of z (from): -ka → -ki',
+'stanów':'states|Stany in the genitive plural|genitive because of ze (from): ze Stanów Zjednoczonych = from the USA',
+'zjednoczonych':'united|zjednoczone in the genitive plural|agrees with Stanów',
+'flandrii':'Flanders|Flandria in the genitive|genitive because of z (from): -ia → -ii',
+/* cities: dictionary form */
+'gandawa':'Ghent','bruksela':'Brussels','antwerpia':'Antwerp','warszawa':'Warsaw','kraków':'Kraków','gdańsk':'Gdańsk','poznań':'Poznań','łódź':'Łódź','wrocław':'Wrocław','tokio':'Tokyo|does not change form',
+/* cities after w: locative */
+'gandawie':'Ghent|Gandawa in the locative|locative because w (in) says where: -wa → -wie',
+'brukseli':'Brussels|Bruksela in the locative|locative because w (in) says where: -la → -li',
+'antwerpii':'Antwerp|Antwerpia in the locative|locative because w (in) says where: -ia → -ii',
+'warszawie':'Warsaw|Warszawa in the locative|locative because w (in) says where: -wa → -wie',
+'krakowie':'Kraków|Kraków in the locative|locative because w (in) says where: ó → o, + -ie',
+'gdańsku':'Gdańsk|Gdańsk in the locative|locative because w (in) says where: + -u after k',
+'poznaniu':'Poznań|Poznań in the locative|locative because w (in) says where: -ń → -niu',
+'łodzi':'Łódź|Łódź in the locative|locative because w (in) says where: ó → o, dź → dzi',
+'wrocławiu':'Wrocław|Wrocław in the locative|locative because we (in) says where: + -iu',
+'barcelonie':'Barcelona|Barcelona in the locative|locative because w (in) says where: -na → -nie','berlinie':'Berlin|Berlin in the locative|locative because w (in) says where',
+'nowym':'New|nowy (new) in the locative|agrees with Jorku: w Nowym Jorku = in New York','jorku':'York|Jork in the locative|locative because w (in) says where',
+'rzymie':'Rome|Rzym in the locative|locative because w (in) says where','moskwie':'Moscow|Moskwa in the locative|locative because w (in) says where',
+'paryżu':'Paris|Paryż in the locative|locative because w (in) says where','londynie':'London|Londyn in the locative|locative because w (in) says where',
+/* numbers */
+'zero':'zero · 0','jeden':'one · 1','dwa':'two · 2','trzy':'three · 3','cztery':'four · 4','pięć':'five · 5','sześć':'six · 6','siedem':'seven · 7','osiem':'eight · 8','dziewięć':'nine · 9','dziesięć':'ten · 10','plus':'plus','minus':'minus',
+/* sentence words */
+'teraz':'now','problem':'problem|noun, masculine','dom':'house · home|noun, masculine','nowe':'new|adjective, neuter|neuter to agree with auto',
+'auto':'car|noun, neuter','dzisiaj':'today','dziecko':'child|noun, neuter|neuter, so a group of women and children is one',
+'kowalski':'Kowalski|a common Polish surname','nowak':'Nowak|the most common Polish surname'
 };
+/* meanings that depend on the neighbouring words */
+const NAZ=/^nazyw/,MIEC=/^(mam|masz|ma|mamy|macie|mają)$/;
+function glCtx(w,p,n,p2,n2){
+ if(w==='na'&&(n==='imię'||n==='nazwisko'))return `as (here)|preposition, basic meaning “on”|fixed expression: mam na ${n} = “I have as ${n==='imię'?'first name':'surname'}” = my ${n==='imię'?'first name':'surname'} is. The noun after it is accusative, which for ${n} looks the same as the dictionary form`;
+ if((w==='imię'||w==='nazwisko')&&p==='na')return `${w==='imię'?'first name':'surname'}|${w} in the accusative (same as the dictionary form)|accusative because of na in the fixed expression mam na ${w}`;
+ if(MIEC.test(w)&&(n==='na'||(n2==='na'&&/^(pan|pani|on|ona)$/.test(n))))return GL[w].split('|')[0]+`|mieć, ${GL[w].split('|')[1].split(', ')[1]}|mieć … na imię is how Polish asks and gives names: “have as first name”`;
+ if(w==='się'&&[p,n,p2,n2].some(x=>x&&NAZ.test(x)))return 'oneself|reflexive pronoun, never changes form|nazywać się = “to call oneself” = to be called';
+ if(w==='się'&&[p,n,p2,n2].some(x=>x&&MIEC.test(x)))return 'oneself|reflexive pronoun, never changes form|mieć się = “to have oneself” = to be doing: Jak się masz? = How are you?';
+ if(MIEC.test(w)&&(p==='się'||p2==='się'))return GL[w].split('|')[0]+`|mieć, ${GL[w].split('|')[1].split(', ')[1]}|with się it means “to be doing”: Jak się masz? = How are you?`;
+ if(w==='jak'&&n2==='na')return 'how|question word|Jak masz na imię? is literally “How do you have as a first name?”';
+ if(w==='jak'&&n==='się'&&MIEC.test(n2||''))return 'how|question word|Jak się masz? = How are you? (literally “How do you have yourself?”)';
+ if(w==='jaki'&&(n==='numer'||n==='adres'||n2==='numer'||n2==='adres'))return GL.jaki;
+ if(w==='mi'&&p==='miło')return GL.mi;
+ return null}
 const PL_LETTER=/([A-Za-zÀ-ÿĄąĆćĘęŁłŃńÓóŚśŹźŻż]+)/;
-function gl(t){return String(t).split(PL_LETTER).map((p,i)=>{if(i%2===0)return esc(p);const g=GL[p.toLowerCase()];return g?`<span class="gw" tabindex="0" data-g="${esc(g)}">${esc(p)}</span>`:esc(p)}).join('')}
+function gl(t){const parts=String(t).split(PL_LETTER);const words=[];parts.forEach((p,i)=>{if(i%2)words.push(i)});
+ return parts.map((p,i)=>{if(i%2===0)return esc(p);const k=words.indexOf(i),lw=j=>words[j]!=null?parts[words[j]].toLowerCase():null;
+  const w=p.toLowerCase(),g=glCtx(w,lw(k-1),lw(k+1),lw(k-2),lw(k+2))||GL[w];
+  return g?`<span class="gw" tabindex="0" data-g="${esc(g)}">${esc(p)}</span>`:esc(p)}).join('')}
 const tip=document.createElement('div');tip.id='tip';tip.setAttribute('role','tooltip');tip.hidden=true;document.body.appendChild(tip);let tipOn=null;
-function showTip(el){if(tipOn)tipOn.classList.remove('on');tipOn=el;el.classList.add('on');tip.textContent=el.dataset.g;tip.hidden=false;
- const r=el.getBoundingClientRect(),w=tip.offsetWidth,h=tip.offsetHeight;let x=Math.max(8,Math.min(r.left+r.width/2-w/2,innerWidth-w-8)),y=r.top-h-8;if(y<8)y=r.bottom+8;
- tip.style.left=x+'px';tip.style.top=y+'px'}
+function showTip(el){if(tipOn)tipOn.classList.remove('on');tipOn=el;el.classList.add('on');
+ const [m,f,y]=el.dataset.g.split('|');tip.innerHTML=`<b>${esc(m)}</b>${f?`<span class="tf">${esc(f)}</span>`:''}${y?`<span class="ty">${esc(y)}</span>`:''}`;tip.hidden=false;
+ const r=el.getBoundingClientRect(),w=tip.offsetWidth,h=tip.offsetHeight;let x=Math.max(8,Math.min(r.left+r.width/2-w/2,innerWidth-w-8)),yy=r.top-h-8;if(yy<8)yy=r.bottom+8;
+ tip.style.left=x+'px';tip.style.top=yy+'px'}
 function hideTip(){tip.hidden=true;if(tipOn)tipOn.classList.remove('on');tipOn=null}
 document.addEventListener('click',e=>{const g=e.target.closest&&e.target.closest('.gw');if(g){if(tipOn===g)hideTip();else showTip(g)}else hideTip()});
 document.addEventListener('pointerover',e=>{if(e.pointerType!=='mouse')return;const g=e.target.closest&&e.target.closest('.gw');if(g&&g!==tipOn)showTip(g)});
