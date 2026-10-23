@@ -423,7 +423,7 @@ const ORDER=ITEMS.slice().sort((a,b)=>a.stage-b.stage||a.pos-b.pos);
 /* ---------- progress (stored on this phone only) ---------- */
 let S={};try{S=JSON.parse(localStorage.getItem('pl-test1')||'{}')||{}}catch(e){S={}}
 const saveLocal=()=>{try{localStorage.setItem('pl-test1',JSON.stringify(S))}catch(e){}};
-const save=()=>{saveLocal();scheduleSync()};
+const save=()=>{saveLocal();scheduleSync();if(window.onProgressSaved)window.onProgressSaved()};
 
 /* ---------- account sync: one private progress document per person ---------- */
 let cloud=null,cloudBusy=false,cloudDirty=false,cloudTimer=null,cloudRetried=false,syncState='local',view='home';
@@ -443,7 +443,7 @@ function mergeS(a,b){const out={};
  const r=Math.max(a._r||0,b._r||0);if(r)out._r=r;
  const ta=a._t&&a._t.d===t?a._t:null,tb=b._t&&b._t.d===t?b._t:null;
  if(tb||ta)out._t={...(tb||ta),r:Math.max(ta?ta.r:0,tb?tb.r:0)};const pc=a._p||b._p;if(pc)out._p=pc;const mx=a._mix||b._mix;if(mx)out._mix=mx;const ac=a._acc||b._acc;if(ac)out._acc=ac;
- if(a._bk||b._bk)out._bk={...(a._bk||{}),...(b._bk||{})};return out}
+ if(a._bk||b._bk)out._bk={...(a._bk||{}),...(b._bk||{})};const sd=a._seed||b._seed;if(sd)out._seed=sd;return out}
 function updSync(){const el=document.getElementById('sync');if(el)el.textContent=syncState==='cloud'?'Progress saved to your Claude account, so it follows you to any device.':'Progress saved on this device only.'}
 (async()=>{try{
  if(!window.claude||!window.claude.use)return;
@@ -1019,11 +1019,59 @@ document.addEventListener('keydown',e=>{
 document.addEventListener('click',e=>{const b=e.target.closest('[data-say]');if(b&&!e.target.closest('.gw'))say(b.dataset.say)});
 $('#t-home').onclick=home;$('#t-sheet').onclick=sheet;
 /* progress carried over from the Claude version: merged once per seed, the more-practised copy of each term wins */
-const SEED={"_bk": {"pron:sg": 1}, "_d": {"d": "2026-10-23", "n": 13}, "_p": 8, "_r": 4, "_t": {"d": "2026-10-23", "r": 1, "u0": 186}, "cl:13": {"b": 2, "due": 5, "n": 5, "w": 1}, "cl:14": {"b": 3, "due": 6, "n": 3, "w": 0}, "cl:15": {"b": 2, "due": 3, "n": 5, "w": 1}, "cl:16": {"b": 3, "due": 5, "n": 3, "w": 0}, "cl:17": {"b": 1, "due": 3, "n": 4, "w": 1}, "cl:18": {"b": 2, "due": 3, "n": 2, "w": 0}, "cl:19": {"b": 1, "due": 3, "n": 3, "w": 1}, "cl:20": {"b": 2, "due": 4, "n": 2, "w": 0}, "cl:21": {"b": 2, "due": 5, "n": 4, "w": 1}, "n:0": {"b": 2, "due": 6, "n": 2, "w": 0}, "n:1": {"b": 1, "due": 3, "n": 1, "w": 0}, "n:10": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:2": {"b": 1, "due": 3, "n": 1, "w": 0}, "n:3": {"b": 0, "due": 3, "n": 2, "w": 1}, "n:4": {"b": 1, "due": 5, "f": "2026-10-22", "n": 3, "w": 1}, "n:5": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:6": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:7": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:8": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:9": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pn:ja": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:on": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ona": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ono": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ty": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pr:0": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:1": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:2": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:3": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:4": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:5": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:6": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "pr:7": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "pr:8": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:gdzie:ans": {"b": 4, "due": 9, "n": 4, "w": 0}, "qa:imie:ans": {"b": 2, "due": 4, "n": 2, "w": 0}, "qa:imie:en": {"b": 2, "due": 6, "n": 2, "w": 0}, "qa:ma:ans": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:ma:en": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:milo": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "qa:nazwisko:ans": {"b": 2, "due": 5, "n": 2, "w": 0}, "qa:nazwisko:en": {"b": 1, "due": 2, "n": 7, "w": 2}, "qa:nazywa:ans": {"b": 1, "due": 2, "n": 1, "w": 0}, "qa:nazywa:en": {"b": 1, "due": 5, "n": 3, "w": 1}, "qa:skad:ans": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:skad:en": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:slychac": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "v:być:0": {"b": 2, "due": 5, "n": 2, "w": 0}, "v:być:1": {"b": 1, "due": 2, "n": 1, "w": 0}, "v:być:2": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:3": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:4": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:5": {"b": 2, "due": 6, "n": 2, "w": 0}, "w:4": {"b": 1, "due": 2, "n": 1, "w": 0}, "w:5": {"b": 2, "due": 5, "n": 2, "w": 0}},SEED_ID='1792761689';
+const SEED={"_bk": {"pron:sg": 1}, "_d": {"d": "2026-10-23", "n": 13}, "_p": 8, "_r": 4, "_t": {"d": "2026-10-23", "r": 1, "u0": 186}, "cl:13": {"b": 2, "due": 5, "n": 5, "w": 1}, "cl:14": {"b": 3, "due": 6, "n": 3, "w": 0}, "cl:15": {"b": 2, "due": 3, "n": 5, "w": 1}, "cl:16": {"b": 3, "due": 5, "n": 3, "w": 0}, "cl:17": {"b": 1, "due": 3, "n": 4, "w": 1}, "cl:18": {"b": 2, "due": 3, "n": 2, "w": 0}, "cl:19": {"b": 1, "due": 3, "n": 3, "w": 1}, "cl:20": {"b": 2, "due": 4, "n": 2, "w": 0}, "cl:21": {"b": 2, "due": 5, "n": 4, "w": 1}, "n:0": {"b": 2, "due": 6, "n": 2, "w": 0}, "n:1": {"b": 1, "due": 3, "n": 1, "w": 0}, "n:10": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:2": {"b": 1, "due": 3, "n": 1, "w": 0}, "n:3": {"b": 0, "due": 3, "n": 2, "w": 1}, "n:4": {"b": 1, "due": 5, "f": "2026-10-22", "n": 3, "w": 1}, "n:5": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:6": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:7": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:8": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:9": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pn:ja": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:on": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ona": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ono": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ty": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pr:0": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:1": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:2": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:3": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:4": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:5": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:6": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "pr:7": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "pr:8": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:gdzie:ans": {"b": 4, "due": 9, "n": 4, "w": 0}, "qa:imie:ans": {"b": 2, "due": 4, "n": 2, "w": 0}, "qa:imie:en": {"b": 2, "due": 6, "n": 2, "w": 0}, "qa:ma:ans": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:ma:en": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:milo": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "qa:nazwisko:ans": {"b": 2, "due": 5, "n": 2, "w": 0}, "qa:nazwisko:en": {"b": 1, "due": 2, "n": 7, "w": 2}, "qa:nazywa:ans": {"b": 1, "due": 2, "n": 1, "w": 0}, "qa:nazywa:en": {"b": 1, "due": 5, "n": 3, "w": 1}, "qa:skad:ans": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:skad:en": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:slychac": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "v:być:0": {"b": 2, "due": 5, "n": 2, "w": 0}, "v:być:1": {"b": 1, "due": 2, "n": 1, "w": 0}, "v:być:2": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:3": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:4": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:5": {"b": 2, "due": 6, "n": 2, "w": 0}, "w:4": {"b": 1, "due": 2, "n": 1, "w": 0}, "w:5": {"b": 2, "due": 5, "n": 2, "w": 0}},SEED_ID='1792761815';
 if(S._seed!==SEED_ID){S=Object.keys(S).length?mergeS(S,SEED):JSON.parse(JSON.stringify(SEED));S._seed=SEED_ID;saveLocal()}
 home();
 </script>
 
+<script>
+/* ---------- sync between devices through a private GitHub gist ---------- */
+(function(){
+ const TK='pl-gh-token',GI='pl-gh-gist',DESC='polski-test-1 progress',API='https://api.github.com';
+ const get=k=>{try{return localStorage.getItem(k)}catch(e){return null}},set=(k,v)=>{try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}};
+ let state={msg:'',busy:false,last:null},timer=null,form=false;
+ const hdr=()=>({'Authorization':'Bearer '+get(TK),'Accept':'application/vnd.github+json','Content-Type':'application/json'});
+ async function gh(path,opt){const r=await fetch(API+path,{...opt,headers:hdr()});if(!r.ok){const e=new Error(r.status===401?'The token was not accepted. Create a new one and paste it again.':r.status===403||r.status===404?'The token has no access to gists. Make sure the “gist” box is ticked.':'GitHub answered '+r.status+'.');e.status=r.status;throw e}return r.json()}
+ async function findGist(){let id=get(GI);if(id)return id;
+  const list=await gh('/gists?per_page=100');const g=list.find(x=>x.description===DESC);
+  if(g){set(GI,g.id);return g.id}
+  const c=await gh('/gists',{method:'POST',body:JSON.stringify({description:DESC,public:false,files:{'progress.json':{content:JSON.stringify(S)}}})});set(GI,c.id);return c.id}
+ async function syncNow(){if(!get(TK)||state.busy)return;state.busy=true;state.msg='Syncing…';draw();
+  try{const id=await findGist();let g;try{g=await gh('/gists/'+id)}catch(e){if(e.status===404){set(GI,null);state.busy=false;return syncNow()}throw e}
+   const f=g.files&&g.files['progress.json'];let remote={};
+   if(f){let txt=f.content;if(f.truncated){txt=await (await fetch(f.raw_url)).text()}try{remote=JSON.parse(txt)||{}}catch(e){remote={}}}
+   const merged=mergeS(S,remote);
+   if(!sess){const before=JSON.stringify(S);S=merged;saveLocal();if(JSON.stringify(S)!==before&&view==='home')home()}
+   if(JSON.stringify(merged)!==JSON.stringify(remote))await gh('/gists/'+id,{method:'PATCH',body:JSON.stringify({files:{'progress.json':{content:JSON.stringify(merged)}}})});
+   state.last=new Date();state.msg=''}
+  catch(e){state.msg=e.message||'Could not reach GitHub. Progress is safe on this device and syncs next time.'}
+  state.busy=false;draw()}
+ window.onProgressSaved=()=>{if(!get(TK))return;clearTimeout(timer);timer=setTimeout(syncNow,4000)};
+ document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')syncNow()});
+ function draw(){const el=document.getElementById('sync');if(!el)return;const on=!!get(TK);
+  if(form){el.innerHTML=`<span class="sy-box"><b>Sync between devices</b>
+   <span>1. On GitHub, <a href="https://github.com/settings/tokens/new?scopes=gist&description=Polski%20sync" target="_blank" rel="noopener">create a token</a> with only the “gist” box ticked, then tap Generate token and copy it.</span>
+   <span>2. Paste it here. Do the same on your other device with the same token.</span>
+   <input id="sy-in" type="password" autocomplete="off" placeholder="ghp_…" aria-label="GitHub token">
+   <span class="sy-row"><button class="ghost" id="sy-save">Save and sync</button><button class="ghost" id="sy-x">Cancel</button></span></span>`;
+   document.getElementById('sy-save').onclick=()=>{const v=document.getElementById('sy-in').value.trim();if(!v)return;set(TK,v);set(GI,null);form=false;syncNow()};
+   document.getElementById('sy-x').onclick=()=>{form=false;draw()};return}
+  const t=state.last?state.last.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}):null;
+  el.innerHTML=on?`${state.msg&&state.msg!=='Syncing…'?'Sync problem: '+esc(state.msg):state.msg==='Syncing…'?'Syncing…':`Synced between your devices${t?' · last at '+t:''}`} <button class="sy-link" id="sy-now">Sync now</button> <button class="sy-link" id="sy-off">Turn off</button>`
+   :`Progress is saved on this device only. <button class="sy-link" id="sy-on">Sync between devices</button>`;
+  const b1=document.getElementById('sy-on');if(b1)b1.onclick=()=>{form=true;draw()};
+  const b2=document.getElementById('sy-now');if(b2)b2.onclick=syncNow;
+  const b3=document.getElementById('sy-off');if(b3)b3.onclick=()=>{set(TK,null);set(GI,null);state.last=null;state.msg='';draw()}}
+ window.updSync=draw;draw();syncNow();
+})();
+</script>
+<style>
+.sy-link{background:none;border:0;padding:0;font:inherit;color:var(--blue);text-decoration:underline;cursor:pointer}
+.sy-box{display:flex;flex-direction:column;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;color:var(--ink)}
+.sy-box a{color:var(--blue)}
+.sy-box input{font:inherit;font-size:16px;padding:9px 10px;border-radius:9px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink)}
+.sy-row{display:flex;gap:8px}
+</style>
 <script>
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
 if('serviceWorker' in navigator){addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{})})}
