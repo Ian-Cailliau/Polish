@@ -412,9 +412,6 @@ const ORDER=ITEMS.slice().sort((a,b)=>a.stage-b.stage||a.pos-b.pos);
 let S={};try{S=JSON.parse(localStorage.getItem('pl-test1')||'{}')||{}}catch(e){S={}}
 const saveLocal=()=>{try{localStorage.setItem('pl-test1',JSON.stringify(S))}catch(e){}};
 const save=()=>{saveLocal();scheduleSync()};
-/* progress carried over from the Claude version, used only on first launch */
-const SEED={"_d": {"d": "2026-10-23", "n": 1}, "_p": 8, "_r": 3, "_t": {"d": "2026-10-23", "r": 0, "u0": 186}, "cl:13": {"b": 2, "due": 5, "n": 5, "w": 1}, "cl:14": {"b": 3, "due": 6, "n": 3, "w": 0}, "cl:15": {"b": 2, "due": 3, "n": 5, "w": 1}, "cl:16": {"b": 3, "due": 5, "n": 3, "w": 0}, "cl:17": {"b": 1, "due": 3, "n": 4, "w": 1}, "cl:18": {"b": 2, "due": 3, "n": 2, "w": 0}, "cl:19": {"b": 1, "due": 3, "n": 3, "w": 1}, "cl:20": {"b": 2, "due": 4, "n": 2, "w": 0}, "cl:21": {"b": 2, "due": 5, "n": 4, "w": 1}, "n:0": {"b": 1, "due": 3, "n": 1, "w": 0}, "n:1": {"b": 1, "due": 3, "n": 1, "w": 0}, "n:10": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:2": {"b": 1, "due": 3, "n": 1, "w": 0}, "n:3": {"b": 0, "due": 3, "n": 2, "w": 1}, "n:4": {"b": 0, "due": 3, "f": "2026-10-22", "n": 2, "w": 1}, "n:5": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:6": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:7": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:8": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:9": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:0": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:1": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:2": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:3": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:4": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:5": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:6": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "pr:7": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "pr:8": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:gdzie:ans": {"b": 4, "due": 9, "n": 4, "w": 0}, "qa:imie:ans": {"b": 2, "due": 4, "n": 2, "w": 0}, "qa:imie:en": {"b": 1, "due": 2, "n": 1, "w": 0}, "qa:ma:ans": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:ma:en": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:nazwisko:ans": {"b": 2, "due": 5, "n": 2, "w": 0}, "qa:nazwisko:en": {"b": 1, "due": 2, "n": 7, "w": 2}, "qa:nazywa:ans": {"b": 1, "due": 2, "n": 1, "w": 0}, "qa:nazywa:en": {"b": 1, "due": 2, "n": 1, "w": 0}, "qa:skad:ans": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:skad:en": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:slychac": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "v:być:0": {"b": 2, "due": 5, "n": 2, "w": 0}, "v:być:1": {"b": 1, "due": 2, "n": 1, "w": 0}, "v:być:2": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:3": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:4": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:5": {"b": 1, "due": 3, "n": 1, "w": 0}, "w:4": {"b": 1, "due": 2, "n": 1, "w": 0}, "w:5": {"b": 2, "due": 5, "n": 2, "w": 0}};
-if(!Object.keys(S).length){S=JSON.parse(JSON.stringify(SEED));saveLocal()}
 
 /* ---------- account sync: one private progress document per person ---------- */
 let cloud=null,cloudBusy=false,cloudDirty=false,cloudTimer=null,cloudRetried=false,syncState='local',view='home';
@@ -449,18 +446,22 @@ function updSync(){const el=document.getElementById('sync');if(el)el.textContent
 }catch(e){}})();
 const box=id=>S[id]?S[id].b:-1;
 const weight=id=>{const b=box(id);return b<0?2.5:[4,2.5,1,.5,.25][Math.min(b,4)]};
-const mastery=its=>its.reduce((s,it)=>s+Math.min(Math.max(box(it.id),0),2)/2,0)/its.length;
+/* a term counts as known at level 2+, and only fully while it has no fresh mistakes */
+const isKnown=id=>box(id)>=2&&!(S[id].ws>0);
+const mastery=its=>its.reduce((s,it)=>s+Math.min(Math.max(box(it.id),0),2)/2*(S[it.id]&&S[it.id].ws?0.5:1),0)/its.length;
 const GRADES=[[.9,6,'celujący'],[.75,5,'bardzo dobry'],[.6,4,'dobry'],[.45,3,'dostateczny'],[.3,2,'dopuszczający'],[0,1,'niedostateczny']];
 const gradeOf=m=>{const g=GRADES.find(g=>m>=g[0]);return{n:g[1],name:g[2]}};
-const weakItems=()=>ITEMS.filter(it=>S[it.id]&&S[it.id].w>0&&S[it.id].b<2);
+const weakItems=()=>ITEMS.filter(it=>S[it.id]&&S[it.id].w>0&&(S[it.id].b<2||S[it.id].ws>0));
 const dayKey=()=>{const d=new Date();return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`};
 const todayCount=()=>S._d&&S._d.d===dayKey()?S._d.n:0;
 /* spacing: a right answer sits out 1, 2, 4, 7… rounds; a mistake is due again right away */
 const round=()=>S._r||0,pace=()=>S._p||5;
 const GAP=[0,1,2,4,7,12,20];
+/* right: up a level · wrong: back next round, and down one level only after 3 wrong in a row ·
+   minor slip (accent, hint): no change in level */
 function record(id,res){const s=S[id]||{b:0,n:0,w:0,f:dayKey()};s.n++;
- if(res==='right'){s.b=Math.min(s.b+1,6);s.due=round()+1+GAP[s.b]}
- else if(res==='wrong'){s.b=0;s.w++;s.due=round()}
+ if(res==='right'){s.b=Math.min(s.b+1,6);s.ws=0;s.due=round()+1+GAP[s.b]}
+ else if(res==='wrong'){s.w++;s.ws=(s.ws||0)+1;if(s.ws>=3){s.b=Math.max(0,s.b-1);s.ws=0}s.due=round()}
  else s.due=round()+1;
  S[id]=s;S._d={d:dayKey(),n:todayCount()+1};save()}
 const dueNow=it=>S[it.id]&&(S[it.id].due??0)<=round();
@@ -672,14 +673,14 @@ const hintOf=q=>{const a=q.accept?q.accept[0]:(q.mcAnswer||q.answer);const w=a.r
 function home(){
  view='home';sess=null;nav.hidden=false;app.className='app';setTab('home');
  const m=mastery(ITEMS),g=gradeOf(m),weak=weakItems(),cs=currentStage(),st=STAGES[cs];
- const known=ITEMS.filter(it=>box(it.id)>=2).length,started=ITEMS.filter(it=>S[it.id]).length;
+ const known=ITEMS.filter(it=>isKnown(it.id)).length,started=ITEMS.filter(it=>S[it.id]).length;
  const P=plan(ITEMS),rl=Math.ceil(slotsFor(P.unseen)/pace()),dl=daysLeft(),perDay=dl>0?Math.ceil(rl/dl):rl;
  /* f = day a term was first met; terms from before day-tracking existed were all met on 22.10, the app's first day */
  const T=today(),met=ITEMS.filter(it=>S[it.id]&&(S[it.id].f||'2026-10-22')===dayKey()).length,u0=P.unseen.length+met;
  const goal=dl>0?Math.ceil(u0/dl):u0,left=Math.max(0,goal-met);
  if(dayKey()==='2026-10-22')T.r=Math.max(T.r,round());
  const onTrack=met>=goal,tpct=goal?Math.min(100,Math.round(met/goal*100)):100,rToGo=Math.ceil(left/pace());
- const path=STAGES.map((s,i)=>{const its=ITEMS.filter(it=>it.stage===i),p=Math.round(its.filter(it=>box(it.id)>=2).length/its.length*100);return `<i class="${i===cs?'cur':''}" title="${esc(s.n)}"><b style="width:${p}%"></b></i>`}).join('');
+ const path=STAGES.map((s,i)=>{const its=ITEMS.filter(it=>it.stage===i),p=Math.round(its.filter(it=>isKnown(it.id)).length/its.length*100);return `<i class="${i===cs?'cur':''}" title="${esc(s.n)}"><b style="width:${p}%"></b></i>`}).join('');
  const ig=(t,a,b2)=>esc([t,a,b2].filter(Boolean).join('|'));
  app.innerHTML=`
  <header class="hero"><div>
@@ -971,6 +972,9 @@ function sheet(){
 
 document.addEventListener('click',e=>{const b=e.target.closest('[data-say]');if(b&&!e.target.closest('.gw'))say(b.dataset.say)});
 $('#t-home').onclick=home;$('#t-sheet').onclick=sheet;
+/* progress carried over from the Claude version: merged once per seed, the more-practised copy of each term wins */
+const SEED={"_bk": {"pron:sg": 1}, "_d": {"d": "2026-10-23", "n": 13}, "_p": 8, "_r": 4, "_t": {"d": "2026-10-23", "r": 1, "u0": 186}, "cl:13": {"b": 2, "due": 5, "n": 5, "w": 1}, "cl:14": {"b": 3, "due": 6, "n": 3, "w": 0}, "cl:15": {"b": 2, "due": 3, "n": 5, "w": 1}, "cl:16": {"b": 3, "due": 5, "n": 3, "w": 0}, "cl:17": {"b": 1, "due": 3, "n": 4, "w": 1}, "cl:18": {"b": 2, "due": 3, "n": 2, "w": 0}, "cl:19": {"b": 1, "due": 3, "n": 3, "w": 1}, "cl:20": {"b": 2, "due": 4, "n": 2, "w": 0}, "cl:21": {"b": 2, "due": 5, "n": 4, "w": 1}, "n:0": {"b": 2, "due": 6, "n": 2, "w": 0}, "n:1": {"b": 1, "due": 3, "n": 1, "w": 0}, "n:10": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:2": {"b": 1, "due": 3, "n": 1, "w": 0}, "n:3": {"b": 0, "due": 3, "n": 2, "w": 1}, "n:4": {"b": 1, "due": 5, "f": "2026-10-22", "n": 3, "w": 1}, "n:5": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:6": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:7": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:8": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:9": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pn:ja": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:on": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ona": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ono": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ty": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pr:0": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:1": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:2": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:3": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:4": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:5": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:6": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "pr:7": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "pr:8": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:gdzie:ans": {"b": 4, "due": 9, "n": 4, "w": 0}, "qa:imie:ans": {"b": 2, "due": 4, "n": 2, "w": 0}, "qa:imie:en": {"b": 2, "due": 6, "n": 2, "w": 0}, "qa:ma:ans": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:ma:en": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:milo": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "qa:nazwisko:ans": {"b": 2, "due": 5, "n": 2, "w": 0}, "qa:nazwisko:en": {"b": 1, "due": 2, "n": 7, "w": 2}, "qa:nazywa:ans": {"b": 1, "due": 2, "n": 1, "w": 0}, "qa:nazywa:en": {"b": 1, "due": 5, "n": 3, "w": 1}, "qa:skad:ans": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:skad:en": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:slychac": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "v:być:0": {"b": 2, "due": 5, "n": 2, "w": 0}, "v:być:1": {"b": 1, "due": 2, "n": 1, "w": 0}, "v:być:2": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:3": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:4": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:5": {"b": 2, "due": 6, "n": 2, "w": 0}, "w:4": {"b": 1, "due": 2, "n": 1, "w": 0}, "w:5": {"b": 2, "due": 5, "n": 2, "w": 0}},SEED_ID='1792761008';
+if(S._seed!==SEED_ID){S=Object.keys(S).length?mergeS(S,SEED):JSON.parse(JSON.stringify(SEED));S._seed=SEED_ID;saveLocal()}
 home();
 </script>
 
