@@ -337,11 +337,12 @@ ONI.forEach(([who,a],i)=>add('words',`oni:${i}`,()=>({eyebrow:'Oni czy one?',pro
 PRON_CORE.forEach(([en,pl],i)=>{add('words',`pn:${pl}`,()=>({eyebrow:'Zaimki · say it in Polish',prompt:en,answer:pl,accept:[pl],options:mc(pl,PRON_CORE.map(x=>x[1])),sayAns:pl,note:pl==='oni'||pl==='one'?'oni as soon as one man is in the group; one only when there is no man.':null}));ITEMS[ITEMS.length-1].group=i<5?'pron:sg':'pron:pl'});
 FORMAL.forEach(([en,pl])=>{add('words',`pf:${pl}`,()=>({eyebrow:'Formal “you” · say it in Polish',prompt:`“you”, formal: ${en}`,answer:pl,accept:[pl],options:mc(pl,FORMAL.map(x=>x[1])),sayAns:pl,note:'A noun, not a pronoun: the verb takes the on / ona form with pan, pani, and the oni form with państwo, panowie, panie.'}));ITEMS[ITEMS.length-1].group='formal'});
 /* blocks: things taught together */
-const CL_GROUPS={hello:[13,14,15,16],polite:[17,18,19],ask:[0,1,2,3,4],prosze:[5,6,7,8,9],klasa:[10,11,12],slychac:[22,23]};
+/* only grammar sets are taught as groups: verb forms, pronouns, numbers */
+const CL_GROUPS={};
 ITEMS.forEach(it=>{let m;
  if((m=it.id.match(/^cl:(\d+)$/))){const g=Object.keys(CL_GROUPS).find(k=>CL_GROUPS[k].includes(+m[1]));if(g)it.group='cl:'+g}
  if((m=it.id.match(/^n:(\d+)$/))&&+m[1]>0)it.group=+m[1]<=5?'num:1-5':'num:6-10';
- if(/^w:[0-3]$/.test(it.id))it.group='adres:words';if(/^ab:/.test(it.id))it.group='adres:abbr';
+
  if(it.group){it.block=it.group;it.member=1}
  if(/^(kr:|ppl:)/.test(it.id))it.block='kraje';if(/^city:/.test(it.id))it.block='miasta'});
 
@@ -691,14 +692,6 @@ const BLOCKS={
  formal:{eyebrow:'Formal “you”',title:'pan, pani, państwo…',html:()=>`<div class="tw"><table class="btab"><tbody>${FORMAL.map(([en,pl])=>ROWSAY(pl,esc(en),`<b class="end">${esc(pl)}</b>`)).join('')}</tbody></table></div><div class="fam"><p>Nouns, not pronouns: the verb takes the <b>on / ona</b> form with pan and pani (pan jest), and the <b>oni</b> form with państwo, panowie, panie (państwo są).</p></div>`},
  'num:1-5':{eyebrow:'Liczby',title:'1 to 5',html:()=>`<div class="tw"><table class="btab"><tbody>${[1,2,3,4,5].map(i=>ROWSAY(NUMS[i],String(i),`<b class="end">${NUMS[i]}</b>`)).join('')}</tbody></table></div>`},
  'num:6-10':{eyebrow:'Liczby',title:'6 to 10',html:()=>`<div class="tw"><table class="btab"><tbody>${[6,7,8,9,10].map(i=>ROWSAY(NUMS[i],String(i),`<b class="end">${NUMS[i]}</b>`)).join('')}</tbody></table></div>`},
- 'adres:words':{eyebrow:'Adres',title:'Kinds of street',html:()=>`<div class="tw"><table class="btab"><tbody>${WORDS.slice(0,4).map(([pl,en])=>ROWSAY(pl,esc(en),`<b class="end">${esc(pl)}</b>`)).join('')}</tbody></table></div>`},
- 'adres:abbr':{eyebrow:'Adres',title:'How they are written on an address',html:()=>`<div class="tw"><table class="btab"><tbody>${ABBR.map(([ab,full])=>ROWSAY(full,esc(ab),`<b class="end">${esc(full)}</b>`)).join('')}</tbody></table></div>`},
- 'cl:hello':{eyebrow:'Powitania',title:'Hello and goodbye',html:()=>clRows(CL_GROUPS['hello'])},
- 'cl:polite':{eyebrow:'Grzeczność',title:'Thanks, please, sorry',html:()=>clRows(CL_GROUPS['polite'])},
- 'cl:ask':{eyebrow:'W klasie',title:'When you don’t understand',html:()=>clRows(CL_GROUPS['ask'])},
- 'cl:prosze':{eyebrow:'W klasie · Proszę + verb',title:'Asking the teacher',html:()=>clRows(CL_GROUPS['prosze'])},
- 'cl:klasa':{eyebrow:'W klasie',title:'Questions in class',html:()=>clRows(CL_GROUPS['klasa'])},
- 'cl:slychac':{eyebrow:'Rozmowa',title:'How’s it going?',html:()=>clRows(CL_GROUPS['slychac'])},
  kraje:{eyebrow:'Skąd? · the pattern',title:'z + genitive',html:()=>`<p class="note">“From” is <b>z</b>, and z always changes the country into the <b>genitive</b>. Most follow one of these patterns:</p><div class="tw"><table class="btab"><thead><tr><th>country</th><th>from…</th><th>pattern</th></tr></thead><tbody>
   ${[['Belgia','z Belgii','-ia → -ii'],['Francja','z Francji','-ja → -ji'],['Polska','z Polski','-ka → -ki'],['Niemcy','z Niemiec','plural country'],['Włochy','z Włoch','plural country'],['Stany Zjednoczone','ze Stanów Zjednoczonych','plural; ze before st']].map(r=>`<tr class="sayrow" data-say="${esc(r[1])}"><td>${esc(r[0])}</td><td><b class="end">${esc(r[1])}</b></td><td>${esc(r[2])}</td></tr>`).join('')}</tbody></table></div>`},
  miasta:{eyebrow:'Gdzie? · the pattern',title:'w + locative',html:()=>`<p class="note">“In” a place is <b>w</b>, and w changes the city into the <b>locative</b>:</p><div class="tw"><table class="btab"><thead><tr><th>city</th><th>in…</th><th>pattern</th></tr></thead><tbody>
