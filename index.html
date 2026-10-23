@@ -221,6 +221,13 @@ p.diff{font-size:21px;font-weight:600;letter-spacing:.01em;line-height:1.5;overf
 
 .muted{color:var(--muted);font-size:14px}
 
+#review{position:fixed;inset:0;z-index:20;overflow-y:auto;background:var(--paper);padding-top:env(safe-area-inset-top,0px);padding-bottom:calc(24px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.rv-bar{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:10px;background:var(--paper);padding:12px 0;max-width:560px;margin:0 auto;border-bottom:1px solid var(--line)}
+.rv-bar span{flex:1;min-width:0;font-size:14px;color:var(--muted)}
+.rv-back{border:0;border-radius:11px;padding:10px 12px;background:var(--blue);color:var(--on-blue);font-weight:700;font-size:14.5px}
+.rv-body{max-width:560px;margin:14px auto 0;display:flex;flex-direction:column;gap:16px;opacity:.95}
+.qx:disabled{opacity:.35}
+
 /* nav */
 .nav{position:fixed;left:0;right:0;bottom:0;z-index:5;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;justify-content:center;gap:8px}
 .nav button{flex:1;max-width:220px;background:none;border:0;padding:12px 8px 14px;font-weight:700;font-size:15.5px;color:var(--muted);border-top:3px solid transparent}
@@ -425,6 +432,9 @@ const STAGES=[
  {n:'on / ona · oni / one',en:'talking about others, full sentences',m:/^(qa:.*:(3|a3)$|oni:|vs:|kr:s:on$)/},
  {n:'Bonus',en:'czytać, pytać, przepraszać',m:/./}
 ];
+/* duplicates of other terms (same exercise, same answer) are left out */
+const DUPES=/^(qa:milo|qa:[a-z]+:inf|kr:s:ja|kr:s:on|cl:23)$/;
+for(let i=ITEMS.length-1;i>=0;i--)if(DUPES.test(ITEMS[i].id))ITEMS.splice(i,1);
 ITEMS.forEach((it,i)=>{it.stage=STAGES.findIndex(s=>s.m.test(it.id));it.pos=i});
 const ORDER=ITEMS.slice().sort((a,b)=>a.stage-b.stage||a.pos-b.pos);
 
@@ -482,8 +492,8 @@ const GAP=[0,1,2,4,7,12,20];
 /* right: up a level · wrong: back next round, and down one level only after 3 wrong in a row ·
    minor slip (accent, hint): no change in level */
 function record(id,res){const s=S[id]||{b:0,n:0,w:0,f:dayKey()};s.n++;
- if(res==='right'){s.b=Math.min(s.b+1,6);s.ws=0;s.due=round()+1+GAP[s.b];s.lr='r'}
- else if(res==='wrong'){s.w++;s.ws=(s.ws||0)+1;if(s.ws>=3){s.b=Math.max(0,s.b-1);s.ws=0}s.due=round();s.lr='w'}
+ if(res==='right'){s.b=Math.min(s.b+1,6);s.ws=0;s.dr=0;s.due=round()+1+GAP[s.b];s.lr='r'}
+ else if(res==='wrong'){s.w++;s.ws=(s.ws||0)+1;if(s.ws>=3){s.b=Math.max(0,s.b-1);s.ws=0;s.dr=1}s.due=round();s.lr='w'}
  else{s.due=round()+1;s.lr='w'}
  S[id]=s;S._d={d:dayKey(),n:todayCount()+1};save()}
 const dueNow=it=>S[it.id]&&(S[it.id].due??0)<=round();
@@ -689,7 +699,7 @@ function planRound(pool){const P=piles(pool),M=mix(),B=newBudget(P),{fresh,used}
  const fix=shuffle(P.fix).slice(0,nFix);
  const rev=P.rev.slice().sort((a,b)=>((S[a.id].due??0)-(S[b.id].due??0))||Math.random()-.5).slice(0,nRev);
  return{...P,fresh,fixSel:fix,revSel:rev,why:used<M.n&&B.why?B.why:null,cut:B.n<M.n}}
-const warm=it=>S[it.id]&&S[it.id].b===0;
+const warm=it=>{const t=S[it.id];return !!t&&((t.b===0&&!t.lr&&!(t.n>0))||!!t.dr)};
 function buildRound(pool){const R0=planRound(pool);
  const rest=shuffle([...R0.fixSel.map(it=>({it,st:warm(it)?'pick':'write',slot:'fix'})),...R0.revSel.map(it=>({it,st:'write',slot:'rev'}))]);
  const firsts=R0.fresh.filter((it,k)=>!it.group||R0.fresh.findIndex(x=>x.group===it.group)===k);
@@ -701,7 +711,7 @@ const hintOf=q=>{const a=q.accept?q.accept[0]:(q.mcAnswer||q.answer);const w=a.r
  return w.length>2?w.slice(0,Math.ceil(w.length/2)).join(' ')+' …':w.length===2?w[0]+' …':a.slice(0,Math.max(1,Math.ceil(a.length/2)))+'…'};
 
 function home(){
- view='home';sess=null;nav.hidden=false;app.className='app';setTab('home');
+ closeReview();view='home';sess=null;nav.hidden=false;app.className='app';setTab('home');
  const m=mastery(ITEMS),g=gradeOf(m),weak=weakItems(),cs=currentStage(),st=STAGES[cs];
  const known=ITEMS.filter(it=>isKnown(it.id)).length,started=ITEMS.filter(it=>S[it.id]).length;
  const P=planRound(ITEMS),M=mix(),total=M.n+M.m+M.c,rl=Math.ceil(slotsFor(P.unseen)/pace()),dl=daysLeft(),perDay=dl>0?Math.ceil(rl/dl):rl;
@@ -757,7 +767,7 @@ function start(queue,title,test){sess={title,test,queue,i:0,log:[],fresh:0,stage
  const put=(e,off)=>sess.queue.splice(Math.min(sess.queue.length,sess.i+off),0,e);sess.put=put;nav.hidden=true;app.className='app quiz';ask()}
 
 function promptHTML(q,fill,g){const f=g?gl:esc;let p=f(q.prompt);p=fill!=null?p.replace('___',`<b class="fill">${f(fill)}</b>`):p.replace('___','<span class="blank"></span>');return `<h2 class="prompt${q.big?' big':''}">${p}</h2>`}
-const topBar=(cur)=>`<div class="qtop"><button class="qx" id="qx" aria-label="Stop and go home">✕</button><div class="bar"><i style="width:${Math.round(sess.i/sess.queue.length*100)}%"></i></div><span class="count">${sess.i+1}/${sess.queue.length}</span></div>`;
+const topBar=(cur)=>`<div class="qtop"><button class="qx" id="qx" aria-label="Stop and go home">✕</button>${sess.hist&&sess.hist.length?'<button class="qx" id="qb" aria-label="Look at the previous exercise">←</button>':''}<div class="bar"><i style="width:${Math.round(sess.i/sess.queue.length*100)}%"></i></div><span class="count">${sess.i+1}/${sess.queue.length}</span></div>`;
 
 /* ---------- blocks: taught as one unit ---------- */
 const AM_FAM=Object.keys(VERBS).filter(v=>VERBS[v].fam==='am'&&v!=='mieć');
@@ -933,7 +943,16 @@ function finish(res,given,msg,quick){
  $('#fb').scrollIntoView({block:'nearest',behavior:'smooth'});
  if(autoAudio)say(q.sayAns);
 }
-function next(){kbuf='';sess.i++;ask()}
+function next(){kbuf='';if(sess){app.querySelectorAll('input').forEach(x=>x.setAttribute('value',x.value));sess.hist=sess.hist||[];sess.hist.push(app.innerHTML);if(sess.hist.length>40)sess.hist.shift()}sess.i++;ask()}
+function review(k){const H=sess.hist;closeReview();const ov=document.createElement('div');ov.id='review';
+ ov.innerHTML=`<div class="rv-bar"><button class="qx" id="rv-old" aria-label="Earlier exercise" ${k===0?'disabled':''}>←</button><span>Earlier exercise · ${H.length-k} back</span><button class="rv-back" id="rv-cur">Back to where I was →</button></div><div class="rv-body">${H[k]}</div>`;
+ document.body.appendChild(ov);
+ ov.querySelectorAll('.rv-body .qtop,.rv-body #fb .ov,.rv-body #drill,.rv-body #nx,.rv-body .keys,.rv-body .two').forEach(x=>x.remove());
+ ov.querySelectorAll('.rv-body button:not([data-say]),.rv-body input').forEach(x=>{x.disabled=true;x.removeAttribute('id')});
+ ov.querySelectorAll('.rv-body [id]').forEach(x=>x.removeAttribute('id'));
+ ov.querySelector('#rv-cur').onclick=closeReview;const o=ov.querySelector('#rv-old');if(o)o.onclick=()=>review(k-1);ov.scrollTop=0}
+function closeReview(){const r=document.getElementById('review');if(r)r.remove()}
+document.addEventListener('click',e=>{if(e.target&&e.target.id==='qb'&&sess&&sess.hist&&sess.hist.length)review(sess.hist.length-1)});
 
 /* optional copy drill after a miss: twice with the answer visible, the third time from memory */
 function drill(t,q){let n=0;const fb=$('#fb');
@@ -1020,7 +1039,7 @@ function sheet(){
 /* keyboard for multiple choice: 1–4 picks; typing letters highlights the matching option, Enter picks it */
 let kbuf='';
 document.addEventListener('keydown',e=>{
- if(!sess||e.metaKey||e.ctrlKey||e.altKey)return;const opts=[...document.querySelectorAll('.opts .opt')];
+ if(!sess||e.metaKey||e.ctrlKey||e.altKey||document.getElementById('review'))return;const opts=[...document.querySelectorAll('.opts .opt')];
  if(!opts.length||opts[0].disabled)return;if(document.activeElement&&document.activeElement.tagName==='INPUT')return;
  const show=()=>{const t=document.getElementById('ktyped');const k=strip(kbuf.toLowerCase());let hit=-1;
   opts.forEach((o,i)=>{const txt=strip(o.textContent.replace(/^\d/,'').toLowerCase());const m=k&&txt.startsWith(k);o.classList.toggle('khit',m&&hit<0);if(m&&hit<0)hit=i});
@@ -1034,7 +1053,7 @@ document.addEventListener('keydown',e=>{
 document.addEventListener('click',e=>{const b=e.target.closest('[data-say]');if(b&&!e.target.closest('.gw'))say(b.dataset.say)});
 $('#t-home').onclick=home;$('#t-sheet').onclick=sheet;
 /* progress carried over from the Claude version: merged once per seed, the more-practised copy of each term wins */
-const SEED={"_bk": {"pron:sg": 1}, "_d": {"d": "2026-10-23", "n": 13}, "_p": 8, "_r": 4, "_t": {"d": "2026-10-23", "r": 1, "u0": 186}, "cl:13": {"b": 2, "due": 5, "n": 5, "w": 1}, "cl:14": {"b": 3, "due": 6, "n": 3, "w": 0}, "cl:15": {"b": 2, "due": 3, "n": 5, "w": 1}, "cl:16": {"b": 3, "due": 5, "n": 3, "w": 0}, "cl:17": {"b": 1, "due": 3, "n": 4, "w": 1}, "cl:18": {"b": 2, "due": 3, "n": 2, "w": 0}, "cl:19": {"b": 1, "due": 3, "n": 3, "w": 1}, "cl:20": {"b": 2, "due": 4, "n": 2, "w": 0}, "cl:21": {"b": 2, "due": 5, "n": 4, "w": 1}, "n:0": {"b": 2, "due": 6, "n": 2, "w": 0}, "n:1": {"b": 1, "due": 3, "n": 1, "w": 0}, "n:10": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:2": {"b": 1, "due": 3, "n": 1, "w": 0}, "n:3": {"b": 0, "due": 3, "n": 2, "w": 1}, "n:4": {"b": 1, "due": 5, "f": "2026-10-22", "n": 3, "w": 1}, "n:5": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:6": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:7": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:8": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:9": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pn:ja": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:on": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ona": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ono": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ty": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pr:0": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:1": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:2": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:3": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:4": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:5": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:6": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "pr:7": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "pr:8": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:gdzie:ans": {"b": 4, "due": 9, "n": 4, "w": 0}, "qa:imie:ans": {"b": 2, "due": 4, "n": 2, "w": 0}, "qa:imie:en": {"b": 2, "due": 6, "n": 2, "w": 0}, "qa:ma:ans": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:ma:en": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:milo": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "qa:nazwisko:ans": {"b": 2, "due": 5, "n": 2, "w": 0}, "qa:nazwisko:en": {"b": 1, "due": 2, "n": 7, "w": 2}, "qa:nazywa:ans": {"b": 1, "due": 2, "n": 1, "w": 0}, "qa:nazywa:en": {"b": 1, "due": 5, "n": 3, "w": 1}, "qa:skad:ans": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:skad:en": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:slychac": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "v:być:0": {"b": 2, "due": 5, "n": 2, "w": 0}, "v:być:1": {"b": 1, "due": 2, "n": 1, "w": 0}, "v:być:2": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:3": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:4": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:5": {"b": 2, "due": 6, "n": 2, "w": 0}, "w:4": {"b": 1, "due": 2, "n": 1, "w": 0}, "w:5": {"b": 2, "due": 5, "n": 2, "w": 0}},SEED_ID='1792763267';
+const SEED={"_bk": {"pron:sg": 1}, "_d": {"d": "2026-10-23", "n": 13}, "_p": 8, "_r": 4, "_t": {"d": "2026-10-23", "r": 1, "u0": 186}, "cl:13": {"b": 2, "due": 5, "n": 5, "w": 1}, "cl:14": {"b": 3, "due": 6, "n": 3, "w": 0}, "cl:15": {"b": 2, "due": 3, "n": 5, "w": 1}, "cl:16": {"b": 3, "due": 5, "n": 3, "w": 0}, "cl:17": {"b": 1, "due": 3, "n": 4, "w": 1}, "cl:18": {"b": 2, "due": 3, "n": 2, "w": 0}, "cl:19": {"b": 1, "due": 3, "n": 3, "w": 1}, "cl:20": {"b": 2, "due": 4, "n": 2, "w": 0}, "cl:21": {"b": 2, "due": 5, "n": 4, "w": 1}, "n:0": {"b": 2, "due": 6, "n": 2, "w": 0}, "n:1": {"b": 1, "due": 3, "n": 1, "w": 0}, "n:10": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:2": {"b": 1, "due": 3, "n": 1, "w": 0}, "n:3": {"b": 0, "due": 3, "n": 2, "w": 1}, "n:4": {"b": 1, "due": 5, "f": "2026-10-22", "n": 3, "w": 1}, "n:5": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:6": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:7": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:8": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:9": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pn:ja": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:on": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ona": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ono": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ty": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pr:0": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:1": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:2": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:3": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:4": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:5": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:6": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "pr:7": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "pr:8": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:gdzie:ans": {"b": 4, "due": 9, "n": 4, "w": 0}, "qa:imie:ans": {"b": 2, "due": 4, "n": 2, "w": 0}, "qa:imie:en": {"b": 2, "due": 6, "n": 2, "w": 0}, "qa:ma:ans": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:ma:en": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:milo": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "qa:nazwisko:ans": {"b": 2, "due": 5, "n": 2, "w": 0}, "qa:nazwisko:en": {"b": 1, "due": 2, "n": 7, "w": 2}, "qa:nazywa:ans": {"b": 1, "due": 2, "n": 1, "w": 0}, "qa:nazywa:en": {"b": 1, "due": 5, "n": 3, "w": 1}, "qa:skad:ans": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:skad:en": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:slychac": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "v:być:0": {"b": 2, "due": 5, "n": 2, "w": 0}, "v:być:1": {"b": 1, "due": 2, "n": 1, "w": 0}, "v:być:2": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:3": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:4": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:5": {"b": 2, "due": 6, "n": 2, "w": 0}, "w:4": {"b": 1, "due": 2, "n": 1, "w": 0}, "w:5": {"b": 2, "due": 5, "n": 2, "w": 0}},SEED_ID='1792763629';
 if(S._seed!==SEED_ID){S=Object.keys(S).length?mergeS(S,SEED):JSON.parse(JSON.stringify(SEED));S._seed=SEED_ID;saveLocal()}
 home();
 </script>
