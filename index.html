@@ -266,7 +266,7 @@ const PRON=[['ono','it (e.g. a baby)'],['oni','they: men, or a mixed group'],['o
 
 const DECKS={
  qa:{pl:'Pytania i odpowiedzi',en:'Questions & answers · ty ↔ pan / pani · on / ona'},
- verbs:{pl:'Czasowniki',en:'whole verb tables, then verbs in sentences'},
+ verbs:{pl:'Czasowniki',en:'verb forms in small groups, then in sentences'},
  kraje:{pl:'Skąd? Gdzie?',en:'Countries with z …, cities with w …'},
  num:{pl:'Liczby 0–10',en:'Numbers and “Ile jest…?”'},
  klasa:{pl:'W klasie',en:'Classroom phrases and greetings'},
@@ -309,9 +309,9 @@ QA.forEach(q=>{
 add('qa','qa:slychac',()=>({eyebrow:'Answer naturally',prompt:'Co słychać?',say:'Co słychać?',sub:"How's it going?",answer:'For example: Wszystko w porządku.',mcAnswer:'Wszystko w porządku.',check:free(/(w porządku|dobrze|świetnie|nieźle|tak sobie|super)/,null,'Wszystko w porządku.'),options:shuffle(['Wszystko w porządku.','Mam na imię Jan.','Jestem z Belgii.','Mieszkam w Gandawie.']),sayAns:'Wszystko w porządku.'}));
 add('qa','qa:milo',()=>({eyebrow:'Say it in Polish',prompt:'Nice to meet you.',answer:'Miło mi. / Bardzo mi miło.',accept:['Miło mi','Bardzo mi miło'],options:shuffle(['Miło mi. / Bardzo mi miło.','Nie rozumiem.','Mam pytanie!','Dobranoc.']),sayAns:'Bardzo mi miło.'}));
 
-Object.entries(VERBS).forEach(([inf,v])=>{add('verbs',`vt:${inf}`,()=>({table:1,eyebrow:`${inf} · ${v.en}${v.fam==='am'?' · -am / -asz family':' · irregular'}`,prompt:inf,sub:'Write the whole table',
-  rows:PERS_LBL.map((p,i)=>({label:p,answer:v.f[i],accept:v.f[i].endsWith(' się')?[v.f[i],'się '+v.f[i].replace(' się','')]:[v.f[i]],say:PERS[i][0]+' '+v.f[i]})),
-  answer:v.f.join(', '),note:v.note}));const it=ITEMS[ITEMS.length-1];it.block='verb:'+inf;it.member=1});
+Object.entries(VERBS).forEach(([inf,v])=>v.f.forEach((f,i)=>{add('verbs',`v:${inf}:${i}`,()=>{const p=pick(PERS[i]);const acc=[f];if(f.endsWith(' się'))acc.push('się '+f.replace(' się',''));
+ return{eyebrow:`${inf} · ${v.en}${v.fam==='am'?' · -am / -asz family':' · irregular'}`,prompt:`${p} ___`,sub:'Write the verb form',answer:f,accept:acc,options:mc(f,v.f),sayAns:`${p} ${f}`,note:v.note}});
+ const it=ITEMS[ITEMS.length-1];it.group=`verb:${inf}:${i<3?'sg':'pl'}`}));
 SENT.forEach(([s,a,v],i)=>add('verbs',`vs:${i}`,()=>({eyebrow:`${v} · fill the gap`,prompt:s,sub:'Write the missing verb',answer:a,accept:[a],options:mc(a,VERBS[v].f.map(x=>x.replace(' się',''))),sayAns:s.replace('___',a).replace(/\((ja|ty|my|wy)\) /,''),note:VERBS[v].note})));
 
 COUNTRIES.forEach(([en,pl,gen,alt])=>{
@@ -334,22 +334,26 @@ WORDS.forEach(([pl,en],i)=>add('words',`w:${i}`,()=>Math.random()<.65
  :{eyebrow:'What does it mean?',prompt:pl,say:pl,answer:en,reveal:1,options:mc(en,WORDS.map(c=>c[1])),sayAns:pl}));
 ABBR.forEach(([ab,full])=>add('words',`ab:${ab}`,()=>({eyebrow:'On an address, write out…',prompt:ab,big:1,answer:full,accept:[full],options:shuffle(ABBR.map(a=>a[1])),sayAns:full})));
 ONI.forEach(([who,a],i)=>add('words',`oni:${i}`,()=>({eyebrow:'Oni czy one?',prompt:`(${who}) ___ są z Polski.`,answer:a,accept:[a],options:['Oni','One'],sayAns:`${a} są z Polski.`,note:'oni = men or a mixed group · one = only women, children, animals, things'})));
-add('words','pt',()=>({table:1,eyebrow:'Zaimki · personal pronouns',prompt:'ja, ty, on…',sub:'Write each pronoun in Polish',rows:PRON_CORE.map(([en,pl])=>({label:en,answer:pl,accept:[pl],say:pl})),answer:PRON_CORE.map(x=>x[1]).join(', '),note:'oni as soon as one man is in the group; one only when there is no man.'}));
-add('words','pf',()=>({table:1,eyebrow:'Pan / pani · formal “you”',prompt:'pan, pani…',sub:'Write the formal word for “you”',rows:FORMAL.map(([en,pl])=>({label:en,answer:pl,accept:[pl],say:pl})),answer:FORMAL.map(x=>x[1]).join(', '),note:'These are nouns: the verb takes the on / ona form with pan and pani, and the oni form with państwo, panowie, panie.'}));
+PRON_CORE.forEach(([en,pl],i)=>{add('words',`pn:${pl}`,()=>({eyebrow:'Zaimki · say it in Polish',prompt:en,answer:pl,accept:[pl],options:mc(pl,PRON_CORE.map(x=>x[1])),sayAns:pl,note:pl==='oni'||pl==='one'?'oni as soon as one man is in the group; one only when there is no man.':null}));ITEMS[ITEMS.length-1].group=i<5?'pron:sg':'pron:pl'});
+FORMAL.forEach(([en,pl])=>{add('words',`pf:${pl}`,()=>({eyebrow:'Formal “you” · say it in Polish',prompt:`“you”, formal: ${en}`,answer:pl,accept:[pl],options:mc(pl,FORMAL.map(x=>x[1])),sayAns:pl,note:'A noun, not a pronoun: the verb takes the on / ona form with pan, pani, and the oni form with państwo, panowie, panie.'}));ITEMS[ITEMS.length-1].group='formal'});
 /* blocks: things taught together */
-ITEMS.forEach(it=>{const m=it.id.match(/^vs:(\d+)$/);if(m)it.block='verb:'+SENT[+m[1]][2];
- if(it.id==='pt'){it.block='pron';it.member=1}if(it.id==='pf'){it.block='formal';it.member=1}
- if(/^n:/.test(it.id)){it.block='num';it.member=1}if(/^(kr:|ppl:)/.test(it.id))it.block='kraje';if(/^city:/.test(it.id))it.block='miasta'});
+const CL_GROUPS={hello:[13,14,15,16],polite:[17,18,19],ask:[0,1,2,3,4],prosze:[5,6,7,8,9],klasa:[10,11,12],slychac:[22,23]};
+ITEMS.forEach(it=>{let m;
+ if((m=it.id.match(/^cl:(\d+)$/))){const g=Object.keys(CL_GROUPS).find(k=>CL_GROUPS[k].includes(+m[1]));if(g)it.group='cl:'+g}
+ if((m=it.id.match(/^n:(\d+)$/))&&+m[1]>0)it.group=+m[1]<=5?'num:1-5':'num:6-10';
+ if(/^w:[0-3]$/.test(it.id))it.group='adres:words';if(/^ab:/.test(it.id))it.group='adres:abbr';
+ if(it.group){it.block=it.group;it.member=1}
+ if(/^(kr:|ppl:)/.test(it.id))it.block='kraje';if(/^city:/.test(it.id))it.block='miasta'});
 
 /* ---------- the learning path: small steps, in this order ---------- */
 const STAGES=[
  {n:'Powitania',en:'greetings',m:/^cl:(1[3-9]|2[01])$/},
  {n:'Imię i nazwisko',en:'asking and giving your name',m:/^(w:[45]|qa:(imie|nazwisko|nazywa):(en|ans))$/},
- {n:'być · zaimki · 0–10',en:'to be, pronouns, numbers',m:/^(vt:być|pt|n:\d+)$/},
+ {n:'być · zaimki · 0–10',en:'to be, pronouns, numbers',m:/^(v:być:\d|pn:.*|n:\d+)$/},
  {n:'Jak się masz? Skąd jesteś?',en:'how are you, where are you from',m:/^(qa:(ma|skad):(en|ans)|qa:slychac|qa:milo|cl:2[23]|kr:(Belgia|Polska|Holandia|Francja|Niemcy|Anglia|Flandria):m|w:6)$/},
- {n:'mieć · mieszkać · adres',en:'to have, to live, your address',m:/^(vt:(mieć|mieszkać|nazywać się)$|city:|qa:(gdzie|adres):(en|ans)$|w:[0-37]$|ab:)/},
+ {n:'mieć · mieszkać · adres',en:'to have, to live, your address',m:/^(v:(mieć|mieszkać|nazywać się):|city:|qa:(gdzie|adres):(en|ans)$|w:[0-37]$|ab:)/},
  {n:'Kraje · telefon · w klasie',en:'all countries, phone, classroom phrases',m:/^(kr:.*:m$|qa:tel:(en|ans)$|cl:|ile:|w:)/},
- {n:'pan / pani',en:'the formal questions',m:/^(pf|qa:.*:(form|inf))$/},
+ {n:'pan / pani',en:'the formal questions',m:/^(pf:.*|qa:.*:(form|inf))$/},
  {n:'on / ona · oni / one',en:'talking about others, full sentences',m:/^(qa:.*:(3|a3)$|ppl:|oni:|vs:|kr:.*:t$)/},
  {n:'Bonus',en:'czytać, pytać, przepraszać',m:/./}
 ];
@@ -590,19 +594,27 @@ let sess=null;
 /* new terms arrive only while few items are still shaky */
 /* today: snapshot of terms still to meet at the start of the day, spread over the days before the test */
 function today(){if(!S._t||S._t.d!==dayKey()){S._t={d:dayKey(),u0:ORDER.filter(it=>!S[it.id]).length,r:0};save()}return S._t}
+const GROUP_COST=k=>Math.ceil(k*0.6);
+function slotsFor(list){const gs=new Set();let n=0;list.forEach(it=>{if(it.group)gs.add(it.group);else n++});gs.forEach(g=>n+=GROUP_COST(list.filter(x=>x.group===g).length));return n}
 function plan(pool){
  const ord=ORDER.filter(it=>pool.includes(it));
  const seen=ord.filter(it=>S[it.id]),unseen=ord.filter(it=>!S[it.id]);
  const shaky=seen.filter(it=>S[it.id].b===0||(S[it.id].b<2&&dueNow(it))).length,p=pace();
- const nNew=Math.min(unseen.length,shaky<p*2?p:shaky<p*3?Math.ceil(p/2):0);
- return{seen,unseen,due:seen.filter(dueNow),nNew,fresh:unseen.slice(0,nNew)}}
+ const budget=shaky<p*2?p:shaky<p*3?Math.ceil(p/2):0,maxG=p>=12?2:1;
+ const fresh=[],taken=new Set();let used=0,groups=0;
+ for(const it of unseen){if(used>=budget)break;if(taken.has(it))continue;
+  if(it.group){if(groups>=maxG)continue;const mem=unseen.filter(x=>x.group===it.group),cost=GROUP_COST(mem.length);
+   if(used+cost>budget&&used>0)continue;mem.forEach(x=>{taken.add(x);fresh.push(x)});used+=cost;groups++}
+  else{taken.add(it);fresh.push(it);used++}}
+ return{seen,unseen,due:seen.filter(dueNow),nNew:fresh.length,fresh}}
 const revCount=(P,n)=>Math.min(P.due.length,Math.max(n-P.nNew*2,5));
 function buildQueue(pool,n){
  const P=plan(pool);
  let rev=wsample(P.due,revCount(P,n));
  if(!rev.length&&!P.fresh.length)rev=P.seen.slice().sort((a,b)=>(S[a.id].due??0)-(S[b.id].due??0)).slice(0,n);
  const q=shuffle(rev).map(it=>({it,retry:false}));
- P.fresh.forEach((it,k)=>q.splice(Math.min(q.length,k*2),0,{it,retry:false}));
+ const firsts=P.fresh.filter((it,k)=>!it.group||P.fresh.findIndex(x=>x.group===it.group)===k);
+ firsts.forEach((it,k)=>q.splice(Math.min(q.length,k*2),0,{it,retry:false}));
  return q;
 }
 function currentStage(){const it=ORDER.find(it=>!S[it.id]||S[it.id].b<2);return it?it.stage:STAGES.length-1}
@@ -613,7 +625,7 @@ function home(){
  view='home';sess=null;nav.hidden=false;app.className='app';setTab('home');
  const m=mastery(ITEMS),g=gradeOf(m),weak=weakItems(),cs=currentStage(),st=STAGES[cs];
  const known=ITEMS.filter(it=>box(it.id)>=2).length,started=ITEMS.filter(it=>S[it.id]).length;
- const P=plan(ITEMS),rl=Math.ceil(P.unseen.length/pace()),dl=daysLeft(),perDay=dl>0?Math.ceil(rl/dl):rl;
+ const P=plan(ITEMS),rl=Math.ceil(slotsFor(P.unseen)/pace()),dl=daysLeft(),perDay=dl>0?Math.ceil(rl/dl):rl;
  /* f = day a term was first met; terms from before day-tracking existed were all met on 22.10, the app's first day */
  const T=today(),met=ITEMS.filter(it=>S[it.id]&&(S[it.id].f||'2026-10-22')===dayKey()).length,u0=P.unseen.length+met;
  const goal=dl>0?Math.ceil(u0/dl):u0,left=Math.max(0,goal-met);
@@ -667,34 +679,45 @@ const topBar=(cur)=>`<div class="qtop"><button class="qx" id="qx" aria-label="St
 /* ---------- blocks: taught as one unit ---------- */
 const AM_FAM=Object.keys(VERBS).filter(v=>VERBS[v].fam==='am'&&v!=='mieć');
 const ROWSAY=(say,a,b)=>`<tr class="sayrow" data-say="${esc(say)}"><td>${a}</td><td>${b}</td></tr>`;
-function verbBlock(inf){const v=VERBS[inf];
+function verbBlock(name){const [inf,half]=name.split(':'),v=VERBS[inf],idx=half==='sg'?[0,1,2]:[3,4,5];
  const form=f=>{if(!v.stem)return `<b class="end">${esc(f)}</b>`;const sie=f.endsWith(' się'),core=sie?f.slice(0,-4):f;return esc(v.stem)+`<b class="end">${esc(core.slice(v.stem.length))}</b>`+(sie?' się':'')};
- return{eyebrow:`Czasownik · ${v.fam==='am'?(v.model?'model verb of the -am / -asz family':'-am / -asz family'):'irregular verb'}`,title:`${inf} · ${v.en}`,
-  html:`<div class="tw"><table class="btab"><tbody>${PERS_LBL.map((p,i)=>ROWSAY(PERS[i][0]+' '+v.f[i],esc(p),form(v.f[i]))).join('')}</tbody></table></div>
+ return{eyebrow:`Czasownik · ${v.fam==='am'?(v.model?'model verb of the -am / -asz family':'-am / -asz family'):'irregular verb'}`,title:`${inf} · ${v.en} · ${half==='sg'?'singular':'plural'}`,
+  html:`<div class="tw"><table class="btab"><tbody>${idx.map(i=>ROWSAY(PERS[i][0]+' '+v.f[i],esc(PERS_LBL[i]),form(v.f[i]))).join('')}</tbody></table></div>
   <div class="fam">${v.fam==='am'?`<p><b>Family: -am / -asz.</b> Endings ${AM_END}${v.stem?` on the stem <b>${esc(v.stem)}-</b>`:''}.</p><p>Same pattern: ${AM_FAM.filter(x=>x!==inf).map(x=>`<b>${esc(x)}</b>`).join(', ')}${inf==='mieć'?'':', and mieć (mam, masz…)'}.</p>`:`<p><b>Irregular.</b> No family to copy from, so learn the six forms together.</p>`}
-  <p>${esc(PERS_LBL[2].includes('pan')?'pan / pani take the on / ona form; państwo takes the oni form.':'')}</p></div>`}}
+  <p>${half==='sg'?'pan / pani take the on / ona form. The plural (my, wy, oni) comes in a later round.':'państwo takes the oni form. Singular: '+v.f.slice(0,3).join(', ')+'.'}</p></div>`}}
 const BLOCKS={
- pron:{eyebrow:'Zaimki · one set',title:'Personal pronouns',html:()=>`<div class="tw"><table class="btab"><tbody>${PRON_CORE.map(([en,pl])=>ROWSAY(pl,esc(en),`<b class="end">${esc(pl)}</b>`)).join('')}</tbody></table></div><div class="fam"><p><b>oni</b> as soon as at least one man is in the group; <b>one</b> for groups with no men (women, children, things).</p><p>The formal “you” (pan, pani…) is a separate set that comes later.</p></div>`},
- formal:{eyebrow:'Formal “you” · one set',title:'pan, pani, państwo',html:()=>`<div class="tw"><table class="btab"><tbody>${FORMAL.map(([en,pl])=>ROWSAY(pl,esc(en),`<b class="end">${esc(pl)}</b>`)).join('')}</tbody></table></div><div class="fam"><p>These are nouns, not pronouns. So the verb takes the <b>on / ona</b> form with pan and pani (pan jest, pani ma), and the <b>oni</b> form with państwo, panowie and panie (państwo są).</p><p>Use them with anyone you would not call by first name: teachers, officials, strangers.</p></div>`},
- num:{eyebrow:'Liczby · one set',title:'Numbers 0–10',html:()=>`<div class="tw"><table class="btab"><tbody>${NUMS.map((w,i)=>ROWSAY(w,String(i),`<b class="end">${esc(w)}</b>`)).join('')}</tbody></table></div><div class="fam"><p>Learn them as a sequence: count up and down out loud.</p></div>`},
+ 'pron:sg':{eyebrow:'Zaimki · singular',title:'I, you, he, she, it',html:()=>`<div class="tw"><table class="btab"><tbody>${PRON_CORE.slice(0,5).map(([en,pl])=>ROWSAY(pl,esc(en),`<b class="end">${esc(pl)}</b>`)).join('')}</tbody></table></div><div class="fam"><p><b>ono</b> is for neuter nouns, like dziecko (child).</p></div>`},
+ 'pron:pl':{eyebrow:'Zaimki · plural',title:'we, you, they',html:()=>`<div class="tw"><table class="btab"><tbody>${PRON_CORE.slice(5).map(([en,pl])=>ROWSAY(pl,esc(en),`<b class="end">${esc(pl)}</b>`)).join('')}</tbody></table></div><div class="fam"><p><b>oni</b> as soon as at least one man is in the group; <b>one</b> for groups with no men.</p></div>`},
+ formal:{eyebrow:'Formal “you”',title:'pan, pani, państwo…',html:()=>`<div class="tw"><table class="btab"><tbody>${FORMAL.map(([en,pl])=>ROWSAY(pl,esc(en),`<b class="end">${esc(pl)}</b>`)).join('')}</tbody></table></div><div class="fam"><p>Nouns, not pronouns: the verb takes the <b>on / ona</b> form with pan and pani (pan jest), and the <b>oni</b> form with państwo, panowie, panie (państwo są).</p></div>`},
+ 'num:1-5':{eyebrow:'Liczby',title:'1 to 5',html:()=>`<div class="tw"><table class="btab"><tbody>${[1,2,3,4,5].map(i=>ROWSAY(NUMS[i],String(i),`<b class="end">${NUMS[i]}</b>`)).join('')}</tbody></table></div>`},
+ 'num:6-10':{eyebrow:'Liczby',title:'6 to 10',html:()=>`<div class="tw"><table class="btab"><tbody>${[6,7,8,9,10].map(i=>ROWSAY(NUMS[i],String(i),`<b class="end">${NUMS[i]}</b>`)).join('')}</tbody></table></div>`},
+ 'adres:words':{eyebrow:'Adres',title:'Kinds of street',html:()=>`<div class="tw"><table class="btab"><tbody>${WORDS.slice(0,4).map(([pl,en])=>ROWSAY(pl,esc(en),`<b class="end">${esc(pl)}</b>`)).join('')}</tbody></table></div>`},
+ 'adres:abbr':{eyebrow:'Adres',title:'How they are written on an address',html:()=>`<div class="tw"><table class="btab"><tbody>${ABBR.map(([ab,full])=>ROWSAY(full,esc(ab),`<b class="end">${esc(full)}</b>`)).join('')}</tbody></table></div>`},
+ 'cl:hello':{eyebrow:'Powitania',title:'Hello and goodbye',html:()=>clRows(CL_GROUPS['hello'])},
+ 'cl:polite':{eyebrow:'Grzeczność',title:'Thanks, please, sorry',html:()=>clRows(CL_GROUPS['polite'])},
+ 'cl:ask':{eyebrow:'W klasie',title:'When you don’t understand',html:()=>clRows(CL_GROUPS['ask'])},
+ 'cl:prosze':{eyebrow:'W klasie · Proszę + verb',title:'Asking the teacher',html:()=>clRows(CL_GROUPS['prosze'])},
+ 'cl:klasa':{eyebrow:'W klasie',title:'Questions in class',html:()=>clRows(CL_GROUPS['klasa'])},
+ 'cl:slychac':{eyebrow:'Rozmowa',title:'How’s it going?',html:()=>clRows(CL_GROUPS['slychac'])},
  kraje:{eyebrow:'Skąd? · the pattern',title:'z + genitive',html:()=>`<p class="note">“From” is <b>z</b>, and z always changes the country into the <b>genitive</b>. Most follow one of these patterns:</p><div class="tw"><table class="btab"><thead><tr><th>country</th><th>from…</th><th>pattern</th></tr></thead><tbody>
   ${[['Belgia','z Belgii','-ia → -ii'],['Francja','z Francji','-ja → -ji'],['Polska','z Polski','-ka → -ki'],['Niemcy','z Niemiec','plural country'],['Włochy','z Włoch','plural country'],['Stany Zjednoczone','ze Stanów Zjednoczonych','plural; ze before st']].map(r=>`<tr class="sayrow" data-say="${esc(r[1])}"><td>${esc(r[0])}</td><td><b class="end">${esc(r[1])}</b></td><td>${esc(r[2])}</td></tr>`).join('')}</tbody></table></div>`},
  miasta:{eyebrow:'Gdzie? · the pattern',title:'w + locative',html:()=>`<p class="note">“In” a place is <b>w</b>, and w changes the city into the <b>locative</b>:</p><div class="tw"><table class="btab"><thead><tr><th>city</th><th>in…</th><th>pattern</th></tr></thead><tbody>
   ${[['Gandawa','w Gandawie','-a → -ie'],['Warszawa','w Warszawie','-a → -ie'],['Bruksela','w Brukseli','-la → -li'],['Kraków','w Krakowie','+ -ie, ó → o'],['Gdańsk','w Gdańsku','+ -u after k'],['Poznań','w Poznaniu','-ń → -niu'],['Wrocław','we Wrocławiu','we before w-, f- clusters']].map(r=>`<tr class="sayrow" data-say="${esc(r[1])}"><td>${esc(r[0])}</td><td><b class="end">${esc(r[1])}</b></td><td>${esc(r[2])}</td></tr>`).join('')}</tbody></table></div>`}
 };
+const clRows=ix=>`<div class="tw"><table class="btab"><tbody>${ix.map(i=>ROWSAY(sp(CLASS[i][0]),esc(CLASS[i][1]),`<b class="end">${esc(CLASS[i][0])}</b>`)).join('')}</tbody></table></div>${ix.includes(5)?'<div class="fam"><p><b>Proszę + infinitive</b> is a polite request; the verb stays in its dictionary form.</p></div>':''}`;
 const blockDef=n=>n.startsWith('verb:')?verbBlock(n.slice(5)):{...BLOCKS[n],html:BLOCKS[n].html()};
 const blockSeen=n=>!!(S._bk&&S._bk[n]);
 function showBlock(cur,name){
  const B=blockDef(name),mem=ITEMS.filter(it=>it.block===name&&it.member),isMem=cur.it.member;
  app.innerHTML=`${topBar(cur)}
  <article class="card intro"><p class="eyebrow">${esc(B.eyebrow)}<span class="tag">nowe</span></p><h2 class="prompt">${esc(B.title)}</h2>${B.html}
-  <p class="note">${canSpeak?'Tap a row to hear it. ':''}${mem.length?'You will practise this as one set.':'The words below use this pattern one by one.'}</p></article>
+  <p class="note">${canSpeak?'Tap a row to hear it. ':''}${mem.length?`${mem.length} new terms, practised one at a time.`:'The words below use this pattern one by one.'}</p></article>
  <div class="two"><button class="check" id="got">Mam! · Got it</button>${mem.length?'<button class="next" id="knowit" style="background:var(--blue-soft);color:var(--blue)">I know this · test me later</button>':''}</div>`;
  $('#qx').onclick=home;
  const mark=(bx,due)=>{S._bk={...(S._bk||{}),[name]:1};let n=0;mem.forEach(it=>{if(!S[it.id]){S[it.id]={b:bx,n:0,w:0,due,f:dayKey()};n++}});sess.fresh+=n;save()};
  $('#got').onclick=()=>{mark(0,round());
-  if(isMem){const extra=shuffle(mem.filter(it=>it!==cur.it)).slice(0,3);
-   [cur.it,...extra].forEach((it,k)=>sess.queue.splice(Math.min(sess.queue.length,sess.i+3+k*2),0,{it,retry:false}));next()}
+  if(isMem){const fresh=shuffle(mem.filter(it=>S[it.id]&&S[it.id].n===0));
+   fresh.forEach((it,k)=>sess.queue.splice(Math.min(sess.queue.length,sess.i+2+k*2),0,{it,retry:false}));next()}
   else ask()};
  const kb=$('#knowit');if(kb)kb.onclick=()=>{mark(1,round()+2);if(isMem)next();else ask()};
  $('#got').focus({preventScroll:true});
@@ -728,7 +751,7 @@ function showTable(cur,q,level){
 function ask(){
  if(sess.i>=sess.queue.length)return results();
  const cur=sess.queue[sess.i],q=cur.it.make();cur.q=q;const b=box(cur.it.id);
- if(!sess.test&&cur.it.block&&(!blockSeen(cur.it.block)||(q.table&&b<0)))return showBlock(cur,cur.it.block);
+ if(!sess.test&&cur.it.block&&b<0&&!blockSeen(cur.it.block))return showBlock(cur,cur.it.block);
  if(q.table){q.kind='table';return showTable(cur,q,sess.test?'':'<span class="tag">write</span>')}
  q.kind=!sess.test&&b<0?'intro':!sess.test&&b<1&&q.options?'mc':q.reveal?'reveal':'type';
  const canHint=!sess.test&&q.kind==='type';let usedHint=false;
