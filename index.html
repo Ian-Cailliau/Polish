@@ -239,6 +239,8 @@ p.diff{font-size:21px;font-weight:600;letter-spacing:.01em;line-height:1.5;overf
 .hidrow{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.hidrow .ghost{text-align:left}
 .hidebtn{align-self:center;font-size:13.5px;padding:6px 10px}
 
+#go-nut{border-color:var(--ink);color:var(--ink);background:var(--card)}
+
 /* nav */
 .nav{position:fixed;left:0;right:0;bottom:0;z-index:5;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;justify-content:center;gap:8px}
 .nav button{flex:1;max-width:220px;background:none;border:0;padding:12px 8px 14px;font-weight:700;font-size:15.5px;color:var(--muted);border-top:3px solid transparent}
@@ -724,6 +726,9 @@ function pickNew(unseen,budget){const fresh=[],taken=new Set();let used=0,groups
  return{fresh,used}}
 /* review only takes terms whose spacing has run out; spare slots go to fixing, then to extra new terms,
    and only as a last resort to review terms that are not due yet */
+/* the hardest terms: many mistakes, recent mistakes, wrong streaks, dropped a level */
+function hardness(it){const t=S[it.id];if(!t||!(t.w>0))return 0;return t.w*2+(t.ws||0)*2+(t.lr==='w'?2:0)+(t.dr?3:0)+(t.n?t.w/t.n*4:0)-Math.min(t.b||0,4)*0.5}
+function hardest(max){const keys=new Set();return vis().filter(it=>hardness(it)>0).sort((a,b)=>hardness(b)-hardness(a)).filter(it=>{const k=answerKey(it);if(k&&keys.has(k))return false;if(k)keys.add(k);return true}).slice(0,max)}
 const AKEY=new Map();
 function answerKey(it){if(AKEY.has(it.id))return AKEY.get(it.id);let k=null;
  if(!/^(ile:|qa:[a-z]+:ans$|qa:slychac$)/.test(it.id)){const q=it.make('write');const a=(q.accept&&q.accept[0])||(q.valid&&q.valid[0])||q.mcAnswer||q.answer;if(a&&!/^For example/.test(a))k=strip(norm(a))}
@@ -788,6 +793,7 @@ function home(){
  ${(()=>{const o=savedSess();if(!o)return '';const left=o.queue.length-o.i,done=o.log.filter(l=>l.counts).length;
    return `<button class="cta" id="go-resume"><span>Dokończ rundę · continue</span><small>${esc(o.title)} · ${done} answered, ${left} exercise${left===1?'':'s'} to go</small></button>`})()}
  <button class="${savedSess()?'cta2':'cta'}" id="go-learn"${savedSess()?' style="border-color:var(--blue);color:var(--blue);background:var(--blue-soft)"':''}><span>${savedSess()?'Start a new round instead':started?'Ucz się dalej':'Zaczynamy'}</span><small>Round ${round()+1} · ${P.fresh.length} new · ${P.fixSel.length} to fix · ${P.revSel.length} review${P.why?`<br>New lowered: ${esc(P.why)}`:''}</small></button>
+ ${(()=>{const h=hardest(10);return h.length>=3?`<button class="cta2" id="go-nut"><b>Twardy orzech</b> · drill your ${h.length} hardest terms</button>`:''})()}
  <button class="cta2" id="go-test" style="border-color:var(--blue);color:var(--blue);background:var(--blue-soft)">Próbny test · mock test: 20 written questions from everything, no hints</button>
  ${P.fix.length?`<button class="cta2" id="go-weak">Popraw błędy · only mistakes: ${Math.min(P.fix.length,total)} to fix</button>`:''}
  <h2 class="sec">Działy · practise one topic</h2>
@@ -802,6 +808,7 @@ function home(){
  updSync();
  $('#go-learn').onclick=()=>{const r=buildRound(vis());start(r.queue,'Nauka',false)};
  const rs=$('#go-resume');if(rs)rs.onclick=()=>{if(!resumeSess())home()};
+ const gn=$('#go-nut');if(gn)gn.onclick=()=>{const h=hardest(10);start(shuffle(h).map(it=>({it,st:'write',slot:'fix'})),'Twardy orzech',false,{nut:1})};
  $('#go-test').onclick=()=>start(wsample(vis().filter(it=>S[it.id]).length>=20?vis().filter(it=>S[it.id]):vis(),20).map(it=>({it,st:'write'})),'Próbny test',true);
  if(P.fix.length)$('#go-weak').onclick=()=>start(shuffle(P.fix).slice(0,total).map(it=>({it,st:warm(it)?'pick':'write',slot:'fix'})),'Popraw błędy',false);
  app.querySelectorAll('.deck').forEach(b=>b.onclick=()=>{const r=buildRound(ITEMS.filter(i=>i.deck===b.dataset.deck));start(r.queue,DECKS[b.dataset.deck].pl,false)});
@@ -813,8 +820,8 @@ function home(){
 
 /* an unfinished round is kept on this device, so stopping (✕, closing the app) resumes at the same exercise */
 const SK='pl-test1-round';
-function saveSess(){if(!sess)return;try{localStorage.setItem(SK,JSON.stringify({title:sess.title,test:!!sess.test,i:sess.i,answeredAt:sess.answeredAt,fresh:sess.fresh,stage0:sess.stage0,
- queue:sess.queue.map(e=>({id:e.it.id,st:e.st,slot:e.slot,retry:!!e.retry,again:!!e.again})),
+function saveSess(){if(!sess)return;try{localStorage.setItem(SK,JSON.stringify({title:sess.title,test:!!sess.test,nut:!!sess.nut,i:sess.i,answeredAt:sess.answeredAt,fresh:sess.fresh,stage0:sess.stage0,
+ queue:sess.queue.map(e=>({id:e.it.id,st:e.st,slot:e.slot,retry:!!e.retry,again:!!e.again,tries:e.tries||0})),
  log:sess.log.map(l=>({id:l.it.id,res:l.res,given:l.given,retry:!!l.retry,counts:!!l.counts,slot:l.slot})),done:[...(sess.done||[])],at:Date.now()}))}catch(e){}}
 function savedSess(){try{const o=JSON.parse(localStorage.getItem(SK)||'null');if(!o||!o.queue||o.i>=o.queue.length)return null;
  if(Date.now()-(o.at||0)>3*864e5)return null;return o}catch(e){return null}}
@@ -823,7 +830,7 @@ function resumeSess(){const o=savedSess();if(!o)return false;const byId=id=>ITEM
  const queue=o.queue.map(e=>({...e,it:byId(e.id)})).filter(e=>e.it);
  const log=o.log.map(l=>{const it=byId(l.id);return it?{...l,it,q:it.make()}:null}).filter(Boolean);
  let i=Math.min(o.i,queue.length);if(o.answeredAt===o.i)i++;if(i>=queue.length){clearSess();return false}
- start(queue,o.title,o.test,{i,log,fresh:o.fresh||0,done:new Set(o.done||[]),stage0:o.stage0});return true}
+ start(queue,o.title,o.test,{i,log,fresh:o.fresh||0,done:new Set(o.done||[]),stage0:o.stage0,nut:!!o.nut});return true}
 function start(queue,title,test,restore){clearSess();sess={title,test,queue,i:0,log:[],fresh:0,stage0:currentStage(),...(restore||{})};
  const put=(e,off)=>sess.queue.splice(Math.min(sess.queue.length,sess.i+off),0,e);sess.put=put;nav.hidden=true;app.className='app quiz';saveSess();ask()}
 
@@ -974,7 +981,8 @@ function finish(res,given,msg,quick){
  let requeued=false;
  /* warm-up: a miss gets one more warm-up; after that (right or not) the written answer follows, exactly once */
  if(warmup){if(res!=='right'&&!cur.again)sess.put({it:cur.it,st:'pick',slot:cur.slot,again:1},2);else sess.put({it:cur.it,st:'write',slot:cur.slot},3)}
- else if(res!=='right'&&!cur.retry){sess.queue.push({it:cur.it,st:'write',retry:true,slot:cur.slot});requeued=true}
+ else if(res!=='right'&&sess.nut&&(cur.tries||1)<3){sess.put({it:cur.it,st:'write',retry:true,tries:(cur.tries||1)+1,slot:cur.slot},3);requeued=true}
+ else if(res!=='right'&&!cur.retry&&!sess.nut){sess.queue.push({it:cur.it,st:'write',retry:true,slot:cur.slot});requeued=true}
  sess.answeredAt=sess.i;saveSess();
  if(quick)return next();
  let shown=q.kind==='mc'?(q.mcAnswer||q.answer):q.answer;
@@ -1049,7 +1057,7 @@ function drill(t,q){let n=0;const fb=$('#fb');
 function results(){
  clearSess();
  const first=sess.log.filter(l=>l.counts),ok=first.filter(l=>l.res==='right').length;
- if(!sess.counted){sess.counted=1;S._r=round()+1;today().r++;if(!sess.test&&first.length)S._acc={ok,n:first.length};save()}
+ if(!sess.counted){sess.counted=1;if(!sess.nut){S._r=round()+1;today().r++;if(!sess.test&&first.length)S._acc={ok,n:first.length}}save()}
  const missed=[];first.forEach(l=>{if(l.res!=='right'&&!missed.find(m=>m.it===l.it))missed.push(l)});
  const cs=currentStage(),up=cs>sess.stage0;
  app.innerHTML=`
@@ -1146,7 +1154,7 @@ document.addEventListener('keydown',e=>{
 document.addEventListener('click',e=>{const b=e.target.closest('[data-say]');if(b&&!e.target.closest('.gw'))say(b.dataset.say)});
 $('#t-home').onclick=home;$('#t-sheet').onclick=sheet;
 /* progress carried over from the Claude version: merged once per seed, the more-practised copy of each term wins */
-const SEED={"_bk": {"pron:sg": 1}, "_d": {"d": "2026-10-23", "n": 13}, "_p": 8, "_r": 4, "_t": {"d": "2026-10-23", "r": 1, "u0": 186}, "cl:13": {"b": 2, "due": 5, "n": 5, "w": 1}, "cl:14": {"b": 3, "due": 6, "n": 3, "w": 0}, "cl:15": {"b": 2, "due": 3, "n": 5, "w": 1}, "cl:16": {"b": 3, "due": 5, "n": 3, "w": 0}, "cl:17": {"b": 1, "due": 3, "n": 4, "w": 1}, "cl:18": {"b": 2, "due": 3, "n": 2, "w": 0}, "cl:19": {"b": 1, "due": 3, "n": 3, "w": 1}, "cl:20": {"b": 2, "due": 4, "n": 2, "w": 0}, "cl:21": {"b": 2, "due": 5, "n": 4, "w": 1}, "n:0": {"b": 2, "due": 6, "n": 2, "w": 0}, "n:1": {"b": 1, "due": 3, "n": 1, "w": 0}, "n:10": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:2": {"b": 1, "due": 3, "n": 1, "w": 0}, "n:3": {"b": 0, "due": 3, "n": 2, "w": 1}, "n:4": {"b": 1, "due": 5, "f": "2026-10-22", "n": 3, "w": 1}, "n:5": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:6": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:7": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:8": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:9": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pn:ja": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:on": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ona": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ono": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ty": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pr:0": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:1": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:2": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:3": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:4": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:5": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:6": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "pr:7": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "pr:8": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:gdzie:ans": {"b": 4, "due": 9, "n": 4, "w": 0}, "qa:imie:ans": {"b": 2, "due": 4, "n": 2, "w": 0}, "qa:imie:en": {"b": 2, "due": 6, "n": 2, "w": 0}, "qa:ma:ans": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:ma:en": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:milo": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "qa:nazwisko:ans": {"b": 2, "due": 5, "n": 2, "w": 0}, "qa:nazwisko:en": {"b": 1, "due": 2, "n": 7, "w": 2}, "qa:nazywa:ans": {"b": 1, "due": 2, "n": 1, "w": 0}, "qa:nazywa:en": {"b": 1, "due": 5, "n": 3, "w": 1}, "qa:skad:ans": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:skad:en": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:slychac": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "v:być:0": {"b": 2, "due": 5, "n": 2, "w": 0}, "v:być:1": {"b": 1, "due": 2, "n": 1, "w": 0}, "v:być:2": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:3": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:4": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:5": {"b": 2, "due": 6, "n": 2, "w": 0}, "w:4": {"b": 1, "due": 2, "n": 1, "w": 0}, "w:5": {"b": 2, "due": 5, "n": 2, "w": 0}},SEED_ID='1792782455';
+const SEED={"_bk": {"pron:sg": 1}, "_d": {"d": "2026-10-23", "n": 13}, "_p": 8, "_r": 4, "_t": {"d": "2026-10-23", "r": 1, "u0": 186}, "cl:13": {"b": 2, "due": 5, "n": 5, "w": 1}, "cl:14": {"b": 3, "due": 6, "n": 3, "w": 0}, "cl:15": {"b": 2, "due": 3, "n": 5, "w": 1}, "cl:16": {"b": 3, "due": 5, "n": 3, "w": 0}, "cl:17": {"b": 1, "due": 3, "n": 4, "w": 1}, "cl:18": {"b": 2, "due": 3, "n": 2, "w": 0}, "cl:19": {"b": 1, "due": 3, "n": 3, "w": 1}, "cl:20": {"b": 2, "due": 4, "n": 2, "w": 0}, "cl:21": {"b": 2, "due": 5, "n": 4, "w": 1}, "n:0": {"b": 2, "due": 6, "n": 2, "w": 0}, "n:1": {"b": 1, "due": 3, "n": 1, "w": 0}, "n:10": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:2": {"b": 1, "due": 3, "n": 1, "w": 0}, "n:3": {"b": 0, "due": 3, "n": 2, "w": 1}, "n:4": {"b": 1, "due": 5, "f": "2026-10-22", "n": 3, "w": 1}, "n:5": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:6": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:7": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:8": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:9": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pn:ja": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:on": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ona": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ono": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ty": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pr:0": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:1": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:2": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:3": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:4": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:5": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:6": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "pr:7": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "pr:8": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:gdzie:ans": {"b": 4, "due": 9, "n": 4, "w": 0}, "qa:imie:ans": {"b": 2, "due": 4, "n": 2, "w": 0}, "qa:imie:en": {"b": 2, "due": 6, "n": 2, "w": 0}, "qa:ma:ans": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:ma:en": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:milo": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "qa:nazwisko:ans": {"b": 2, "due": 5, "n": 2, "w": 0}, "qa:nazwisko:en": {"b": 1, "due": 2, "n": 7, "w": 2}, "qa:nazywa:ans": {"b": 1, "due": 2, "n": 1, "w": 0}, "qa:nazywa:en": {"b": 1, "due": 5, "n": 3, "w": 1}, "qa:skad:ans": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:skad:en": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:slychac": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "v:być:0": {"b": 2, "due": 5, "n": 2, "w": 0}, "v:być:1": {"b": 1, "due": 2, "n": 1, "w": 0}, "v:być:2": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:3": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:4": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:5": {"b": 2, "due": 6, "n": 2, "w": 0}, "w:4": {"b": 1, "due": 2, "n": 1, "w": 0}, "w:5": {"b": 2, "due": 5, "n": 2, "w": 0}},SEED_ID='1792782639';
 if(S._seed!==SEED_ID){S=Object.keys(S).length?mergeS(S,SEED):JSON.parse(JSON.stringify(SEED));S._seed=SEED_ID;saveLocal()}
 if(!resumeSess())home();
 </script>
