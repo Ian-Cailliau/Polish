@@ -759,7 +759,9 @@ function home(){
    ${[['n','new'],['m','to fix'],['c','review']].map(([k,l])=>`<span class="stp"><button data-k="${k}" data-d="-1" aria-label="fewer ${l}">−</button><b>${M[k]}</b><button data-k="${k}" data-d="1" aria-label="more ${l}">+</button><small>${l}</small></span>`).join('')}
   </div>
  </section>
- <button class="cta" id="go-learn"><span>${started?'Ucz się dalej':'Zaczynamy'}</span><small>Round ${round()+1} · ${P.fresh.length} new · ${P.fixSel.length} to fix · ${P.revSel.length} review${P.why?`<br>New lowered: ${esc(P.why)}`:''}</small></button>
+ ${(()=>{const o=savedSess();if(!o)return '';const left=o.queue.length-o.i,done=o.log.filter(l=>l.counts).length;
+   return `<button class="cta" id="go-resume"><span>Dokończ rundę · continue</span><small>${esc(o.title)} · ${done} answered, ${left} exercise${left===1?'':'s'} to go</small></button>`})()}
+ <button class="${savedSess()?'cta2':'cta'}" id="go-learn"${savedSess()?' style="border-color:var(--blue);color:var(--blue);background:var(--blue-soft)"':''}><span>${savedSess()?'Start a new round instead':started?'Ucz się dalej':'Zaczynamy'}</span><small>Round ${round()+1} · ${P.fresh.length} new · ${P.fixSel.length} to fix · ${P.revSel.length} review${P.why?`<br>New lowered: ${esc(P.why)}`:''}</small></button>
  <button class="cta2" id="go-test" style="border-color:var(--blue);color:var(--blue);background:var(--blue-soft)">Próbny test · mock test: 20 written questions from everything, no hints</button>
  ${P.fix.length?`<button class="cta2" id="go-weak">Popraw błędy · only mistakes: ${Math.min(P.fix.length,total)} to fix</button>`:''}
  <h2 class="sec">Działy · practise one topic</h2>
@@ -772,6 +774,7 @@ function home(){
  <p class="note" id="sync"></p>`;
  updSync();
  $('#go-learn').onclick=()=>{const r=buildRound(ITEMS);start(r.queue,'Nauka',false)};
+ const rs=$('#go-resume');if(rs)rs.onclick=()=>{if(!resumeSess())home()};
  $('#go-test').onclick=()=>start(wsample(ITEMS.filter(it=>S[it.id]).length>=20?ITEMS.filter(it=>S[it.id]):ITEMS,20).map(it=>({it,st:'write'})),'Próbny test',true);
  if(P.fix.length)$('#go-weak').onclick=()=>start(shuffle(P.fix).slice(0,total).map(it=>({it,st:warm(it)?'pick':'write',slot:'fix'})),'Popraw błędy',false);
  app.querySelectorAll('.deck').forEach(b=>b.onclick=()=>{const r=buildRound(ITEMS.filter(i=>i.deck===b.dataset.deck));start(r.queue,DECKS[b.dataset.deck].pl,false)});
@@ -780,8 +783,21 @@ function home(){
  const r=$('#reset');r.onclick=()=>{if(r.classList.contains('armed')){S={};save();home()}else{r.classList.add('armed');r.textContent='Tap again to erase all progress'}};
 }
 
-function start(queue,title,test){sess={title,test,queue,i:0,log:[],fresh:0,stage0:currentStage()};
- const put=(e,off)=>sess.queue.splice(Math.min(sess.queue.length,sess.i+off),0,e);sess.put=put;nav.hidden=true;app.className='app quiz';ask()}
+/* an unfinished round is kept on this device, so stopping (✕, closing the app) resumes at the same exercise */
+const SK='pl-test1-round';
+function saveSess(){if(!sess)return;try{localStorage.setItem(SK,JSON.stringify({title:sess.title,test:!!sess.test,i:sess.i,answeredAt:sess.answeredAt,fresh:sess.fresh,stage0:sess.stage0,
+ queue:sess.queue.map(e=>({id:e.it.id,st:e.st,slot:e.slot,retry:!!e.retry,again:!!e.again})),
+ log:sess.log.map(l=>({id:l.it.id,res:l.res,given:l.given,retry:!!l.retry,counts:!!l.counts,slot:l.slot})),done:[...(sess.done||[])],at:Date.now()}))}catch(e){}}
+function savedSess(){try{const o=JSON.parse(localStorage.getItem(SK)||'null');if(!o||!o.queue||o.i>=o.queue.length)return null;
+ if(Date.now()-(o.at||0)>3*864e5)return null;return o}catch(e){return null}}
+function clearSess(){try{localStorage.removeItem(SK)}catch(e){}}
+function resumeSess(){const o=savedSess();if(!o)return false;const byId=id=>ITEMS.find(x=>x.id===id);
+ const queue=o.queue.map(e=>({...e,it:byId(e.id)})).filter(e=>e.it);
+ const log=o.log.map(l=>{const it=byId(l.id);return it?{...l,it,q:it.make()}:null}).filter(Boolean);
+ let i=Math.min(o.i,queue.length);if(o.answeredAt===o.i)i++;if(i>=queue.length){clearSess();return false}
+ start(queue,o.title,o.test,{i,log,fresh:o.fresh||0,done:new Set(o.done||[]),stage0:o.stage0});return true}
+function start(queue,title,test,restore){clearSess();sess={title,test,queue,i:0,log:[],fresh:0,stage0:currentStage(),...(restore||{})};
+ const put=(e,off)=>sess.queue.splice(Math.min(sess.queue.length,sess.i+off),0,e);sess.put=put;nav.hidden=true;app.className='app quiz';saveSess();ask()}
 
 function promptHTML(q,fill,g){const f=g?gl:esc;let p=f(q.prompt);p=fill!=null?p.replace('___',`<b class="fill">${f(fill)}</b>`):p.replace('___','<span class="blank"></span>');return `<h2 class="prompt${q.big?' big':''}">${p}</h2>`}
 const topBar=(cur)=>`<div class="qtop"><button class="qx" id="qx" aria-label="Stop and go home">✕</button>${sess.hist&&sess.hist.length?'<button class="qx" id="qb" aria-label="Look at the previous exercise">←</button>':''}<div class="bar"><i style="width:${Math.round(sess.i/sess.queue.length*100)}%"></i></div><span class="count">${sess.i+1}/${sess.queue.length}</span></div>`;
@@ -929,6 +945,7 @@ function finish(res,given,msg,quick){
  /* warm-up: a miss gets one more warm-up; after that (right or not) the written answer follows, exactly once */
  if(warmup){if(res!=='right'&&!cur.again)sess.put({it:cur.it,st:'pick',slot:cur.slot,again:1},2);else sess.put({it:cur.it,st:'write',slot:cur.slot},3)}
  else if(res!=='right'&&!cur.retry){sess.queue.push({it:cur.it,st:'write',retry:true,slot:cur.slot});requeued=true}
+ sess.answeredAt=sess.i;saveSess();
  if(quick)return next();
  let shown=q.kind==='mc'?(q.mcAnswer||q.answer):q.answer;
  if(q.open&&res==='right')shown=given;else if(q.open&&q.kind==='mc'){const vo=q.options.find(o=>q.valid.includes(o));if(vo)shown=vo}
@@ -961,7 +978,7 @@ function finish(res,given,msg,quick){
  $('#fb').scrollIntoView({block:'nearest',behavior:'smooth'});
  if(autoAudio)say(q.sayAns);
 }
-function next(){kbuf='';if(sess){app.querySelectorAll('input').forEach(x=>x.setAttribute('value',x.value));sess.hist=sess.hist||[];sess.hist.push(app.innerHTML);if(sess.hist.length>40)sess.hist.shift()}sess.i++;ask()}
+function next(){kbuf='';if(sess){sess.answeredAt=null;app.querySelectorAll('input').forEach(x=>x.setAttribute('value',x.value));sess.hist=sess.hist||[];sess.hist.push(app.innerHTML);if(sess.hist.length>40)sess.hist.shift()}sess.i++;saveSess();ask()}
 function review(k){const H=sess.hist;closeReview();const ov=document.createElement('div');ov.id='review';
  ov.innerHTML=`<div class="rv-bar"><button class="qx" id="rv-old" aria-label="Earlier exercise" ${k===0?'disabled':''}>←</button><span>Earlier exercise · ${H.length-k} back</span><button class="rv-back" id="rv-cur">Back to where I was →</button></div><div class="rv-body">${H[k]}</div>`;
  document.body.appendChild(ov);
@@ -997,6 +1014,7 @@ function drill(t,q){let n=0;const fb=$('#fb');
 }
 
 function results(){
+ clearSess();
  const first=sess.log.filter(l=>l.counts),ok=first.filter(l=>l.res==='right').length;
  if(!sess.counted){sess.counted=1;S._r=round()+1;today().r++;if(!sess.test&&first.length)S._acc={ok,n:first.length};save()}
  const missed=[];first.forEach(l=>{if(l.res!=='right'&&!missed.find(m=>m.it===l.it))missed.push(l)});
@@ -1084,9 +1102,9 @@ document.addEventListener('keydown',e=>{
 document.addEventListener('click',e=>{const b=e.target.closest('[data-say]');if(b&&!e.target.closest('.gw'))say(b.dataset.say)});
 $('#t-home').onclick=home;$('#t-sheet').onclick=sheet;
 /* progress carried over from the Claude version: merged once per seed, the more-practised copy of each term wins */
-const SEED={"_bk": {"pron:sg": 1}, "_d": {"d": "2026-10-23", "n": 13}, "_p": 8, "_r": 4, "_t": {"d": "2026-10-23", "r": 1, "u0": 186}, "cl:13": {"b": 2, "due": 5, "n": 5, "w": 1}, "cl:14": {"b": 3, "due": 6, "n": 3, "w": 0}, "cl:15": {"b": 2, "due": 3, "n": 5, "w": 1}, "cl:16": {"b": 3, "due": 5, "n": 3, "w": 0}, "cl:17": {"b": 1, "due": 3, "n": 4, "w": 1}, "cl:18": {"b": 2, "due": 3, "n": 2, "w": 0}, "cl:19": {"b": 1, "due": 3, "n": 3, "w": 1}, "cl:20": {"b": 2, "due": 4, "n": 2, "w": 0}, "cl:21": {"b": 2, "due": 5, "n": 4, "w": 1}, "n:0": {"b": 2, "due": 6, "n": 2, "w": 0}, "n:1": {"b": 1, "due": 3, "n": 1, "w": 0}, "n:10": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:2": {"b": 1, "due": 3, "n": 1, "w": 0}, "n:3": {"b": 0, "due": 3, "n": 2, "w": 1}, "n:4": {"b": 1, "due": 5, "f": "2026-10-22", "n": 3, "w": 1}, "n:5": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:6": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:7": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:8": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:9": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pn:ja": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:on": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ona": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ono": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ty": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pr:0": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:1": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:2": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:3": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:4": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:5": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:6": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "pr:7": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "pr:8": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:gdzie:ans": {"b": 4, "due": 9, "n": 4, "w": 0}, "qa:imie:ans": {"b": 2, "due": 4, "n": 2, "w": 0}, "qa:imie:en": {"b": 2, "due": 6, "n": 2, "w": 0}, "qa:ma:ans": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:ma:en": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:milo": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "qa:nazwisko:ans": {"b": 2, "due": 5, "n": 2, "w": 0}, "qa:nazwisko:en": {"b": 1, "due": 2, "n": 7, "w": 2}, "qa:nazywa:ans": {"b": 1, "due": 2, "n": 1, "w": 0}, "qa:nazywa:en": {"b": 1, "due": 5, "n": 3, "w": 1}, "qa:skad:ans": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:skad:en": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:slychac": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "v:być:0": {"b": 2, "due": 5, "n": 2, "w": 0}, "v:być:1": {"b": 1, "due": 2, "n": 1, "w": 0}, "v:być:2": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:3": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:4": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:5": {"b": 2, "due": 6, "n": 2, "w": 0}, "w:4": {"b": 1, "due": 2, "n": 1, "w": 0}, "w:5": {"b": 2, "due": 5, "n": 2, "w": 0}},SEED_ID='1792764240';
+const SEED={"_bk": {"pron:sg": 1}, "_d": {"d": "2026-10-23", "n": 13}, "_p": 8, "_r": 4, "_t": {"d": "2026-10-23", "r": 1, "u0": 186}, "cl:13": {"b": 2, "due": 5, "n": 5, "w": 1}, "cl:14": {"b": 3, "due": 6, "n": 3, "w": 0}, "cl:15": {"b": 2, "due": 3, "n": 5, "w": 1}, "cl:16": {"b": 3, "due": 5, "n": 3, "w": 0}, "cl:17": {"b": 1, "due": 3, "n": 4, "w": 1}, "cl:18": {"b": 2, "due": 3, "n": 2, "w": 0}, "cl:19": {"b": 1, "due": 3, "n": 3, "w": 1}, "cl:20": {"b": 2, "due": 4, "n": 2, "w": 0}, "cl:21": {"b": 2, "due": 5, "n": 4, "w": 1}, "n:0": {"b": 2, "due": 6, "n": 2, "w": 0}, "n:1": {"b": 1, "due": 3, "n": 1, "w": 0}, "n:10": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:2": {"b": 1, "due": 3, "n": 1, "w": 0}, "n:3": {"b": 0, "due": 3, "n": 2, "w": 1}, "n:4": {"b": 1, "due": 5, "f": "2026-10-22", "n": 3, "w": 1}, "n:5": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:6": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:7": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:8": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:9": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pn:ja": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:on": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ona": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ono": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ty": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pr:0": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:1": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:2": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:3": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:4": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:5": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:6": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "pr:7": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "pr:8": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:gdzie:ans": {"b": 4, "due": 9, "n": 4, "w": 0}, "qa:imie:ans": {"b": 2, "due": 4, "n": 2, "w": 0}, "qa:imie:en": {"b": 2, "due": 6, "n": 2, "w": 0}, "qa:ma:ans": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:ma:en": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:milo": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "qa:nazwisko:ans": {"b": 2, "due": 5, "n": 2, "w": 0}, "qa:nazwisko:en": {"b": 1, "due": 2, "n": 7, "w": 2}, "qa:nazywa:ans": {"b": 1, "due": 2, "n": 1, "w": 0}, "qa:nazywa:en": {"b": 1, "due": 5, "n": 3, "w": 1}, "qa:skad:ans": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:skad:en": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:slychac": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "v:być:0": {"b": 2, "due": 5, "n": 2, "w": 0}, "v:być:1": {"b": 1, "due": 2, "n": 1, "w": 0}, "v:być:2": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:3": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:4": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:5": {"b": 2, "due": 6, "n": 2, "w": 0}, "w:4": {"b": 1, "due": 2, "n": 1, "w": 0}, "w:5": {"b": 2, "due": 5, "n": 2, "w": 0}},SEED_ID='1792764346';
 if(S._seed!==SEED_ID){S=Object.keys(S).length?mergeS(S,SEED):JSON.parse(JSON.stringify(SEED));S._seed=SEED_ID;saveLocal()}
-home();
+if(!resumeSess())home();
 </script>
 
 <script>
