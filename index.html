@@ -241,6 +241,9 @@ p.diff{font-size:21px;font-weight:600;letter-spacing:.01em;line-height:1.5;overf
 
 #go-nut{border-color:var(--ink);color:var(--ink);background:var(--card)}
 
+.drills{display:flex;flex-wrap:wrap;gap:8px}
+.drill{background:var(--card);color:var(--ink);font-weight:600;font-size:15px;padding:10px 12px;border-radius:12px}
+
 /* nav */
 .nav{position:fixed;left:0;right:0;bottom:0;z-index:5;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;justify-content:center;gap:8px}
 .nav button{flex:1;max-width:220px;background:none;border:0;padding:12px 8px 14px;font-weight:700;font-size:15.5px;color:var(--muted);border-top:3px solid transparent}
@@ -393,9 +396,12 @@ const free=(pat,k,ex)=>g=>{const bad=k&&nomTrap(k,g);if(bad)return{res:'wrong',m
 QA.forEach(q=>{
  add('qa',`qa:${q.k}:ans`,()=>{const ask=Math.random()<.5?q.inf:q.form;return openQ(q.k,{eyebrow:'Answer as yourself · any true answer counts',prompt:ask,say:sp(ask),sub:'Write a full sentence about you'})});
  add('qa',`qa:${q.k}:en`,()=>({eyebrow:'Ask a friend (ty)',prompt:q.en,answer:q.inf,accept:[q.inf],options:mc(q.inf,QA.map(x=>x.inf)),sayAns:q.inf}));
- add('qa',`qa:${q.k}:form`,()=>({eyebrow:'Make it formal · pan / pani',prompt:q.inf,say:q.inf,sub:'Ask the same question politely',answer:q.form,accept:[...expand(q.form),...q.formAlt.flatMap(expand)],options:shuffle([q.form,q.trap,...shuffle(QA.filter(x=>x!==q).map(x=>x.form)).slice(0,2)]),sayAns:sp(q.form),note:FORMAL_NOTE}));
+ add('qa',`qa:${q.k}:form`,()=>{const g=Math.random()<.5?'pan':'pani',f=q.form.replace('pan / pani',g),alts=q.formAlt.map(x=>x.replace('pan / pani',g));
+  return{eyebrow:'Make it formal',prompt:q.inf,say:q.inf,sub:`Ask the same question politely, to a ${g==='pan'?'man (pan)':'woman (pani)'}`,answer:f,accept:[f,...alts],options:shuffle([q.form,q.trap,...shuffle(QA.filter(x=>x!==q).map(x=>x.form)).slice(0,2)]),sayAns:f,note:FORMAL_NOTE}});
  add('qa',`qa:${q.k}:inf`,()=>({eyebrow:'Make it informal · ty',prompt:q.form,say:sp(q.form),sub:'Ask the same question to a friend',answer:q.inf,accept:[q.inf],options:mc(q.inf,QA.map(x=>x.inf)),sayAns:q.inf}));
- add('qa',`qa:${q.k}:3`,()=>({eyebrow:'Ask about someone · on / ona',prompt:q.en3,answer:q.third,accept:[q.third,...q.thirdAlt],options:mc(q.third,QA.map(x=>x.third)),sayAns:q.third}));
+ add('qa',`qa:${q.k}:3`,()=>{const he=Math.random()<.5,sw=t=>he?t.replace(/\bona\b/,'on'):t.replace(/\bon\b/,'ona');
+  const en=he?q.en3.replace('about her','about him').replace(/\bher\b/g,'his').replace(/\bshe\b/g,'he'):q.en3.replace('about him','about her').replace(/\bhis\b/g,'her').replace(/\bhe\b/g,'she');
+  const t3=sw(q.third);return{eyebrow:'Ask about someone · on / ona',prompt:en,answer:t3,accept:[t3,...q.thirdAlt.map(sw)],options:mc(q.third,QA.map(x=>x.third)),sayAns:t3}});
  add('qa',`qa:${q.k}:a3`,()=>({eyebrow:'Answer about someone · translate',prompt:q.third,say:q.third,sub:`Answer in Polish: “${q.fact}”`,answer:q.ans3,...(q.pat3?{check:g=>q.pat3.test(g)?{res:'right'}:{res:'wrong'},mcAnswer:q.ans3}:{accept:[q.ans3,...q.acc3]}),options:mc(q.ans3,QA.map(x=>x.ans3)),sayAns:q.ans3}));
 });
 add('qa','qa:slychac',()=>openQ('slychac',{eyebrow:'Answer naturally · any fitting answer counts',prompt:'Co słychać?',say:'Co słychać?',sub:"How's it going?"}));
@@ -409,12 +415,12 @@ SENT.forEach(([s,a,v],i)=>add('verbs',`vs:${i}`,()=>({eyebrow:`${v} · fill the 
 /* countries: 1) the structure “Jestem z …” once, 2) the genitive of each country, taught in small groups by ending */
 const KR_GROUPS={'kraje:ii':['Belgia','Anglia','Holandia','Flandria','Japonia'],'kraje:ji':['Hiszpania','Francja','Rosja'],'kraje:ki':['Polska','Ameryka','Niemcy','Włochy']};
 COUNTRIES.forEach(([en,pl,gen,alt])=>{const nom=pl.split(' · ')[0],g=gen.replace(/^ze? /,'');
- add('kraje',`kr:${pl}:g`,()=>({eyebrow:'Kraje · from which country?',prompt:`${nom} → z ___`,sub:`${en}: write the form after z`,answer:g,accept:[g,gen,...(alt||[]),...(alt||[]).map(x=>x.replace(/^ze? /,''))],options:mc(g,COUNTRIES.map(c=>c[2].replace(/^ze? /,''))),sayAns:gen}));
+ add('kraje',`kr:${pl}:g`,()=>({eyebrow:'Kraje · from which country?',prompt:pick([`${nom} → z ___`,`Jestem z ___ (${nom}).`,`On jest z ___ (${nom}).`,`Ona jest z ___ (${nom}).`]),sub:`${en}: write the form after z`,answer:g,accept:[g,gen,...(alt||[]),...(alt||[]).map(x=>x.replace(/^ze? /,''))],options:mc(g,COUNTRIES.map(c=>c[2].replace(/^ze? /,''))),sayAns:gen}));
  ITEMS[ITEMS.length-1].group=Object.keys(KR_GROUPS).find(k=>KR_GROUPS[k].includes(nom))});
 const metCountries=()=>{const m=COUNTRIES.filter(c=>S[`kr:${c[1]}:g`]);return m.length?m:COUNTRIES.filter(c=>c[1]==='Belgia'||c[1]==='Polska')};
 add('kraje','kr:s:ja',()=>{const [en,pl,gen]=pick(metCountries());return{eyebrow:'Skąd jesteś? · the structure',prompt:`I'm from ${en}.`,answer:`Jestem ${gen}.`,accept:[`Jestem ${gen}`],options:shuffle([`Jestem ${gen}.`,`Jestem w ${gen.replace(/^ze? /,'')}.`,`Jestem ${pl.split(' · ')[0]}.`,`Mieszkam ${gen}.`]),sayAns:`Jestem ${gen}.`,note:'Jestem z + the country in the genitive.'}});
 add('kraje','kr:s:on',()=>{const [en,pl,gen]=pick(metCountries()),he=Math.random()<.5;const pr=he?'On':'Ona';return{eyebrow:'Skąd on / ona jest? · the structure',prompt:`${he?'He':'She'} is from ${en}.`,answer:`${pr} jest ${gen}.`,accept:[`${pr} jest ${gen}`,`Jest ${gen}`],options:shuffle([`${pr} jest ${gen}.`,`${pr} jestem ${gen}.`,`${pr} jest ${pl.split(' · ')[0]}.`,`${pr} jest w ${gen.replace(/^ze? /,'')}.`]),sayAns:`${pr} jest ${gen}.`,note:'jest for on / ona; the country stays in the genitive after z.'}});
-CITIES.forEach(([en,pl,loc])=>add('kraje',`city:${pl}`,()=>({eyebrow:'Gdzie mieszkasz?',prompt:`I live in ${en}.`,sub:`${pl}`,answer:`Mieszkam ${loc}.`,accept:[`Mieszkam ${loc}`,loc],options:mc(`Mieszkam ${loc}.`,CITIES.map(c=>`Mieszkam ${c[2]}.`)),sayAns:`Mieszkam ${loc}.`,note:`${pl} → ${loc}`})));
+CITIES.forEach(([en,pl,loc])=>add('kraje',`city:${pl}`,()=>{const [e,p2]=pick([['I live','Mieszkam'],['She lives','Ona mieszka'],['He lives','On mieszka'],['We live','Mieszkamy']]);return{eyebrow:'Gdzie mieszka?',prompt:`${e} in ${en}.`,sub:`${pl}`,answer:`${p2} ${loc}.`,accept:[`${p2} ${loc}`,loc,...(p2.includes(' ')?[`${p2.split(' ')[1]} ${loc}`]:[])],options:mc(`Mieszkam ${loc}.`,CITIES.map(c=>`Mieszkam ${c[2]}.`)),sayAns:`${p2} ${loc}.`,note:`${pl} → ${loc}`}}));
 
 NUMS.forEach((w,n)=>add('num',`n:${n}`,st=>(st==='write'||Math.random()<.65)
  ?{eyebrow:'Liczby · write the word',prompt:String(n),big:1,answer:w,accept:[w],options:mc(w,NUMS),sayAns:w}
@@ -736,6 +742,19 @@ function pickNew(unseen,budget){const fresh=[],taken=new Set();let used=0,groups
 /* the hardest terms: many mistakes, recent mistakes, wrong streaks, dropped a level */
 function hardness(it){const t=S[it.id];if(!t||!(t.w>0))return 0;return t.w*2+(t.ws||0)*2+(t.lr==='w'?2:0)+(t.dr?3:0)+(t.n?t.w/t.n*4:0)-Math.min(t.b||0,4)*0.5}
 function hardest(max){const keys=new Set();return vis().filter(it=>hardness(it)>0).sort((a,b)=>hardness(b)-hardness(a)).filter(it=>{const k=answerKey(it);if(k&&keys.has(k))return false;if(k)keys.add(k);return true}).slice(0,max)}
+/* rapid fire: 5 cases of one pattern in a row, all written */
+const REV_INF=QA.map(q=>({id:'tmp:inf:'+q.k,tmp:1,deck:'qa',make:()=>{const g=Math.random()<.5?'pan':'pani',f=q.form.replace('pan / pani',g);return{eyebrow:'Make it informal · ty',prompt:f,say:f,sub:'Ask the same question to a friend',answer:q.inf,accept:[q.inf],sayAns:q.inf,note:'To a friend: drop pan / pani and use the ty-form: ma → masz, jest → jesteś, mieszka → mieszkasz.'}}}));
+const ONI_F=['Magda','Dominika','Agnieszka','Anna','Ewa','Grażyna','pani Nowak'],ONI_M=['Jacek','Piotrek','Mariusz','Tadeusz','Andrzej','Kamil','pan Kowalski'];
+const ONI_V=[['są z Polski','are from Poland'],['mieszkają w Krakowie','live in Kraków'],['mają problem','have a problem'],['są w domu','are at home']];
+const oniCases=()=>Array.from({length:8},(_,k)=>({id:'tmp:oni:'+k,tmp:1,deck:'words',make:()=>{const r=Math.random();
+ const [a,b2]=r<.3?[pick(ONI_F),pick(ONI_F)]:r<.5?[pick(ONI_M),pick(ONI_M)]:r<.8?[pick(ONI_F),pick(ONI_M)]:[pick(ONI_F),'dziecko'];
+ const pair=a===b2?[a,pick(ONI_F.filter(x=>x!==a))]:[a,b2],man=pair.some(x=>ONI_M.includes(x)),ans=man?'Oni':'One',[v,ve]=pick(ONI_V);
+ return{eyebrow:'Oni czy one?',prompt:`(${pair.join(' i ')}) ___ ${v}.`,sub:`They ${ve}.`,answer:ans,accept:[ans],sayAns:`${ans} ${v}.`,note:man?'At least one man in the group → oni.':'No man in the group → one.'}}}));
+const DRILLS=[['formal','Formal ↔ informal',()=>[...ITEMS.filter(i=>/^qa:[a-z]+:form$/.test(i.id)),...REV_INF]],['third','About someone · on / ona',()=>ITEMS.filter(i=>/^qa:[a-z]+:(3|a3)$/.test(i.id))],
+ ['sentence','Verbs in sentences',()=>ITEMS.filter(i=>/^vs:/.test(i.id))],['oni','oni or one',()=>oniCases()],
+ ['gen','z + genitive · countries',()=>ITEMS.filter(i=>/^kr:/.test(i.id))],['loc','w + locative · cities',()=>ITEMS.filter(i=>/^city:/.test(i.id))],['ile','Ile jest…? · sums',()=>ITEMS.filter(i=>/^ile:/.test(i.id))]];
+function startDrill(key){const d=DRILLS.find(x=>x[0]===key);const keys=new Set(),pick5=shuffle(d[2]()).filter(it=>{const k=it.tmp?it.id:answerKey(it);if(k&&keys.has(k))return false;keys.add(k);return true}).slice(0,5);
+ start(pick5.map(it=>({it,st:'write',slot:'fix'})),'Rapid fire · '+d[1],false,{drill:1})}
 const AKEY=new Map();
 function answerKey(it){if(AKEY.has(it.id))return AKEY.get(it.id);let k=null;
  if(!/^(ile:|qa:[a-z]+:ans$|qa:slychac$)/.test(it.id)){const q=it.make('write');const a=(q.accept&&q.accept[0])||(q.valid&&q.valid[0])||q.mcAnswer||q.answer;if(a&&!/^For example/.test(a))k=strip(norm(a))}
@@ -803,6 +822,9 @@ function home(){
  ${(()=>{const h=hardest(10);return h.length>=3?`<button class="cta2" id="go-nut"><b>Twardy orzech</b> · drill your ${h.length} hardest terms</button>`:''})()}
  <button class="cta2" id="go-test" style="border-color:var(--blue);color:var(--blue);background:var(--blue-soft)">Próbny test · mock test: 20 written questions from everything, no hints</button>
  ${P.fix.length?`<button class="cta2" id="go-weak">Popraw błędy · only mistakes: ${Math.min(P.fix.length,total)} to fix</button>`:''}
+ <h2 class="sec">Wzorce · rapid fire</h2>
+ <p class="note" style="margin-top:-8px">Five cases of one pattern in a row, all written.</p>
+ <div class="drills">${DRILLS.map(([k,l])=>`<button class="ghost drill" data-drill="${k}">${esc(l)}</button>`).join('')}</div>
  <h2 class="sec">Działy · practise one topic</h2>
  <div class="decks">${Object.entries(DECKS).map(([k,d])=>{const its=vis().filter(i=>i.deck===k),dm=Math.round(mastery(its)*100);
    return `<button class="deck" data-deck="${k}"><span class="dn">${d.pl}</span><span class="dp">${dm}%</span><span class="de">${d.en}</span><span class="meter"><i style="width:${dm}%"></i></span></button>`}).join('')}</div>
@@ -822,22 +844,23 @@ function home(){
  const a=$('#aud');if(a)a.onchange=()=>{autoAudio=a.checked;try{localStorage.setItem('pl-test1-audio',a.checked?'1':'0')}catch(e){}};
  app.querySelectorAll('.stp button').forEach(b=>b.onclick=()=>{const M=mix(),k=b.dataset.k;M[k]=Math.max(0,Math.min(20,M[k]+ +b.dataset.d));if(M.n+M.m+M.c>0){S._mix=M;save()}home()});
  app.querySelectorAll('[data-show]').forEach(b=>b.onclick=()=>{showTerm(b.dataset.show);home()});
+ app.querySelectorAll('[data-drill]').forEach(b=>b.onclick=()=>startDrill(b.dataset.drill));
  const r=$('#reset');r.onclick=()=>{if(r.classList.contains('armed')){S={};save();home()}else{r.classList.add('armed');r.textContent='Tap again to erase all progress'}};
 }
 
 /* an unfinished round is kept on this device, so stopping (✕, closing the app) resumes at the same exercise */
 const SK='pl-test1-round';
-function saveSess(){if(!sess)return;try{localStorage.setItem(SK,JSON.stringify({title:sess.title,test:!!sess.test,nut:!!sess.nut,i:sess.i,answeredAt:sess.answeredAt,fresh:sess.fresh,stage0:sess.stage0,
+function saveSess(){if(!sess)return;try{localStorage.setItem(SK,JSON.stringify({title:sess.title,test:!!sess.test,nut:!!sess.nut,drill:!!sess.drill,i:sess.i,answeredAt:sess.answeredAt,fresh:sess.fresh,stage0:sess.stage0,
  queue:sess.queue.map(e=>({id:e.it.id,st:e.st,slot:e.slot,retry:!!e.retry,again:!!e.again,tries:e.tries||0})),
- log:sess.log.map(l=>({id:l.it.id,res:l.res,given:l.given,retry:!!l.retry,counts:!!l.counts,slot:l.slot})),done:[...(sess.done||[])],at:Date.now()}))}catch(e){}}
+ log:sess.log.map(l=>({id:l.it.id,res:l.res,given:l.given,retry:!!l.retry,counts:!!l.counts,firstTry:!!l.firstTry,slot:l.slot})),done:[...(sess.done||[])],at:Date.now()}))}catch(e){}}
 function savedSess(){try{const o=JSON.parse(localStorage.getItem(SK)||'null');if(!o||!o.queue||o.i>=o.queue.length)return null;
  if(Date.now()-(o.at||0)>3*864e5)return null;return o}catch(e){return null}}
 function clearSess(){try{localStorage.removeItem(SK)}catch(e){}}
-function resumeSess(){const o=savedSess();if(!o)return false;const byId=id=>ITEMS.find(x=>x.id===id);
+function resumeSess(){const o=savedSess();if(!o)return false;const byId=id=>ITEMS.find(x=>x.id===id)||REV_INF.find(x=>x.id===id);
  const queue=o.queue.map(e=>({...e,it:byId(e.id)})).filter(e=>e.it);
  const log=o.log.map(l=>{const it=byId(l.id);return it?{...l,it,q:it.make()}:null}).filter(Boolean);
  let i=Math.min(o.i,queue.length);if(o.answeredAt===o.i)i++;if(i>=queue.length){clearSess();return false}
- start(queue,o.title,o.test,{i,log,fresh:o.fresh||0,done:new Set(o.done||[]),stage0:o.stage0,nut:!!o.nut});return true}
+ start(queue,o.title,o.test,{i,log,fresh:o.fresh||0,done:new Set(o.done||[]),stage0:o.stage0,nut:!!o.nut,drill:!!o.drill});return true}
 function start(queue,title,test,restore){clearSess();sess={title,test,queue,i:0,log:[],fresh:0,stage0:currentStage(),...(restore||{})};
  const put=(e,off)=>sess.queue.splice(Math.min(sess.queue.length,sess.i+off),0,e);sess.put=put;nav.hidden=true;app.className='app quiz';saveSess();ask()}
 
@@ -989,9 +1012,9 @@ function finish(res,given,msg,quick){
  const cur=sess.queue[sess.i],q=cur.q,id=cur.it.id;
  const prev=S[id]?{...S[id]}:null,prevDay=S._d?{...S._d}:null;
  sess.done=sess.done||new Set();
- const warmup=q.kind==='mc'&&!sess.test,counts=!warmup&&!cur.retry&&!sess.done.has(id);if(counts)sess.done.add(id);
+ const warmup=q.kind==='mc'&&!sess.test,counts=!warmup&&!cur.retry&&!sess.done.has(id)&&!cur.it.tmp;if(counts)sess.done.add(id);
  if(counts)record(id,res);else{S._d={d:dayKey(),n:todayCount()+1};save()}
- const entry={it:cur.it,q,res,given,retry:cur.retry,counts,slot:cur.slot};sess.log.push(entry);
+ const entry={it:cur.it,q,res,given,retry:cur.retry,counts,firstTry:!warmup&&!cur.retry,slot:cur.slot};sess.log.push(entry);
  let requeued=false;
  /* warm-up: a miss gets one more warm-up; after that (right or not) the written answer follows, exactly once */
  if(warmup){if(res!=='right'&&!cur.again)sess.put({it:cur.it,st:'pick',slot:cur.slot,again:1},2);else sess.put({it:cur.it,st:'write',slot:cur.slot},3)}
@@ -1070,8 +1093,8 @@ function drill(t,q){let n=0;const fb=$('#fb');
 
 function results(){
  clearSess();
- const first=sess.log.filter(l=>l.counts),ok=first.filter(l=>l.res==='right').length;
- if(!sess.counted){sess.counted=1;if(!sess.nut){S._r=round()+1;today().r++;if(!sess.test&&first.length)S._acc={ok,n:first.length}}save()}
+ const first=sess.drill?sess.log.filter(l=>l.firstTry):sess.log.filter(l=>l.counts),ok=first.filter(l=>l.res==='right').length;
+ if(!sess.counted){sess.counted=1;if(!sess.nut&&!sess.drill){S._r=round()+1;today().r++;if(!sess.test&&first.length)S._acc={ok,n:first.length}}save()}
  const missed=[];first.forEach(l=>{if(l.res!=='right'&&!missed.find(m=>m.it===l.it))missed.push(l)});
  const cs=currentStage(),up=cs>sess.stage0;
  app.innerHTML=`
@@ -1080,10 +1103,12 @@ function results(){
   <p class="lede">${sess.fresh?`${sess.fresh} new term${sess.fresh>1?'s':''} this round. `:''}${!sess.test&&first.length&&ok/first.length<0.5?'Next round brings fewer new terms, so you can fix these first. ':''}${up?`<b>Next stage unlocked: ${esc(STAGES[cs].n)}.</b> `:''}${missed.length?'Missed questions came back once at the end. Here they are again:':'Clean round.'}</p></header>
  ${missed.length?`<div class="miss"><ul>${missed.map(l=>`<li><p class="q">${(l.q.say||l.q.prompt.includes('___')?gl:esc)(l.q.prompt.replace('___','…'))}${l.q.sub?' · '+esc(l.q.sub):''}</p><p class="a">${l.q.table?l.q.rows.map(r=>`${esc(r.label)}: ${gl(r.answer)}`).join(' · '):l.q.reveal?esc(l.q.answer):gl(l.q.answer)}</p></li>`).join('')}</ul></div>`:''}
  <div class="row">
+  ${sess.drill?`<button class="cta2" id="again-drill">Another 5 · ${esc(sess.title.replace('Rapid fire · ',''))}</button>`:''}
   <button class="cta" id="more"><span>${sess.test?'Ucz się dalej':'Następna runda'}</span><small>${sess.test?'Back to the learning path':`Next round · ${mix().n+mix().m+mix().c} written answers`}</small></button>
   ${missed.length?'<button class="cta2" id="again">Again: just the ones I missed</button>':''}
   <button class="ghost" id="hm">Back to overview</button></div>`;
  if(missed.length)$('#again').onclick=()=>start(shuffle(missed.map(m=>({it:m.it,st:'write'}))),'Powtórka',sess.test);
+ const ad=$('#again-drill');if(ad){const key=(DRILLS.find(d=>'Rapid fire · '+d[1]===sess.title)||[])[0];ad.onclick=()=>startDrill(key)}
  $('#more').onclick=()=>{const r=buildRound(vis());start(r.queue,'Nauka',false)};
  $('#hm').onclick=home;
 }
@@ -1168,7 +1193,7 @@ document.addEventListener('keydown',e=>{
 document.addEventListener('click',e=>{const b=e.target.closest('[data-say]');if(b&&!e.target.closest('.gw'))say(b.dataset.say)});
 $('#t-home').onclick=home;$('#t-sheet').onclick=sheet;
 /* progress carried over from the Claude version: merged once per seed, the more-practised copy of each term wins */
-const SEED={"_bk": {"pron:sg": 1}, "_d": {"d": "2026-10-23", "n": 13}, "_p": 8, "_r": 4, "_t": {"d": "2026-10-23", "r": 1, "u0": 186}, "cl:13": {"b": 2, "due": 5, "n": 5, "w": 1}, "cl:14": {"b": 3, "due": 6, "n": 3, "w": 0}, "cl:15": {"b": 2, "due": 3, "n": 5, "w": 1}, "cl:16": {"b": 3, "due": 5, "n": 3, "w": 0}, "cl:17": {"b": 1, "due": 3, "n": 4, "w": 1}, "cl:18": {"b": 2, "due": 3, "n": 2, "w": 0}, "cl:19": {"b": 1, "due": 3, "n": 3, "w": 1}, "cl:20": {"b": 2, "due": 4, "n": 2, "w": 0}, "cl:21": {"b": 2, "due": 5, "n": 4, "w": 1}, "n:0": {"b": 2, "due": 6, "n": 2, "w": 0}, "n:1": {"b": 1, "due": 3, "n": 1, "w": 0}, "n:10": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:2": {"b": 1, "due": 3, "n": 1, "w": 0}, "n:3": {"b": 0, "due": 3, "n": 2, "w": 1}, "n:4": {"b": 1, "due": 5, "f": "2026-10-22", "n": 3, "w": 1}, "n:5": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:6": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:7": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:8": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:9": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pn:ja": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:on": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ona": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ono": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ty": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pr:0": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:1": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:2": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:3": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:4": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:5": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:6": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "pr:7": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "pr:8": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:gdzie:ans": {"b": 4, "due": 9, "n": 4, "w": 0}, "qa:imie:ans": {"b": 2, "due": 4, "n": 2, "w": 0}, "qa:imie:en": {"b": 2, "due": 6, "n": 2, "w": 0}, "qa:ma:ans": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:ma:en": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:milo": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "qa:nazwisko:ans": {"b": 2, "due": 5, "n": 2, "w": 0}, "qa:nazwisko:en": {"b": 1, "due": 2, "n": 7, "w": 2}, "qa:nazywa:ans": {"b": 1, "due": 2, "n": 1, "w": 0}, "qa:nazywa:en": {"b": 1, "due": 5, "n": 3, "w": 1}, "qa:skad:ans": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:skad:en": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:slychac": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "v:być:0": {"b": 2, "due": 5, "n": 2, "w": 0}, "v:być:1": {"b": 1, "due": 2, "n": 1, "w": 0}, "v:być:2": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:3": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:4": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:5": {"b": 2, "due": 6, "n": 2, "w": 0}, "w:4": {"b": 1, "due": 2, "n": 1, "w": 0}, "w:5": {"b": 2, "due": 5, "n": 2, "w": 0}},SEED_ID='1792783985';
+const SEED={"_bk": {"pron:sg": 1}, "_d": {"d": "2026-10-23", "n": 13}, "_p": 8, "_r": 4, "_t": {"d": "2026-10-23", "r": 1, "u0": 186}, "cl:13": {"b": 2, "due": 5, "n": 5, "w": 1}, "cl:14": {"b": 3, "due": 6, "n": 3, "w": 0}, "cl:15": {"b": 2, "due": 3, "n": 5, "w": 1}, "cl:16": {"b": 3, "due": 5, "n": 3, "w": 0}, "cl:17": {"b": 1, "due": 3, "n": 4, "w": 1}, "cl:18": {"b": 2, "due": 3, "n": 2, "w": 0}, "cl:19": {"b": 1, "due": 3, "n": 3, "w": 1}, "cl:20": {"b": 2, "due": 4, "n": 2, "w": 0}, "cl:21": {"b": 2, "due": 5, "n": 4, "w": 1}, "n:0": {"b": 2, "due": 6, "n": 2, "w": 0}, "n:1": {"b": 1, "due": 3, "n": 1, "w": 0}, "n:10": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:2": {"b": 1, "due": 3, "n": 1, "w": 0}, "n:3": {"b": 0, "due": 3, "n": 2, "w": 1}, "n:4": {"b": 1, "due": 5, "f": "2026-10-22", "n": 3, "w": 1}, "n:5": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:6": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:7": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:8": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:9": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pn:ja": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:on": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ona": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ono": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ty": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pr:0": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:1": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:2": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:3": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:4": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:5": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:6": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "pr:7": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "pr:8": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:gdzie:ans": {"b": 4, "due": 9, "n": 4, "w": 0}, "qa:imie:ans": {"b": 2, "due": 4, "n": 2, "w": 0}, "qa:imie:en": {"b": 2, "due": 6, "n": 2, "w": 0}, "qa:ma:ans": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:ma:en": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:milo": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "qa:nazwisko:ans": {"b": 2, "due": 5, "n": 2, "w": 0}, "qa:nazwisko:en": {"b": 1, "due": 2, "n": 7, "w": 2}, "qa:nazywa:ans": {"b": 1, "due": 2, "n": 1, "w": 0}, "qa:nazywa:en": {"b": 1, "due": 5, "n": 3, "w": 1}, "qa:skad:ans": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:skad:en": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:slychac": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "v:być:0": {"b": 2, "due": 5, "n": 2, "w": 0}, "v:być:1": {"b": 1, "due": 2, "n": 1, "w": 0}, "v:być:2": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:3": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:4": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:5": {"b": 2, "due": 6, "n": 2, "w": 0}, "w:4": {"b": 1, "due": 2, "n": 1, "w": 0}, "w:5": {"b": 2, "due": 5, "n": 2, "w": 0}},SEED_ID='1792784163';
 if(S._seed!==SEED_ID){S=Object.keys(S).length?mergeS(S,SEED):JSON.parse(JSON.stringify(SEED));S._seed=SEED_ID;saveLocal()}
 if(!resumeSess())home();
 </script>
