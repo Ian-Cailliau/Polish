@@ -214,6 +214,11 @@ p.diff{font-size:21px;font-weight:600;letter-spacing:.01em;line-height:1.5;overf
 .stp b{font-family:var(--f-display);font-size:20px;min-width:24px;text-align:center;font-variant-numeric:tabular-nums}
 .stp small{grid-column:1/-1;font-size:12px;color:var(--muted)}
 
+.kn{display:none}
+@media (hover:hover) and (pointer:fine){.kn{display:inline-grid;place-items:center;min-width:20px;height:20px;margin-right:10px;border:1px solid var(--line);border-radius:5px;font:600 12px/1 var(--f-body);color:var(--muted);vertical-align:2px}}
+.opt.khit{border-color:var(--blue);background:var(--blue-soft)}
+.ktyped{font-size:14px;color:var(--muted);margin-top:-4px}
+
 /* nav */
 .nav{position:fixed;left:0;right:0;bottom:0;z-index:5;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;justify-content:center;gap:8px}
 .nav button{flex:1;max-width:220px;background:none;border:0;padding:12px 8px 14px;font-weight:700;font-size:15.5px;color:var(--muted);border-top:3px solid transparent}
@@ -846,7 +851,7 @@ function ask(){
   <div class="prow">${promptHTML(q)}${spkBtn(q.say)}</div>${q.sub?`<p class="sub">${esc(q.sub)}</p>`:''}
   <p class="hint" id="hintx" hidden>${esc(hintOf(q))}</p></article>
  ${q.kind==='mc'
-  ?`<div class="opts">${q.options.map((o,i)=>`<button class="opt" data-i="${i}">${esc(o)}</button>`).join('')}</div>`
+  ?`<div class="opts">${q.options.map((o,i)=>`<button class="opt" data-i="${i}"><kbd class="kn">${i+1}</kbd>${esc(o)}</button>`).join('')}</div><p class="ktyped" id="ktyped" hidden></p>`
   :q.kind==='reveal'?`<button class="check" id="rv">Show the meaning</button>`
   :`<form class="typed" id="tf"><input id="ti" type="text" lang="pl" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Your answer" placeholder="Write it in Polish…">
      <div class="keys">${'ąćęłńóśźż'.split('').map(c=>`<button type="button" data-k="${c}">${c}</button>`).join('')}</div>
@@ -913,7 +918,7 @@ function finish(res,given,msg,quick){
  $('#fb').scrollIntoView({block:'nearest',behavior:'smooth'});
  if(autoAudio)say(q.sayAns);
 }
-function next(){sess.i++;ask()}
+function next(){kbuf='';sess.i++;ask()}
 
 /* optional copy drill after a miss: twice with the answer visible, the third time from memory */
 function drill(t,q){let n=0;const fb=$('#fb');
@@ -997,10 +1002,24 @@ function sheet(){
  </details>`;
 }
 
+/* keyboard for multiple choice: 1–4 picks; typing letters highlights the matching option, Enter picks it */
+let kbuf='';
+document.addEventListener('keydown',e=>{
+ if(!sess||e.metaKey||e.ctrlKey||e.altKey)return;const opts=[...document.querySelectorAll('.opts .opt')];
+ if(!opts.length||opts[0].disabled)return;if(document.activeElement&&document.activeElement.tagName==='INPUT')return;
+ const show=()=>{const t=document.getElementById('ktyped');const k=strip(kbuf.toLowerCase());let hit=-1;
+  opts.forEach((o,i)=>{const txt=strip(o.textContent.replace(/^\d/,'').toLowerCase());const m=k&&txt.startsWith(k);o.classList.toggle('khit',m&&hit<0);if(m&&hit<0)hit=i});
+  if(t){t.hidden=!kbuf;t.textContent=kbuf?`Typed: ${kbuf}${hit<0?' · no match':' · Enter to pick'}`:''}return hit};
+ if(/^[1-9]$/.test(e.key)&&!kbuf){const o=opts[+e.key-1];if(o){e.preventDefault();o.click()}return}
+ if(e.key==='Enter'){const h=show();if(h>=0){e.preventDefault();kbuf='';opts[h].click()}return}
+ if(e.key==='Backspace'){if(kbuf){e.preventDefault();kbuf=kbuf.slice(0,-1);show()}return}
+ if(e.key==='Escape'){kbuf='';show();return}
+ if(e.key.length===1&&/[\p{L}\p{N} ,.!?'-]/u.test(e.key)){e.preventDefault();kbuf+=e.key;show()}
+});
 document.addEventListener('click',e=>{const b=e.target.closest('[data-say]');if(b&&!e.target.closest('.gw'))say(b.dataset.say)});
 $('#t-home').onclick=home;$('#t-sheet').onclick=sheet;
 /* progress carried over from the Claude version: merged once per seed, the more-practised copy of each term wins */
-const SEED={"_bk": {"pron:sg": 1}, "_d": {"d": "2026-10-23", "n": 13}, "_p": 8, "_r": 4, "_t": {"d": "2026-10-23", "r": 1, "u0": 186}, "cl:13": {"b": 2, "due": 5, "n": 5, "w": 1}, "cl:14": {"b": 3, "due": 6, "n": 3, "w": 0}, "cl:15": {"b": 2, "due": 3, "n": 5, "w": 1}, "cl:16": {"b": 3, "due": 5, "n": 3, "w": 0}, "cl:17": {"b": 1, "due": 3, "n": 4, "w": 1}, "cl:18": {"b": 2, "due": 3, "n": 2, "w": 0}, "cl:19": {"b": 1, "due": 3, "n": 3, "w": 1}, "cl:20": {"b": 2, "due": 4, "n": 2, "w": 0}, "cl:21": {"b": 2, "due": 5, "n": 4, "w": 1}, "n:0": {"b": 2, "due": 6, "n": 2, "w": 0}, "n:1": {"b": 1, "due": 3, "n": 1, "w": 0}, "n:10": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:2": {"b": 1, "due": 3, "n": 1, "w": 0}, "n:3": {"b": 0, "due": 3, "n": 2, "w": 1}, "n:4": {"b": 1, "due": 5, "f": "2026-10-22", "n": 3, "w": 1}, "n:5": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:6": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:7": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:8": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:9": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pn:ja": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:on": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ona": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ono": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ty": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pr:0": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:1": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:2": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:3": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:4": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:5": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:6": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "pr:7": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "pr:8": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:gdzie:ans": {"b": 4, "due": 9, "n": 4, "w": 0}, "qa:imie:ans": {"b": 2, "due": 4, "n": 2, "w": 0}, "qa:imie:en": {"b": 2, "due": 6, "n": 2, "w": 0}, "qa:ma:ans": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:ma:en": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:milo": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "qa:nazwisko:ans": {"b": 2, "due": 5, "n": 2, "w": 0}, "qa:nazwisko:en": {"b": 1, "due": 2, "n": 7, "w": 2}, "qa:nazywa:ans": {"b": 1, "due": 2, "n": 1, "w": 0}, "qa:nazywa:en": {"b": 1, "due": 5, "n": 3, "w": 1}, "qa:skad:ans": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:skad:en": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:slychac": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "v:być:0": {"b": 2, "due": 5, "n": 2, "w": 0}, "v:być:1": {"b": 1, "due": 2, "n": 1, "w": 0}, "v:być:2": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:3": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:4": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:5": {"b": 2, "due": 6, "n": 2, "w": 0}, "w:4": {"b": 1, "due": 2, "n": 1, "w": 0}, "w:5": {"b": 2, "due": 5, "n": 2, "w": 0}},SEED_ID='1792761363';
+const SEED={"_bk": {"pron:sg": 1}, "_d": {"d": "2026-10-23", "n": 13}, "_p": 8, "_r": 4, "_t": {"d": "2026-10-23", "r": 1, "u0": 186}, "cl:13": {"b": 2, "due": 5, "n": 5, "w": 1}, "cl:14": {"b": 3, "due": 6, "n": 3, "w": 0}, "cl:15": {"b": 2, "due": 3, "n": 5, "w": 1}, "cl:16": {"b": 3, "due": 5, "n": 3, "w": 0}, "cl:17": {"b": 1, "due": 3, "n": 4, "w": 1}, "cl:18": {"b": 2, "due": 3, "n": 2, "w": 0}, "cl:19": {"b": 1, "due": 3, "n": 3, "w": 1}, "cl:20": {"b": 2, "due": 4, "n": 2, "w": 0}, "cl:21": {"b": 2, "due": 5, "n": 4, "w": 1}, "n:0": {"b": 2, "due": 6, "n": 2, "w": 0}, "n:1": {"b": 1, "due": 3, "n": 1, "w": 0}, "n:10": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:2": {"b": 1, "due": 3, "n": 1, "w": 0}, "n:3": {"b": 0, "due": 3, "n": 2, "w": 1}, "n:4": {"b": 1, "due": 5, "f": "2026-10-22", "n": 3, "w": 1}, "n:5": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:6": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:7": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:8": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:9": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pn:ja": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:on": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ona": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ono": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ty": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pr:0": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:1": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:2": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:3": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:4": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:5": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:6": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "pr:7": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "pr:8": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:gdzie:ans": {"b": 4, "due": 9, "n": 4, "w": 0}, "qa:imie:ans": {"b": 2, "due": 4, "n": 2, "w": 0}, "qa:imie:en": {"b": 2, "due": 6, "n": 2, "w": 0}, "qa:ma:ans": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:ma:en": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:milo": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "qa:nazwisko:ans": {"b": 2, "due": 5, "n": 2, "w": 0}, "qa:nazwisko:en": {"b": 1, "due": 2, "n": 7, "w": 2}, "qa:nazywa:ans": {"b": 1, "due": 2, "n": 1, "w": 0}, "qa:nazywa:en": {"b": 1, "due": 5, "n": 3, "w": 1}, "qa:skad:ans": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:skad:en": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:slychac": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "v:być:0": {"b": 2, "due": 5, "n": 2, "w": 0}, "v:być:1": {"b": 1, "due": 2, "n": 1, "w": 0}, "v:być:2": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:3": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:4": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:5": {"b": 2, "due": 6, "n": 2, "w": 0}, "w:4": {"b": 1, "due": 2, "n": 1, "w": 0}, "w:5": {"b": 2, "due": 5, "n": 2, "w": 0}},SEED_ID='1792761689';
 if(S._seed!==SEED_ID){S=Object.keys(S).length?mergeS(S,SEED):JSON.parse(JSON.stringify(SEED));S._seed=SEED_ID;saveLocal()}
 home();
 </script>
