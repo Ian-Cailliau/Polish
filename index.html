@@ -178,6 +178,21 @@ td.say:active{opacity:.6}
 #tip .tf{font-weight:600;opacity:.8;font-size:13.5px}
 #tip .ty{font-weight:400;opacity:.92;font-size:13.5px}
 
+.btab td{font-size:16.5px}
+.btab .end{color:var(--blue)}
+.sayrow{cursor:pointer}.sayrow:active td{background:var(--blue-soft)}
+.fam{display:flex;flex-direction:column;gap:6px;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:15px}
+.fam p:empty{display:none}
+.ttab td{vertical-align:middle;padding:6px 6px}
+.ttab .tl{color:var(--muted);font-size:14.5px;width:42%}
+.ttab input{width:100%;box-sizing:border-box;font:inherit;font-size:19px;font-weight:600;padding:9px 10px;border-radius:10px;border:1.5px solid var(--line);background:var(--card);color:var(--ink)}
+.ttab input:focus{border-color:var(--blue);outline:none}
+.ttab input.ok{border-color:var(--ok);background:var(--ok-soft);color:var(--ok)}
+.ttab input.almost{border-color:var(--pen);background:var(--pen-soft)}
+.ttab input.bad{border-color:var(--pen);background:var(--pen-soft);color:var(--pen);text-decoration:line-through}
+.ttab .given{font-size:19px;font-weight:600;color:var(--muted);padding-left:11px}
+.ttab .corr{display:block;font-weight:700;color:var(--ok);padding:4px 0 0 2px}
+
 /* nav */
 .nav{position:fixed;left:0;right:0;bottom:0;z-index:5;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;justify-content:center;gap:8px}
 .nav button{flex:1;max-width:220px;background:none;border:0;padding:12px 8px 14px;font-weight:700;font-size:15.5px;color:var(--muted);border-top:3px solid transparent}
@@ -203,15 +218,18 @@ const QA=[
  {k:'adres',en:"What's your address?",en3:"Ask about him: what's his address?",inf:"Jaki masz adres?",form:"Jaki ma pan / pani adres?",formAlt:["Jaki pan / pani ma adres?"],trap:"Jaki masz pani adres?",third:"Jaki on ma adres?",thirdAlt:["Jaki ma on adres?"],fact:"His address: ul. Mickiewicza 7.",ans:"Ulica Prosta 69.",ans3:"Ulica Mickiewicza 7.",acc3:["ul. Mickiewicza 7","On ma adres ulica Mickiewicza 7"],pat:/^(ul|ulica|al|aleja|pl|plac|os|osiedle) \S+/},
  {k:'tel',en:"What's your phone number?",en3:"Ask about her: what's her phone number?",inf:"Jaki masz numer telefonu?",form:"Jaki ma pan / pani numer telefonu?",formAlt:["Jaki pan / pani ma numer telefonu?"],trap:"Jaki pani masz numer telefonu?",third:"Jaki ona ma numer telefonu?",thirdAlt:["Jaki ma ona numer telefonu?"],fact:"Her number is 0123 456 789.",ans:"Zero, cztery, siedem, pięć…",ans3:"0123 456 789",acc3:[],pat3:/\d{3}/,pat:/(\d|zero|jeden|dwa|trzy|cztery|pięć|sześć|siedem|osiem|dziewięć)/}
 ];
+const AM_END='-am, -asz, -a, -amy, -acie, -ają';
 const VERBS={
- 'być':{en:'to be',f:['jestem','jesteś','jest','jesteśmy','jesteście','są'],note:'Irregular: learn the six forms by heart.'},
- 'mieć':{en:'to have',f:['mam','masz','ma','mamy','macie','mają'],note:'AM/ASZ group: -am -asz -a -amy -acie -ają.'},
- 'mieszkać':{en:'to live',f:['mieszkam','mieszkasz','mieszka','mieszkamy','mieszkacie','mieszkają'],note:'AM/ASZ group: -am -asz -a -amy -acie -ają.'},
- 'nazywać się':{en:'to be called',f:['nazywam się','nazywasz się','nazywa się','nazywamy się','nazywacie się','nazywają się'],note:'AM/ASZ group, plus się.'},
- 'czytać':{en:'to read',f:['czytam','czytasz','czyta','czytamy','czytacie','czytają'],note:'AM/ASZ group: -am -asz -a -amy -acie -ają.',bonus:1},
- 'pytać':{en:'to ask',f:['pytam','pytasz','pyta','pytamy','pytacie','pytają'],note:'AM/ASZ group: -am -asz -a -amy -acie -ają.',bonus:1},
- 'przepraszać':{en:'to apologise',f:['przepraszam','przepraszasz','przeprasza','przepraszamy','przepraszacie','przepraszają'],note:'AM/ASZ group: -am -asz -a -amy -acie -ają.',bonus:1}
+ 'być':{en:'to be',f:['jestem','jesteś','jest','jesteśmy','jesteście','są'],fam:'irr',note:'Irregular: no family to copy from. Learn the six forms as one block.'},
+ 'mieć':{en:'to have',f:['mam','masz','ma','mamy','macie','mają'],fam:'am',stem:'m',note:`The infinitive is irregular, but the forms take the -am / -asz family endings: ${AM_END}.`},
+ 'mieszkać':{en:'to live',f:['mieszkam','mieszkasz','mieszka','mieszkamy','mieszkacie','mieszkają'],fam:'am',stem:'mieszk',model:1,note:`Model verb of the -am / -asz family: drop -ać, add ${AM_END}. czytać, pytać, przepraszać and nazywać się work exactly the same way.`},
+ 'nazywać się':{en:'to be called',f:['nazywam się','nazywasz się','nazywa się','nazywamy się','nazywacie się','nazywają się'],fam:'am',stem:'nazyw',note:'-am / -asz family, exactly like mieszkać, plus się.'},
+ 'czytać':{en:'to read',f:['czytam','czytasz','czyta','czytamy','czytacie','czytają'],fam:'am',stem:'czyt',note:'-am / -asz family, exactly like mieszkać.',bonus:1},
+ 'pytać':{en:'to ask',f:['pytam','pytasz','pyta','pytamy','pytacie','pytają'],fam:'am',stem:'pyt',note:'-am / -asz family, exactly like mieszkać.',bonus:1},
+ 'przepraszać':{en:'to apologise',f:['przepraszam','przepraszasz','przeprasza','przepraszamy','przepraszacie','przepraszają'],fam:'am',stem:'przeprasz',note:'-am / -asz family, exactly like mieszkać.',bonus:1}
 };
+const PRON_CORE=[['I','ja'],['you (one person, informal)','ty'],['he','on'],['she','ona'],['it','ono'],['we','my'],['you (several people, informal)','wy'],['they (men, or a mixed group)','oni'],['they (no men in the group)','one']];
+const FORMAL=[['to one man','pan'],['to one woman','pani'],['to a mixed group','państwo'],['to several men','panowie'],['to several women','panie']];
 const PERS=[['ja'],['ty'],['on','ona','pan','pani'],['my'],['wy'],['oni','one','państwo']];
 const PERS_LBL=['ja','ty','on / ona / ono · pan / pani','my','wy','oni / one · państwo'];
 const SENT=[
@@ -239,7 +257,7 @@ const PRON=[['ono','it (e.g. a baby)'],['oni','they: men, or a mixed group'],['o
 
 const DECKS={
  qa:{pl:'Pytania i odpowiedzi',en:'Questions & answers · ty ↔ pan / pani · on / ona'},
- verbs:{pl:'Czasowniki',en:'być, mieć, mieszkać, nazywać się (type the form)'},
+ verbs:{pl:'Czasowniki',en:'whole verb tables, then verbs in sentences'},
  kraje:{pl:'Skąd? Gdzie?',en:'Countries with z …, cities with w …'},
  num:{pl:'Liczby 0–10',en:'Numbers and “Ile jest…?”'},
  klasa:{pl:'W klasie',en:'Classroom phrases and greetings'},
@@ -282,8 +300,9 @@ QA.forEach(q=>{
 add('qa','qa:slychac',()=>({eyebrow:'Answer naturally',prompt:'Co słychać?',say:'Co słychać?',sub:"How's it going?",answer:'For example: Wszystko w porządku.',mcAnswer:'Wszystko w porządku.',check:free(/(w porządku|dobrze|świetnie|nieźle|tak sobie|super)/,null,'Wszystko w porządku.'),options:shuffle(['Wszystko w porządku.','Mam na imię Jan.','Jestem z Belgii.','Mieszkam w Gandawie.']),sayAns:'Wszystko w porządku.'}));
 add('qa','qa:milo',()=>({eyebrow:'Say it in Polish',prompt:'Nice to meet you.',answer:'Miło mi. / Bardzo mi miło.',accept:['Miło mi','Bardzo mi miło'],options:shuffle(['Miło mi. / Bardzo mi miło.','Nie rozumiem.','Mam pytanie!','Dobranoc.']),sayAns:'Bardzo mi miło.'}));
 
-Object.entries(VERBS).forEach(([inf,v])=>v.f.forEach((f,i)=>add('verbs',`v:${inf}:${i}`,()=>{const p=pick(PERS[i]);const acc=[f];if(f.endsWith(' się'))acc.push('się '+f.replace(' się',''));
- return{eyebrow:`${inf} · ${v.en}`,prompt:`${p} ___`,sub:'Write the verb form',answer:f,accept:acc,options:mc(f,v.f),sayAns:`${p} ${f}`,note:v.note}})));
+Object.entries(VERBS).forEach(([inf,v])=>{add('verbs',`vt:${inf}`,()=>({table:1,eyebrow:`${inf} · ${v.en}${v.fam==='am'?' · -am / -asz family':' · irregular'}`,prompt:inf,sub:'Write the whole table',
+  rows:PERS_LBL.map((p,i)=>({label:p,answer:v.f[i],accept:v.f[i].endsWith(' się')?[v.f[i],'się '+v.f[i].replace(' się','')]:[v.f[i]],say:PERS[i][0]+' '+v.f[i]})),
+  answer:v.f.join(', '),note:v.note}));const it=ITEMS[ITEMS.length-1];it.block='verb:'+inf;it.member=1});
 SENT.forEach(([s,a,v],i)=>add('verbs',`vs:${i}`,()=>({eyebrow:`${v} · fill the gap`,prompt:s,sub:'Write the missing verb',answer:a,accept:[a],options:mc(a,VERBS[v].f.map(x=>x.replace(' się',''))),sayAns:s.replace('___',a).replace(/\((ja|ty|my|wy)\) /,''),note:VERBS[v].note})));
 
 COUNTRIES.forEach(([en,pl,gen,alt])=>{
@@ -306,17 +325,22 @@ WORDS.forEach(([pl,en],i)=>add('words',`w:${i}`,()=>Math.random()<.65
  :{eyebrow:'What does it mean?',prompt:pl,say:pl,answer:en,reveal:1,options:mc(en,WORDS.map(c=>c[1])),sayAns:pl}));
 ABBR.forEach(([ab,full])=>add('words',`ab:${ab}`,()=>({eyebrow:'On an address, write out…',prompt:ab,big:1,answer:full,accept:[full],options:shuffle(ABBR.map(a=>a[1])),sayAns:full})));
 ONI.forEach(([who,a],i)=>add('words',`oni:${i}`,()=>({eyebrow:'Oni czy one?',prompt:`(${who}) ___ są z Polski.`,answer:a,accept:[a],options:['Oni','One'],sayAns:`${a} są z Polski.`,note:'oni = men or a mixed group · one = only women, children, animals, things'})));
-PRON.forEach(([pl,en],i)=>add('words',`pr:${i}`,()=>({eyebrow:'Zaimki · who is it?',prompt:pl,say:pl,answer:en,reveal:1,options:mc(en,PRON.map(p=>p[1])),sayAns:pl})));
+add('words','pt',()=>({table:1,eyebrow:'Zaimki · personal pronouns',prompt:'ja, ty, on…',sub:'Write each pronoun in Polish',rows:PRON_CORE.map(([en,pl])=>({label:en,answer:pl,accept:[pl],say:pl})),answer:PRON_CORE.map(x=>x[1]).join(', '),note:'oni as soon as one man is in the group; one only when there is no man.'}));
+add('words','pf',()=>({table:1,eyebrow:'Pan / pani · formal “you”',prompt:'pan, pani…',sub:'Write the formal word for “you”',rows:FORMAL.map(([en,pl])=>({label:en,answer:pl,accept:[pl],say:pl})),answer:FORMAL.map(x=>x[1]).join(', '),note:'These are nouns: the verb takes the on / ona form with pan and pani, and the oni form with państwo, panowie, panie.'}));
+/* blocks: things taught together */
+ITEMS.forEach(it=>{const m=it.id.match(/^vs:(\d+)$/);if(m)it.block='verb:'+SENT[+m[1]][2];
+ if(it.id==='pt'){it.block='pron';it.member=1}if(it.id==='pf'){it.block='formal';it.member=1}
+ if(/^n:/.test(it.id)){it.block='num';it.member=1}if(/^(kr:|ppl:)/.test(it.id))it.block='kraje';if(/^city:/.test(it.id))it.block='miasta'});
 
 /* ---------- the learning path: small steps, in this order ---------- */
 const STAGES=[
  {n:'Powitania',en:'greetings',m:/^cl:(1[3-9]|2[01])$/},
  {n:'Imię i nazwisko',en:'asking and giving your name',m:/^(w:[45]|qa:(imie|nazwisko|nazywa):(en|ans))$/},
- {n:'być · zaimki · 0–10',en:'to be, pronouns, numbers',m:/^(v:być:|pr:|n:)/},
+ {n:'być · zaimki · 0–10',en:'to be, pronouns, numbers',m:/^(vt:być|pt|n:\d+)$/},
  {n:'Jak się masz? Skąd jesteś?',en:'how are you, where are you from',m:/^(qa:(ma|skad):(en|ans)|qa:slychac|qa:milo|cl:2[23]|kr:(Belgia|Polska|Holandia|Francja|Niemcy|Anglia|Flandria):m|w:6)$/},
- {n:'mieć · mieszkać · adres',en:'to have, to live, your address',m:/^(v:(mieć|mieszkać|nazywać się):|city:|qa:(gdzie|adres):(en|ans)$|w:[0-37]$|ab:)/},
+ {n:'mieć · mieszkać · adres',en:'to have, to live, your address',m:/^(vt:(mieć|mieszkać|nazywać się)$|city:|qa:(gdzie|adres):(en|ans)$|w:[0-37]$|ab:)/},
  {n:'Kraje · telefon · w klasie',en:'all countries, phone, classroom phrases',m:/^(kr:.*:m$|qa:tel:(en|ans)$|cl:|ile:|w:)/},
- {n:'pan / pani',en:'the formal questions',m:/^qa:.*:(form|inf)$/},
+ {n:'pan / pani',en:'the formal questions',m:/^(pf|qa:.*:(form|inf))$/},
  {n:'on / ona · oni / one',en:'talking about others, full sentences',m:/^(qa:.*:(3|a3)$|ppl:|oni:|vs:|kr:.*:t$)/},
  {n:'Bonus',en:'czytać, pytać, przepraszać',m:/./}
 ];
@@ -348,7 +372,8 @@ function mergeS(a,b){const out={};
  if(da||db_)out._d={d:t,n:Math.max(da,db_)};
  const r=Math.max(a._r||0,b._r||0);if(r)out._r=r;
  const ta=a._t&&a._t.d===t?a._t:null,tb=b._t&&b._t.d===t?b._t:null;
- if(tb||ta)out._t={...(tb||ta),r:Math.max(ta?ta.r:0,tb?tb.r:0)};const pc=a._p||b._p;if(pc)out._p=pc;return out}
+ if(tb||ta)out._t={...(tb||ta),r:Math.max(ta?ta.r:0,tb?tb.r:0)};const pc=a._p||b._p;if(pc)out._p=pc;
+ if(a._bk||b._bk)out._bk={...(a._bk||{}),...(b._bk||{})};return out}
 function updSync(){const el=document.getElementById('sync');if(el)el.textContent=syncState==='cloud'?'Progress saved to your Claude account, so it follows you to any device.':'Progress saved on this device only.'}
 (async()=>{try{
  if(!window.claude||!window.claude.use)return;
@@ -637,9 +662,72 @@ function start(queue,title,test){sess={title,test,queue,i:0,log:[],fresh:0,stage
 function promptHTML(q,fill,g){const f=g?gl:esc;let p=f(q.prompt);p=fill!=null?p.replace('___',`<b class="fill">${f(fill)}</b>`):p.replace('___','<span class="blank"></span>');return `<h2 class="prompt${q.big?' big':''}">${p}</h2>`}
 const topBar=(cur)=>`<div class="qtop"><button class="qx" id="qx" aria-label="Stop and go home">✕</button><div class="bar"><i style="width:${Math.round(sess.i/sess.queue.length*100)}%"></i></div><span class="count">${sess.i+1}/${sess.queue.length}</span></div>`;
 
+/* ---------- blocks: taught as one unit ---------- */
+const AM_FAM=Object.keys(VERBS).filter(v=>VERBS[v].fam==='am'&&v!=='mieć');
+const ROWSAY=(say,a,b)=>`<tr class="sayrow" data-say="${esc(say)}"><td>${a}</td><td>${b}</td></tr>`;
+function verbBlock(inf){const v=VERBS[inf];
+ const form=f=>{if(!v.stem)return `<b class="end">${esc(f)}</b>`;const sie=f.endsWith(' się'),core=sie?f.slice(0,-4):f;return esc(v.stem)+`<b class="end">${esc(core.slice(v.stem.length))}</b>`+(sie?' się':'')};
+ return{eyebrow:`Czasownik · ${v.fam==='am'?(v.model?'model verb of the -am / -asz family':'-am / -asz family'):'irregular verb'}`,title:`${inf} · ${v.en}`,
+  html:`<div class="tw"><table class="btab"><tbody>${PERS_LBL.map((p,i)=>ROWSAY(PERS[i][0]+' '+v.f[i],esc(p),form(v.f[i]))).join('')}</tbody></table></div>
+  <div class="fam">${v.fam==='am'?`<p><b>Family: -am / -asz.</b> Endings ${AM_END}${v.stem?` on the stem <b>${esc(v.stem)}-</b>`:''}.</p><p>Same pattern: ${AM_FAM.filter(x=>x!==inf).map(x=>`<b>${esc(x)}</b>`).join(', ')}${inf==='mieć'?'':', and mieć (mam, masz…)'}.</p>`:`<p><b>Irregular.</b> No family to copy from, so learn the six forms together.</p>`}
+  <p>${esc(PERS_LBL[2].includes('pan')?'pan / pani take the on / ona form; państwo takes the oni form.':'')}</p></div>`}}
+const BLOCKS={
+ pron:{eyebrow:'Zaimki · one set',title:'Personal pronouns',html:()=>`<div class="tw"><table class="btab"><tbody>${PRON_CORE.map(([en,pl])=>ROWSAY(pl,esc(en),`<b class="end">${esc(pl)}</b>`)).join('')}</tbody></table></div><div class="fam"><p><b>oni</b> as soon as at least one man is in the group; <b>one</b> for groups with no men (women, children, things).</p><p>The formal “you” (pan, pani…) is a separate set that comes later.</p></div>`},
+ formal:{eyebrow:'Formal “you” · one set',title:'pan, pani, państwo',html:()=>`<div class="tw"><table class="btab"><tbody>${FORMAL.map(([en,pl])=>ROWSAY(pl,esc(en),`<b class="end">${esc(pl)}</b>`)).join('')}</tbody></table></div><div class="fam"><p>These are nouns, not pronouns. So the verb takes the <b>on / ona</b> form with pan and pani (pan jest, pani ma), and the <b>oni</b> form with państwo, panowie and panie (państwo są).</p><p>Use them with anyone you would not call by first name: teachers, officials, strangers.</p></div>`},
+ num:{eyebrow:'Liczby · one set',title:'Numbers 0–10',html:()=>`<div class="tw"><table class="btab"><tbody>${NUMS.map((w,i)=>ROWSAY(w,String(i),`<b class="end">${esc(w)}</b>`)).join('')}</tbody></table></div><div class="fam"><p>Learn them as a sequence: count up and down out loud.</p></div>`},
+ kraje:{eyebrow:'Skąd? · the pattern',title:'z + genitive',html:()=>`<p class="note">“From” is <b>z</b>, and z always changes the country into the <b>genitive</b>. Most follow one of these patterns:</p><div class="tw"><table class="btab"><thead><tr><th>country</th><th>from…</th><th>pattern</th></tr></thead><tbody>
+  ${[['Belgia','z Belgii','-ia → -ii'],['Francja','z Francji','-ja → -ji'],['Polska','z Polski','-ka → -ki'],['Niemcy','z Niemiec','plural country'],['Włochy','z Włoch','plural country'],['Stany Zjednoczone','ze Stanów Zjednoczonych','plural; ze before st']].map(r=>`<tr class="sayrow" data-say="${esc(r[1])}"><td>${esc(r[0])}</td><td><b class="end">${esc(r[1])}</b></td><td>${esc(r[2])}</td></tr>`).join('')}</tbody></table></div>`},
+ miasta:{eyebrow:'Gdzie? · the pattern',title:'w + locative',html:()=>`<p class="note">“In” a place is <b>w</b>, and w changes the city into the <b>locative</b>:</p><div class="tw"><table class="btab"><thead><tr><th>city</th><th>in…</th><th>pattern</th></tr></thead><tbody>
+  ${[['Gandawa','w Gandawie','-a → -ie'],['Warszawa','w Warszawie','-a → -ie'],['Bruksela','w Brukseli','-la → -li'],['Kraków','w Krakowie','+ -ie, ó → o'],['Gdańsk','w Gdańsku','+ -u after k'],['Poznań','w Poznaniu','-ń → -niu'],['Wrocław','we Wrocławiu','we before w-, f- clusters']].map(r=>`<tr class="sayrow" data-say="${esc(r[1])}"><td>${esc(r[0])}</td><td><b class="end">${esc(r[1])}</b></td><td>${esc(r[2])}</td></tr>`).join('')}</tbody></table></div>`}
+};
+const blockDef=n=>n.startsWith('verb:')?verbBlock(n.slice(5)):{...BLOCKS[n],html:BLOCKS[n].html()};
+const blockSeen=n=>!!(S._bk&&S._bk[n]);
+function showBlock(cur,name){
+ const B=blockDef(name),mem=ITEMS.filter(it=>it.block===name&&it.member),isMem=cur.it.member;
+ app.innerHTML=`${topBar(cur)}
+ <article class="card intro"><p class="eyebrow">${esc(B.eyebrow)}<span class="tag">nowe</span></p><h2 class="prompt">${esc(B.title)}</h2>${B.html}
+  <p class="note">${canSpeak?'Tap a row to hear it. ':''}${mem.length?'You will practise this as one set.':'The words below use this pattern one by one.'}</p></article>
+ <div class="two"><button class="check" id="got">Mam! · Got it</button>${mem.length?'<button class="next" id="knowit" style="background:var(--blue-soft);color:var(--blue)">I know this · test me later</button>':''}</div>`;
+ $('#qx').onclick=home;
+ const mark=(bx,due)=>{S._bk={...(S._bk||{}),[name]:1};let n=0;mem.forEach(it=>{if(!S[it.id]){S[it.id]={b:bx,n:0,w:0,due,f:dayKey()};n++}});sess.fresh+=n;save()};
+ $('#got').onclick=()=>{mark(0,round());
+  if(isMem){const extra=shuffle(mem.filter(it=>it!==cur.it)).slice(0,3);
+   [cur.it,...extra].forEach((it,k)=>sess.queue.splice(Math.min(sess.queue.length,sess.i+3+k*2),0,{it,retry:false}));next()}
+  else ask()};
+ const kb=$('#knowit');if(kb)kb.onclick=()=>{mark(1,round()+2);if(isMem)next();else ask()};
+ $('#got').focus({preventScroll:true});
+}
+function showTable(cur,q,level){
+ const scaffold=!sess.test&&box(cur.it.id)<1;
+ app.innerHTML=`${topBar(cur)}
+ <article class="card"><p class="eyebrow">${esc(q.eyebrow)}${level}${cur.retry?' · second try':''}</p>
+  <h2 class="prompt">${esc(q.prompt)}</h2><p class="sub">${esc(q.sub)}${scaffold?' · half is filled in for you':''}</p></article>
+ <form class="typed" id="tf"><div class="tw"><table class="ttab"><tbody>${q.rows.map((r,i)=>`<tr><td class="tl">${esc(r.label)}</td><td>${scaffold&&i%2===0
+   ?`<span class="given">${esc(r.answer)}</span>`
+   :`<input data-r="${i}" type="text" lang="pl" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="${esc(r.label)}">`}<span class="corr" hidden></span></td></tr>`).join('')}</tbody></table></div>
+  <div class="keys">${'ąćęłńóśźż'.split('').map(c=>`<button type="button" data-k="${c}">${c}</button>`).join('')}</div>
+  <button class="check" type="submit">Sprawdź · Check</button></form>
+ <div id="fb"></div>`;
+ $('#qx').onclick=home;
+ const ins=[...app.querySelectorAll('#tf input')];let last=ins[0];ins.forEach(x=>x.addEventListener('focus',()=>last=x));if(last)last.focus();
+ ins.forEach((x,k)=>x.addEventListener('keydown',e=>{if(e.key==='Enter'&&k<ins.length-1){e.preventDefault();ins[k+1].focus()}}));
+ app.querySelectorAll('.keys button').forEach(k=>k.onclick=()=>{const t=last;if(!t)return;const s0=t.selectionStart??t.value.length,e0=t.selectionEnd??s0;t.value=t.value.slice(0,s0)+k.dataset.k+t.value.slice(e0);t.focus();t.setSelectionRange(s0+1,s0+1)});
+ $('#tf').onsubmit=e=>{e.preventDefault();if(app.querySelector('#tf').dataset.done)return;
+  if(ins.some(x=>!x.value.trim())&&!app.querySelector('#tf').dataset.warned){app.querySelector('#tf').dataset.warned=1;app.querySelector('#tf .check').textContent='Some boxes are empty · check anyway';return}
+  let worst='right';const wrongRows=[];
+  ins.forEach(x=>{const r=q.rows[+x.dataset.r],g=norm(x.value),acc=r.accept.map(norm);let st=acc.includes(g)?'right':acc.map(strip).includes(strip(g))&&g?'accent':'wrong';
+   x.readOnly=true;x.classList.add(st==='right'?'ok':st==='accent'?'almost':'bad');
+   if(st!=='right'){const c=x.parentNode.querySelector('.corr');c.innerHTML=gl(r.answer);c.hidden=false;wrongRows.push(r.label)}
+   if(st==='wrong')worst='wrong';else if(st==='accent'&&worst==='right')worst='accent'});
+  app.querySelector('#tf').dataset.done=1;app.querySelector('#tf .keys').hidden=true;app.querySelector('#tf .check').hidden=true;
+  finish(worst,ins.map(x=>x.value).join(', '),worst==='right'?null:`${wrongRows.length} of ${ins.length} to fix: the correct form is next to each one.`)};
+}
+
 function ask(){
  if(sess.i>=sess.queue.length)return results();
  const cur=sess.queue[sess.i],q=cur.it.make();cur.q=q;const b=box(cur.it.id);
+ if(!sess.test&&cur.it.block&&(!blockSeen(cur.it.block)||(q.table&&b<0)))return showBlock(cur,cur.it.block);
+ if(q.table){q.kind='table';return showTable(cur,q,sess.test?'':'<span class="tag">write</span>')}
  q.kind=!sess.test&&b<0?'intro':!sess.test&&b<1&&q.options?'mc':q.reveal?'reveal':'type';
  const canHint=!sess.test&&q.kind==='type';let usedHint=false;
  const level=sess.test?'':q.kind==='intro'?'<span class="tag">nowe</span>':q.kind==='mc'?'<span class="tag">pick</span>':q.kind==='type'?'<span class="tag">write</span>':'';
@@ -701,15 +789,15 @@ function finish(res,given,msg,quick){
  let requeued=false;if(res==='wrong'&&!cur.retry){sess.queue.push({it:cur.it,retry:true});requeued=true}
  if(quick)return next();
  const shown=q.kind==='mc'?(q.mcAnswer||q.answer):q.answer;
- let tgt=q.reveal&&q.kind!=='type'?null:(q.kind==='type'&&q.accept?q.accept[0]:(q.mcAnswer||q.answer));
+ let tgt=q.table||(q.reveal&&q.kind!=='type')?null:(q.kind==='type'&&q.accept?q.accept[0]:(q.mcAnswer||q.answer));
  if(tgt){if(/[.!?…] \/ /.test(tgt))tgt=tgt.split(' / ')[0];tgt=tgt.replace(/pan \/ pani/g,'pani');if(/^\d+$/.test(tgt)||/^For example/.test(tgt))tgt=null}
  const pe=app.querySelector('.card .prompt');
- if(pe&&(q.say||q.prompt.includes('___')))pe.outerHTML=promptHTML(q,q.prompt.includes('___')?(q.mcAnswer||q.answer):null,1);
+ if(pe&&!q.table&&(q.say||q.prompt.includes('___')))pe.outerHTML=promptHTML(q,q.prompt.includes('___')?(q.mcAnswer||q.answer):null,1);
  const cls=res==='right'||res==='hint'?'r':res==='accent'?'a':'w';
  $('#fb').innerHTML=`<div class="fb ${cls}"><p class="mark">${pick(MARKS[res])}</p>
   ${res!=='right'&&res!=='hint'&&tgt?'<button class="next alt" id="drill">Write it 3 times</button>':''}
   ${res!=='right'&&q.kind==='type'?`<p class="note">You wrote: <b>${esc(given)}</b></p>`:''}
-  <div class="ansline"><p>${res==='accent'?'Spelled: ':''}${q.reveal?esc(shown):gl(shown)}</p>${spkBtn(q.sayAns)}</div>
+  ${q.table?'':`<div class="ansline"><p>${res==='accent'?'Spelled: ':''}${q.reveal?esc(shown):gl(shown)}</p>${spkBtn(q.sayAns)}</div>`}
   ${msg?`<p class="note">${esc(msg)}</p>`:''}
   ${q.note&&res!=='right'?`<p class="note">${esc(q.note)}</p>`:''}
   ${res==='hint'?'<p class="note">Write it once without the hint and it counts as known.</p>':''}
@@ -762,7 +850,7 @@ function results(){
  <header class="row"><p class="eyebrow">${esc(sess.title)} · round ${round()} done</p>
   <p class="score">${ok}<small> / ${first.length} right first time</small></p>
   <p class="lede">${sess.fresh?`${sess.fresh} new term${sess.fresh>1?'s':''} this round. `:''}${up?`<b>Next stage unlocked: ${esc(STAGES[cs].n)}.</b> `:''}${missed.length?'Missed questions came back once at the end. Here they are again:':'Clean round.'}</p></header>
- ${missed.length?`<div class="miss"><ul>${missed.map(l=>`<li><p class="q">${(l.q.say||l.q.prompt.includes('___')?gl:esc)(l.q.prompt.replace('___','…'))}${l.q.sub?' · '+esc(l.q.sub):''}</p><p class="a">${l.q.reveal?esc(l.q.answer):gl(l.q.answer)}</p></li>`).join('')}</ul></div>`:''}
+ ${missed.length?`<div class="miss"><ul>${missed.map(l=>`<li><p class="q">${(l.q.say||l.q.prompt.includes('___')?gl:esc)(l.q.prompt.replace('___','…'))}${l.q.sub?' · '+esc(l.q.sub):''}</p><p class="a">${l.q.table?l.q.rows.map(r=>`${esc(r.label)}: ${gl(r.answer)}`).join(' · '):l.q.reveal?esc(l.q.answer):gl(l.q.answer)}</p></li>`).join('')}</ul></div>`:''}
  <div class="row">
   <button class="cta" id="more"><span>${sess.test?'Ucz się dalej':'Następna runda'}</span><small>${sess.test?'Back to the learning path':'Next round · about 15 steps'}</small></button>
   ${missed.length?'<button class="cta2" id="again">Again: just the ones I missed</button>':''}
