@@ -1,0 +1,718 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Polski">
+<meta name="theme-color" content="#F4F6FA" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#10151F" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{-webkit-text-size-adjust:100%;background:#F4F6FA}
+@media (prefers-color-scheme: dark){html{background:#10151F}}
+body{margin:0;font:14px/1.4 system-ui,-apple-system,sans-serif}
+img{max-width:100%}[hidden]{display:none!important}
+</style>
+</head><body>
+<title>Polski Test 1</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Caveat:wght@600;700&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+/* Layout: one-column phone app on squared notebook paper; teacher's red pen for grades and marks, ink blue for actions */
+:root{
+  --paper:#F4F6FA; --grid:rgba(60,100,170,.09); --card:#FFFFFF; --ink:#18202E; --muted:#5A667A; --line:#D7DFEA;
+  --blue:#2450C4; --blue-soft:#E5ECFB; --on-blue:#FFFFFF;
+  --pen:#CC2237; --pen-soft:#FCE7EA; --ok:#17794A; --ok-soft:#E2F3E9;
+  --f-display:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif;
+  --f-body:'Source Sans 3',system-ui,-apple-system,sans-serif;
+  --f-hand:'Caveat','Bradley Hand','Comic Sans MS',cursive;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#10151F; --grid:rgba(130,165,230,.07); --card:#18202D; --ink:#E7ECF4; --muted:#95A2B6; --line:#2B3547;
+  --blue:#88A8FF; --blue-soft:#1D2A49; --on-blue:#0E1526;
+  --pen:#FF6577; --pen-soft:#3A1C25; --ok:#4FCB8E; --ok-soft:#14322A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#10151F; --grid:rgba(130,165,230,.07); --card:#18202D; --ink:#E7ECF4; --muted:#95A2B6; --line:#2B3547;
+  --blue:#88A8FF; --blue-soft:#1D2A49; --on-blue:#0E1526;
+  --pen:#FF6577; --pen-soft:#3A1C25; --ok:#4FCB8E; --ok-soft:#14322A; color-scheme:dark}
+
+body{background-color:var(--paper);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:22px 22px;color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.45;min-height:100vh}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.app{max-width:560px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:18px calc(92px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:16px}
+.app.quiz{padding-bottom:calc(28px + env(safe-area-inset-bottom,0px))}
+h1,h2{font-family:var(--f-display);text-wrap:balance;margin:0;letter-spacing:-.01em}
+h1{font-size:30px;font-weight:800;line-height:1.05}
+p{margin:0}
+.eyebrow{font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.lede{color:var(--muted);font-size:15.5px;max-width:60ch}
+
+/* home */
+.hero{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding-top:6px}
+.hero>div{min-width:0;display:flex;flex-direction:column;gap:6px}
+.when{color:var(--muted);font-size:15px}
+.when b{color:var(--pen);font-weight:700}
+.grade-wrap{display:flex;flex-direction:column;align-items:center;gap:2px}
+.grade{font-family:var(--f-hand);font-weight:700;font-size:62px;line-height:1;color:var(--pen);width:88px;height:88px;display:grid;place-items:center;border:3px solid var(--pen);border-radius:52% 46% 55% 44% / 48% 55% 45% 52%;transform:rotate(-7deg)}
+.grade-lbl{font-family:var(--f-hand);font-size:21px;color:var(--pen);line-height:1}
+.cta{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;border:0;border-radius:16px;padding:18px 20px;background:var(--blue);color:var(--on-blue);text-align:left}
+.cta span{font-family:var(--f-display);font-weight:800;font-size:24px}
+.cta small{font-size:15px;opacity:.85}
+.cta2{width:100%;border:2px solid var(--pen);background:var(--pen-soft);color:var(--pen);border-radius:14px;padding:13px 18px;font-weight:700;text-align:left}
+.sec{font-size:19px;font-weight:600;margin-top:6px}
+.decks{display:flex;flex-direction:column;gap:10px}
+.deck{display:grid;grid-template-columns:1fr auto;gap:2px 12px;align-items:baseline;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.dn{font-weight:700;font-size:17.5px;min-width:0}
+.dp{font-variant-numeric:tabular-nums;font-weight:700;color:var(--blue);font-size:15px}
+.de{grid-column:1/-1;color:var(--muted);font-size:14.5px}
+.meter{grid-column:1/-1;height:6px;border-radius:3px;background:var(--blue-soft);margin-top:8px;overflow:hidden}
+.meter i{display:block;height:100%;background:var(--blue);border-radius:3px}
+.foot{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-top:6px}
+.ghost{background:none;border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:14.5px;color:var(--muted)}
+.ghost.armed{border-color:var(--pen);color:var(--pen)}
+.toggle{display:flex;align-items:center;gap:8px;font-size:14.5px;color:var(--muted)}
+.toggle input{width:20px;height:20px;accent-color:var(--blue)}
+
+/* quiz */
+.qtop{display:flex;align-items:center;gap:12px}
+.qx{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--card);display:grid;place-items:center;flex:none}
+.bar{flex:1;height:8px;background:var(--blue-soft);border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--blue);transition:width .25s}
+.count{font-variant-numeric:tabular-nums;font-size:14.5px;color:var(--muted);flex:none}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px 18px 22px;display:flex;flex-direction:column;gap:10px}
+.prow{display:flex;gap:10px;align-items:flex-start}
+.prompt{font-family:var(--f-display);font-weight:600;font-size:26px;line-height:1.2;flex:1;min-width:0;overflow-wrap:anywhere}
+.prompt.big{font-size:56px;font-weight:800}
+.sub{color:var(--muted);font-size:15.5px}
+.blank{display:inline-block;min-width:2.6em;height:.9em;border-bottom:3px solid var(--blue);margin:0 .12em;vertical-align:-.05em}
+.spk{width:40px;height:40px;flex:none;border-radius:50%;border:1px solid var(--line);background:var(--blue-soft);color:var(--blue);display:grid;place-items:center}
+.spk svg{width:20px;height:20px}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{width:100%;text-align:left;background:var(--card);border:1.5px solid var(--line);border-radius:13px;padding:14px 16px;font-size:17.5px;line-height:1.3}
+.opt.right{border-color:var(--ok);background:var(--ok-soft);color:var(--ok);font-weight:700}
+.opt.wrong{border-color:var(--pen);background:var(--pen-soft);color:var(--pen);text-decoration:line-through}
+.opt:disabled{cursor:default}
+.typed{display:flex;flex-direction:column;gap:10px}
+.typed input{width:100%;box-sizing:border-box;font:inherit;font-size:23px;font-weight:600;padding:13px 14px;border-radius:13px;border:1.5px solid var(--line);background:var(--card);color:var(--ink)}
+.typed input:focus{border-color:var(--blue);outline:none}
+.keys{display:flex;flex-wrap:wrap;gap:6px}
+.keys button{min-width:40px;height:42px;border-radius:10px;border:1px solid var(--line);background:var(--card);font-size:19px;font-weight:600}
+.check{width:100%;border:0;border-radius:13px;padding:14px;background:var(--blue);color:var(--on-blue);font-weight:700;font-size:18px}
+.fb{display:flex;flex-direction:column;gap:8px;border-radius:16px;padding:14px 16px;border:1.5px solid var(--line);background:var(--card)}
+.fb.r{border-color:var(--ok)} .fb.w,.fb.a{border-color:var(--pen)}
+.mark{font-family:var(--f-hand);font-weight:700;font-size:32px;line-height:1}
+.fb.r .mark{color:var(--ok)} .fb.w .mark,.fb.a .mark{color:var(--pen)}
+.ansline{display:flex;gap:10px;align-items:center}
+.ansline p{flex:1;min-width:0;font-size:19px;font-weight:700}
+.note{color:var(--muted);font-size:15px}
+.next{width:100%;border:0;border-radius:13px;padding:14px;background:var(--ink);color:var(--paper);font-weight:700;font-size:18px}
+
+/* results */
+.score{font-family:var(--f-display);font-weight:800;font-size:64px;line-height:1;font-variant-numeric:tabular-nums}
+.score small{font-size:26px;color:var(--muted)}
+.miss{display:flex;flex-direction:column;gap:8px}
+.miss li{list-style:none;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+.miss ul{margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.miss .q{color:var(--muted);font-size:14.5px}
+.miss .a{font-weight:700}
+.row{display:flex;flex-direction:column;gap:10px}
+
+/* sheet */
+details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:4px 16px}
+details[open]{padding-bottom:14px}
+summary{font-family:var(--f-display);font-weight:600;font-size:19px;padding:12px 0;cursor:pointer}
+.tw{overflow-x:auto;margin:0 -4px}
+table{border-collapse:collapse;width:100%;font-size:15.5px}
+th{text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:700;padding:6px 8px;border-bottom:1.5px solid var(--line)}
+td{padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.say{color:var(--blue);cursor:pointer}
+td.say:active{opacity:.6}
+.tip{font-size:15px;color:var(--muted);margin-top:10px}
+.tip b{color:var(--ink)}
+
+/* learning path + ladder */
+.stage{display:flex;flex-direction:column;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px}
+.stage-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.stage-h p{font-weight:700;font-size:17.5px;min-width:0}
+.stage-h span{font-variant-numeric:tabular-nums;color:var(--muted);font-size:14px;flex:none}
+.path{display:grid;grid-template-columns:repeat(9,1fr);gap:5px}
+.path i{display:block;height:9px;border-radius:5px;background:var(--blue-soft);overflow:hidden}
+.path i b{display:block;height:100%;background:var(--blue)}
+.path i.cur{outline:2px solid var(--blue);outline-offset:1px}
+.ladder{display:flex;flex-wrap:wrap;gap:6px;font-size:13.5px;color:var(--muted)}
+.ladder span{border:1px solid var(--line);border-radius:999px;padding:3px 10px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.next.alt{background:var(--pen-soft);color:var(--pen)}
+.hint{font-family:var(--f-hand);font-size:24px;color:var(--blue);line-height:1.1}
+.intro .meaning{color:var(--muted);font-size:16px}
+.intro .prompt b,.fill{color:var(--blue)}
+.tag{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-radius:999px;padding:2px 9px;background:var(--blue-soft);color:var(--blue);margin-left:6px;vertical-align:2px}
+.ov{align-self:flex-start}
+
+.plan{display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--line);padding-top:12px}
+.plan p{font-size:15.5px;color:var(--muted)} .plan b{color:var(--ink)}
+.seg{display:flex;align-items:center;flex-wrap:wrap;gap:6px}
+.seg span{font-size:14px;color:var(--muted);margin-right:4px}
+.seg button{min-width:46px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--paper);font-weight:700;font-variant-numeric:tabular-nums}
+.seg button[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:var(--on-blue)}
+
+.gw{border-bottom:1.5px dotted currentColor;cursor:help;border-radius:3px}
+.gw.on{background:var(--blue-soft)}
+#tip{position:fixed;z-index:30;max-width:min(280px,calc(100vw - 32px));background:var(--ink);color:var(--paper);font-family:var(--f-body);font-size:14.5px;font-weight:600;line-height:1.3;padding:7px 11px;border-radius:9px;pointer-events:none;box-shadow:0 6px 18px rgba(0,0,0,.2)}
+
+.pill{font-size:13px;font-weight:700;border-radius:999px;padding:3px 10px;flex:none}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.behind{background:var(--pen-soft);color:var(--pen)}
+.meter.tm{height:10px;margin-top:0;border-radius:5px}
+.today .tline{font-size:15.5px;font-variant-numeric:tabular-nums}
+
+/* nav */
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:5;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;justify-content:center;gap:8px}
+.nav button{flex:1;max-width:220px;background:none;border:0;padding:12px 8px 14px;font-weight:700;font-size:15.5px;color:var(--muted);border-top:3px solid transparent}
+.nav button[aria-current="page"]{color:var(--blue);border-top-color:var(--blue)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+
+<main class="app" id="app"></main>
+<nav class="nav" id="nav">
+  <button id="t-home" aria-current="page">Ćwicz · Practice</button>
+  <button id="t-sheet">Ściąga · Cheat sheet</button>
+</nav>
+
+<script>
+/* ---------- content (from the Test 1 overview slide + lessons 0–1) ---------- */
+const QA=[
+ {k:'imie',en:"What's your first name?",en3:"Ask about her: what's her first name?",inf:"Jak masz na imię?",form:"Jak ma pan / pani na imię?",formAlt:["Jak pan / pani ma na imię?"],trap:"Jak masz pani na imię?",third:"Jak ona ma na imię?",thirdAlt:["Jak ma ona na imię?"],fact:"Her first name is Anna.",ans:"Mam na imię Jan.",ans3:"Ona ma na imię Anna.",acc3:["Ma na imię Anna."],pat:/^mam na imię \S+/},
+ {k:'nazwisko',en:"What's your surname?",en3:"Ask about him: what's his surname?",inf:"Jak masz na nazwisko?",form:"Jak ma pan / pani na nazwisko?",formAlt:["Jak pan / pani ma na nazwisko?"],trap:"Jak masz pan na nazwisko?",third:"Jak on ma na nazwisko?",thirdAlt:["Jak ma on na nazwisko?"],fact:"His surname is Kowalski.",ans:"Mam na nazwisko Kowalski.",ans3:"On ma na nazwisko Kowalski.",acc3:["Ma na nazwisko Kowalski."],pat:/^mam na nazwisko \S+/},
+ {k:'nazywa',en:"What's your (full) name?",en3:"Ask about him: what's he called?",inf:"Jak się nazywasz?",form:"Jak się pan / pani nazywa?",formAlt:["Jak pan / pani się nazywa?"],trap:"Jak się pani nazywasz?",third:"Jak on się nazywa?",thirdAlt:["Jak się on nazywa?"],fact:"His name is Jan Kowalski.",ans:"Nazywam się Jan Kowalski.",ans3:"On nazywa się Jan Kowalski.",acc3:["Nazywa się Jan Kowalski.","On się nazywa Jan Kowalski."],pat:/^nazywam się \S+/},
+ {k:'ma',en:"How are you?",en3:"Ask about her: how is she?",inf:"Jak się masz?",form:"Jak się pan / pani ma?",formAlt:["Jak pan / pani się ma?"],trap:"Jak się pani masz?",third:"Jak ona się ma?",thirdAlt:["Jak się ona ma?"],fact:"She is fine (dobrze).",ans:"Świetnie, dziękuję.",ans3:"Ona ma się dobrze.",acc3:["Ma się dobrze.","Dobrze."],pat:/(dobrze|świetnie|nieźle|w porządku|tak sobie|źle|super)/},
+ {k:'skad',en:"Where are you from?",en3:"Ask about him: where is he from?",inf:"Skąd jesteś?",form:"Skąd pan / pani jest?",formAlt:["Skąd jest pan / pani?"],trap:"Skąd pani jesteś?",third:"Skąd on jest?",thirdAlt:["Skąd jest on?"],fact:"He is from Poland.",ans:"Jestem z Belgii.",ans3:"On jest z Polski.",acc3:["Jest z Polski.","Z Polski."],pat:/^jestem ze? \S+/},
+ {k:'gdzie',en:"Where do you live?",en3:"Ask about her: where does she live?",inf:"Gdzie mieszkasz?",form:"Gdzie pan / pani mieszka?",formAlt:["Gdzie mieszka pan / pani?"],trap:"Gdzie pani mieszkasz?",third:"Gdzie ona mieszka?",thirdAlt:["Gdzie mieszka ona?"],fact:"She lives in Warsaw.",ans:"Mieszkam w Gandawie.",ans3:"Ona mieszka w Warszawie.",acc3:["Mieszka w Warszawie.","W Warszawie."],pat:/^mieszkam we? \S+/},
+ {k:'adres',en:"What's your address?",en3:"Ask about him: what's his address?",inf:"Jaki masz adres?",form:"Jaki ma pan / pani adres?",formAlt:["Jaki pan / pani ma adres?"],trap:"Jaki masz pani adres?",third:"Jaki on ma adres?",thirdAlt:["Jaki ma on adres?"],fact:"His address: ul. Mickiewicza 7.",ans:"Ulica Prosta 69.",ans3:"Ulica Mickiewicza 7.",acc3:["ul. Mickiewicza 7","On ma adres ulica Mickiewicza 7"],pat:/^(ul|ulica|al|aleja|pl|plac|os|osiedle) \S+/},
+ {k:'tel',en:"What's your phone number?",en3:"Ask about her: what's her phone number?",inf:"Jaki masz numer telefonu?",form:"Jaki ma pan / pani numer telefonu?",formAlt:["Jaki pan / pani ma numer telefonu?"],trap:"Jaki pani masz numer telefonu?",third:"Jaki ona ma numer telefonu?",thirdAlt:["Jaki ma ona numer telefonu?"],fact:"Her number is 0123 456 789.",ans:"Zero, cztery, siedem, pięć…",ans3:"0123 456 789",acc3:[],pat3:/\d{3}/,pat:/(\d|zero|jeden|dwa|trzy|cztery|pięć|sześć|siedem|osiem|dziewięć)/}
+];
+const VERBS={
+ 'być':{en:'to be',f:['jestem','jesteś','jest','jesteśmy','jesteście','są'],note:'Irregular: learn the six forms by heart.'},
+ 'mieć':{en:'to have',f:['mam','masz','ma','mamy','macie','mają'],note:'AM/ASZ group: -am -asz -a -amy -acie -ają.'},
+ 'mieszkać':{en:'to live',f:['mieszkam','mieszkasz','mieszka','mieszkamy','mieszkacie','mieszkają'],note:'AM/ASZ group: -am -asz -a -amy -acie -ają.'},
+ 'nazywać się':{en:'to be called',f:['nazywam się','nazywasz się','nazywa się','nazywamy się','nazywacie się','nazywają się'],note:'AM/ASZ group, plus się.'},
+ 'czytać':{en:'to read',f:['czytam','czytasz','czyta','czytamy','czytacie','czytają'],note:'AM/ASZ group: -am -asz -a -amy -acie -ają.',bonus:1},
+ 'pytać':{en:'to ask',f:['pytam','pytasz','pyta','pytamy','pytacie','pytają'],note:'AM/ASZ group: -am -asz -a -amy -acie -ają.',bonus:1},
+ 'przepraszać':{en:'to apologise',f:['przepraszam','przepraszasz','przeprasza','przepraszamy','przepraszacie','przepraszają'],note:'AM/ASZ group: -am -asz -a -amy -acie -ają.',bonus:1}
+};
+const PERS=[['ja'],['ty'],['on','ona','pan','pani'],['my'],['wy'],['oni','one','państwo']];
+const PERS_LBL=['ja','ty','on / ona / ono · pan / pani','my','wy','oni / one · państwo'];
+const SENT=[
+ ['Skąd (ty) ___?','jesteś','być'],['(ja) ___ z Polski.','jestem','być'],['One ___ z Niemiec.','są','być'],['Skąd (wy) ___?','jesteście','być'],['Ona ___ z Włoch.','jest','być'],['(my) ___ z Francji.','jesteśmy','być'],
+ ['Jak (ty) ___ na imię?','masz','mieć'],['Oni ___ problem.','mają','mieć'],['(my) ___ dom w Krakowie.','mamy','mieć'],['(ja) ___ na imię Andrzej.','mam','mieć'],['On ___ pytanie.','ma','mieć'],['Czy (wy) ___ nowe auto?','macie','mieć'],
+ ['Gdzie on ___?','mieszka','mieszkać'],['Michael teraz ___ w Krakowie.','mieszka','mieszkać'],['(my) ___ w Poznaniu.','mieszkamy','mieszkać'],['Oni ___ w Gdańsku.','mieszkają','mieszkać'],['Czy (wy) teraz ___ w Łodzi?','mieszkacie','mieszkać'],['Teraz (ja) ___ w Gandawie.','mieszkam','mieszkać'],
+ ['Jak się pani ___?','nazywa','nazywać się'],['(my) ___ się Nowak.','nazywamy','nazywać się']
+];
+const COUNTRIES=[['Belgium','Belgia','z Belgii'],['Germany','Niemcy','z Niemiec'],['England','Anglia','z Anglii'],['France','Francja','z Francji'],['Italy','Włochy','z Włoch'],['Japan','Japonia','z Japonii'],['the Netherlands','Holandia','z Holandii'],['Poland','Polska','z Polski'],['Russia','Rosja','z Rosji'],['Spain','Hiszpania','z Hiszpanii'],['America / USA','Ameryka · Stany Zjednoczone','z Ameryki',['ze stanów zjednoczonych']],['Flanders','Flandria','z Flandrii']];
+const PEOPLE=[['Ignatio','w Barcelonie','On','z Hiszpanii'],['Andreas','w Berlinie','On','z Niemiec'],['Pan Smith','w Nowym Jorku','On','z Ameryki'],['Pani Wysocka','w Poznaniu','Ona','z Polski'],['Roberto','w Rzymie','On','z Włoch'],['Paul','w Birmingham','On','z Anglii'],['Mami','w Tokio','Ona','z Japonii'],['Tatiana','w Moskwie','Ona','z Rosji'],['Nicole','w Paryżu','Ona','z Francji'],['Alexandra','w Londynie','Ona','z Anglii']];
+const CITIES=[['Ghent','Gandawa','w Gandawie'],['Brussels','Bruksela','w Brukseli'],['Antwerp','Antwerpia','w Antwerpii'],['Warsaw','Warszawa','w Warszawie'],['Kraków','Kraków','w Krakowie'],['Gdańsk','Gdańsk','w Gdańsku'],['Poznań','Poznań','w Poznaniu'],['Łódź','Łódź','w Łodzi'],['Wrocław','Wrocław','we Wrocławiu']];
+const NUMS=['zero','jeden','dwa','trzy','cztery','pięć','sześć','siedem','osiem','dziewięć','dziesięć'];
+const CLASS=[
+ ['Co to znaczy…?','What does … mean?'],['Jak jest po polsku…?','How do you say … in Polish?'],['Jak jest po niderlandzku…?','How do you say … in Dutch?'],
+ ['Nie rozumiem.',"I don't understand."],['Nie wiem.',"I don't know."],['Proszę mówić wolniej.','Please speak more slowly.'],['Proszę napisać.','Please write it down.'],
+ ['Proszę przeczytać.','Please read it.'],['Proszę powtórzyć.','Please repeat.'],['Proszę przeliterować.','Please spell it.'],['Mam pytanie!','I have a question!'],
+ ['Gdzie jest toaleta?','Where is the toilet?'],['Przepraszam, gdzie jest sekretariat?','Excuse me, where is the office?'],
+ ['Dzień dobry.','Hello / good day (formal).'],['Do widzenia.','Goodbye (formal).'],['Cześć!','Hi! / Bye! (informal)'],['Dobranoc.','Good night.'],['Dziękuję.','Thank you.'],
+ ['Proszę.','Please. / Here you are.'],['Przepraszam.','Sorry. / Excuse me.'],['Rozumiem.','I understand.'],['Miło mi. / Bardzo mi miło.','Nice to meet you.'],['Co słychać?',"How's it going? / What's new?"],['Wszystko w porządku.','Everything is fine.']
+];
+const WORDS=[['ulica','street'],['aleja','avenue'],['osiedle','housing estate'],['plac','square'],['imię','first name'],['nazwisko','surname'],['kraj','country'],['adres','address'],['numer telefonu','phone number'],['pytanie','question'],['odpowiedź','answer'],['kontakt oficjalny','formal contact (pan / pani)'],['kontakt nieoficjalny','informal contact (ty)']];
+const ABBR=[['ul.','ulica'],['al.','aleja'],['os.','osiedle'],['pl.','plac']];
+const ONI=[['Magda i Dominika','One'],['Agnieszka i Jacek','Oni'],['pani Kruszańska i pani Wojciechowska','One'],['Piotrek i Mariusz','Oni'],['pan Kamil i pani Grażyna','Oni'],['Tadeusz i Andrzej','Oni'],['Anna i dziecko','One'],['Jan i Anna','Oni']];
+const PRON=[['ono','it (e.g. a baby)'],['oni','they: men, or a mixed group'],['one','they: only women, children, animals or things'],['państwo','you, formal: a mixed group (ladies and gentlemen)'],['panowie','you, formal: several men'],['panie','you, formal: several women'],['pan','you, formal: one man'],['pani','you, formal: one woman'],['wy','you, informal plural']];
+
+const DECKS={
+ qa:{pl:'Pytania i odpowiedzi',en:'Questions & answers · ty ↔ pan / pani · on / ona'},
+ verbs:{pl:'Czasowniki',en:'być, mieć, mieszkać, nazywać się (type the form)'},
+ kraje:{pl:'Skąd? Gdzie?',en:'Countries with z …, cities with w …'},
+ num:{pl:'Liczby 0–10',en:'Numbers and “Ile jest…?”'},
+ klasa:{pl:'W klasie',en:'Classroom phrases and greetings'},
+ words:{pl:'Słowa i zaimki',en:'ulica, aleja, osiedle, plac · oni czy one?'}
+};
+
+/* ---------- helpers ---------- */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const pick=a=>a[Math.random()*a.length|0];
+const mc=(ans,pool,n=3)=>shuffle([ans,...shuffle([...new Set(pool.filter(x=>x!==ans))]).slice(0,n)]);
+const sp=t=>t.replace(/pan \/ pani/g,'pani').replace(/ \/ /g,', ').replace(/…/g,'');
+const norm=s=>s.toLowerCase().replace(/[.,!?;:…]/g,'').replace(/\s+/g,' ').trim();
+const strip=s=>s.normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/ł/g,'l');
+
+/* ---------- items ----------
+   Every item can be asked three ways, from easy to hard:
+   intro (see it) → options (pick it, when the item has them) → write it.
+   accept = accepted written answers · check = free-answer checker · reveal = meaning card you mark yourself */
+const ITEMS=[];const add=(deck,id,make)=>ITEMS.push({deck,id,make});
+const FORMAL_NOTE='With pan / pani the verb takes the on / ona form: ma, jest, mieszka, nazywa się.';
+const expand=s=>s.includes('pan / pani')?['pan','pani','pan/pani','pani/pan','pani / pan','pan / pani'].map(x=>s.replace('pan / pani',x)):[s];
+const acceptOf=s=>/[.!?…] \/ /.test(s)?s.split(' / '):expand(s);
+const patTest=(pat,g)=>pat.test(g)?'right':new RegExp(strip(pat.source),pat.flags).test(strip(g))?'accent':null;
+function nomTrap(k,g){
+ if(k==='skad'){const m=g.match(/^jestem ze? (.+)$/);if(m){const c=COUNTRIES.find(c=>c[1].split(' · ').some(n=>strip(n.toLowerCase())===strip(m[1])));if(c)return `After z the country changes form: ${c[2]}.`}}
+ if(k==='gdzie'){const m=g.match(/^mieszkam we? (.+)$/);if(m){const c=CITIES.find(c=>strip(c[1].toLowerCase())===strip(m[1])&&c[1].toLowerCase()!==c[2].replace(/^we? /,'').toLowerCase());if(c)return `After w the city changes form: ${c[2]}.`}}
+ return null}
+const free=(pat,k,ex)=>g=>{const bad=k&&nomTrap(k,g);if(bad)return{res:'wrong',msg:bad};const r=patTest(pat,g);return r?{res:r}:{res:'wrong',msg:`Answer with a full sentence, for example: ${ex}`}};
+
+QA.forEach(q=>{
+ add('qa',`qa:${q.k}:ans`,()=>{const ask=Math.random()<.5?q.inf:q.form;return{eyebrow:'Answer as yourself',prompt:ask,say:sp(ask),sub:'Write a full sentence about you',answer:`For example: ${q.ans}`,mcAnswer:q.ans,check:free(q.pat,q.k,q.ans),options:mc(q.ans,QA.map(x=>x.ans)),sayAns:q.ans}});
+ add('qa',`qa:${q.k}:en`,()=>({eyebrow:'Ask a friend (ty)',prompt:q.en,answer:q.inf,accept:[q.inf],options:mc(q.inf,QA.map(x=>x.inf)),sayAns:q.inf}));
+ add('qa',`qa:${q.k}:form`,()=>({eyebrow:'Make it formal · pan / pani',prompt:q.inf,say:q.inf,sub:'Ask the same question politely',answer:q.form,accept:[...expand(q.form),...q.formAlt.flatMap(expand)],options:shuffle([q.form,q.trap,...shuffle(QA.filter(x=>x!==q).map(x=>x.form)).slice(0,2)]),sayAns:sp(q.form),note:FORMAL_NOTE}));
+ add('qa',`qa:${q.k}:inf`,()=>({eyebrow:'Make it informal · ty',prompt:q.form,say:sp(q.form),sub:'Ask the same question to a friend',answer:q.inf,accept:[q.inf],options:mc(q.inf,QA.map(x=>x.inf)),sayAns:q.inf}));
+ add('qa',`qa:${q.k}:3`,()=>({eyebrow:'Ask about someone · on / ona',prompt:q.en3,answer:q.third,accept:[q.third,...q.thirdAlt],options:mc(q.third,QA.map(x=>x.third)),sayAns:q.third}));
+ add('qa',`qa:${q.k}:a3`,()=>({eyebrow:'Answer about someone',prompt:q.third,say:q.third,sub:q.fact,answer:q.ans3,...(q.pat3?{check:g=>q.pat3.test(g)?{res:'right'}:{res:'wrong'},mcAnswer:q.ans3}:{accept:[q.ans3,...q.acc3]}),options:mc(q.ans3,QA.map(x=>x.ans3)),sayAns:q.ans3}));
+});
+add('qa','qa:slychac',()=>({eyebrow:'Answer naturally',prompt:'Co słychać?',say:'Co słychać?',sub:"How's it going?",answer:'For example: Wszystko w porządku.',mcAnswer:'Wszystko w porządku.',check:free(/(w porządku|dobrze|świetnie|nieźle|tak sobie|super)/,null,'Wszystko w porządku.'),options:shuffle(['Wszystko w porządku.','Mam na imię Jan.','Jestem z Belgii.','Mieszkam w Gandawie.']),sayAns:'Wszystko w porządku.'}));
+add('qa','qa:milo',()=>({eyebrow:'Say it in Polish',prompt:'Nice to meet you.',answer:'Miło mi. / Bardzo mi miło.',accept:['Miło mi','Bardzo mi miło'],options:shuffle(['Miło mi. / Bardzo mi miło.','Nie rozumiem.','Mam pytanie!','Dobranoc.']),sayAns:'Bardzo mi miło.'}));
+
+Object.entries(VERBS).forEach(([inf,v])=>v.f.forEach((f,i)=>add('verbs',`v:${inf}:${i}`,()=>{const p=pick(PERS[i]);const acc=[f];if(f.endsWith(' się'))acc.push('się '+f.replace(' się',''));
+ return{eyebrow:`${inf} · ${v.en}`,prompt:`${p} ___`,sub:'Write the verb form',answer:f,accept:acc,options:mc(f,v.f),sayAns:`${p} ${f}`,note:v.note}})));
+SENT.forEach(([s,a,v],i)=>add('verbs',`vs:${i}`,()=>({eyebrow:`${v} · fill the gap`,prompt:s,sub:'Write the missing verb',answer:a,accept:[a],options:mc(a,VERBS[v].f.map(x=>x.replace(' się',''))),sayAns:s.replace('___',a).replace(/\((ja|ty|my|wy)\) /,''),note:VERBS[v].note})));
+
+COUNTRIES.forEach(([en,pl,gen,alt])=>{
+ add('kraje',`kr:${pl}:t`,()=>({eyebrow:'Skąd jesteś?',prompt:'Jestem ___',sub:`${pl} (${en})`,answer:gen,accept:[gen,gen.slice(2),...(alt||[]),...(alt||[]).map(x=>x.slice(3))],options:mc(gen,COUNTRIES.map(c=>c[2])),sayAns:`Jestem ${gen}.`}));
+ add('kraje',`kr:${pl}:m`,()=>({eyebrow:'Say it in Polish',prompt:`I'm from ${en}.`,answer:`Jestem ${gen}.`,accept:[`Jestem ${gen}`,...(alt||[]).map(x=>'Jestem '+x)],options:mc(`Jestem ${gen}.`,COUNTRIES.map(c=>`Jestem ${c[2]}.`)),sayAns:`Jestem ${gen}.`}));
+});
+PEOPLE.forEach(([who,where,pr,gen],i)=>add('kraje',`ppl:${i}`,()=>({eyebrow:'Skąd on / ona jest?',prompt:`${who} mieszka ${where}. ${pr} jest ___`,say:`${who} mieszka ${where}.`,answer:gen,accept:[gen,`${pr} jest ${gen}`,`jest ${gen}`],options:mc(gen,COUNTRIES.map(c=>c[2])),sayAns:`${pr} jest ${gen}.`})));
+CITIES.forEach(([en,pl,loc])=>add('kraje',`city:${pl}`,()=>({eyebrow:'Gdzie mieszkasz?',prompt:`I live in ${en}.`,sub:`${pl}`,answer:`Mieszkam ${loc}.`,accept:[`Mieszkam ${loc}`,loc],options:mc(`Mieszkam ${loc}.`,CITIES.map(c=>`Mieszkam ${c[2]}.`)),sayAns:`Mieszkam ${loc}.`,note:`${pl} → ${loc}`})));
+
+NUMS.forEach((w,n)=>add('num',`n:${n}`,()=>Math.random()<.65
+ ?{eyebrow:'Liczby · write the word',prompt:String(n),big:1,answer:w,accept:[w],options:mc(w,NUMS),sayAns:w}
+ :{eyebrow:'Liczby · which number?',prompt:w,say:w,answer:String(n),accept:[String(n)],options:mc(String(n),NUMS.map((_,i)=>String(i))),sayAns:w}));
+for(let k=0;k<5;k++)add('num',`ile:${k}`,()=>{let a,b,op,r;do{a=Math.random()*11|0;b=Math.random()*11|0;op=Math.random()<.6?'+':'−';r=op==='+'?a+b:a-b}while(r<0||r>10);const q=`Ile jest ${NUMS[a]} ${op==='+'?'plus':'minus'} ${NUMS[b]}?`;return{eyebrow:'Ile jest…? · write the result as a word',prompt:q,say:q,answer:NUMS[r],accept:[NUMS[r]],options:mc(NUMS[r],NUMS),sayAns:NUMS[r],note:`${a} ${op} ${b} = ${r}`}});
+
+CLASS.forEach(([pl,en],i)=>add('klasa',`cl:${i}`,()=>Math.random()<.65
+ ?{eyebrow:'Say it in Polish',prompt:en,answer:pl,accept:acceptOf(pl),options:mc(pl,CLASS.map(c=>c[0])),sayAns:sp(pl)}
+ :{eyebrow:'What does it mean?',prompt:pl,say:sp(pl),answer:en,reveal:1,options:mc(en,CLASS.map(c=>c[1])),sayAns:sp(pl)}));
+WORDS.forEach(([pl,en],i)=>add('words',`w:${i}`,()=>Math.random()<.65
+ ?{eyebrow:'Say it in Polish',prompt:en,answer:pl,accept:[pl],options:mc(pl,WORDS.map(c=>c[0])),sayAns:pl}
+ :{eyebrow:'What does it mean?',prompt:pl,say:pl,answer:en,reveal:1,options:mc(en,WORDS.map(c=>c[1])),sayAns:pl}));
+ABBR.forEach(([ab,full])=>add('words',`ab:${ab}`,()=>({eyebrow:'On an address, write out…',prompt:ab,big:1,answer:full,accept:[full],options:shuffle(ABBR.map(a=>a[1])),sayAns:full})));
+ONI.forEach(([who,a],i)=>add('words',`oni:${i}`,()=>({eyebrow:'Oni czy one?',prompt:`(${who}) ___ są z Polski.`,answer:a,accept:[a],options:['Oni','One'],sayAns:`${a} są z Polski.`,note:'oni = men or a mixed group · one = only women, children, animals, things'})));
+PRON.forEach(([pl,en],i)=>add('words',`pr:${i}`,()=>({eyebrow:'Zaimki · who is it?',prompt:pl,say:pl,answer:en,reveal:1,options:mc(en,PRON.map(p=>p[1])),sayAns:pl})));
+
+/* ---------- the learning path: small steps, in this order ---------- */
+const STAGES=[
+ {n:'Powitania',en:'greetings',m:/^cl:(1[3-9]|2[01])$/},
+ {n:'Imię i nazwisko',en:'asking and giving your name',m:/^(w:[45]|qa:(imie|nazwisko|nazywa):(en|ans))$/},
+ {n:'być · zaimki · 0–10',en:'to be, pronouns, numbers',m:/^(v:być:|pr:|n:)/},
+ {n:'Jak się masz? Skąd jesteś?',en:'how are you, where are you from',m:/^(qa:(ma|skad):(en|ans)|qa:slychac|qa:milo|cl:2[23]|kr:(Belgia|Polska|Holandia|Francja|Niemcy|Anglia|Flandria):m|w:6)$/},
+ {n:'mieć · mieszkać · adres',en:'to have, to live, your address',m:/^(v:(mieć|mieszkać|nazywać się):|city:|qa:(gdzie|adres):(en|ans)$|w:[0-37]$|ab:)/},
+ {n:'Kraje · telefon · w klasie',en:'all countries, phone, classroom phrases',m:/^(kr:.*:m$|qa:tel:(en|ans)$|cl:|ile:|w:)/},
+ {n:'pan / pani',en:'the formal questions',m:/^qa:.*:(form|inf)$/},
+ {n:'on / ona · oni / one',en:'talking about others, full sentences',m:/^(qa:.*:(3|a3)$|ppl:|oni:|vs:|kr:.*:t$)/},
+ {n:'Bonus',en:'czytać, pytać, przepraszać',m:/./}
+];
+ITEMS.forEach((it,i)=>{it.stage=STAGES.findIndex(s=>s.m.test(it.id));it.pos=i});
+const ORDER=ITEMS.slice().sort((a,b)=>a.stage-b.stage||a.pos-b.pos);
+
+/* ---------- progress (stored on this phone only) ---------- */
+let S={};try{S=JSON.parse(localStorage.getItem('pl-test1')||'{}')||{}}catch(e){S={}}
+const saveLocal=()=>{try{localStorage.setItem('pl-test1',JSON.stringify(S))}catch(e){}};
+const save=()=>{saveLocal();scheduleSync()};
+/* progress carried over from the Claude version, used only on first launch */
+const SEED={"_d": {"d": "2026-10-23", "n": 1}, "_p": 8, "_r": 3, "_t": {"d": "2026-10-23", "r": 0, "u0": 186}, "cl:13": {"b": 2, "due": 5, "n": 5, "w": 1}, "cl:14": {"b": 3, "due": 6, "n": 3, "w": 0}, "cl:15": {"b": 2, "due": 3, "n": 5, "w": 1}, "cl:16": {"b": 3, "due": 5, "n": 3, "w": 0}, "cl:17": {"b": 1, "due": 3, "n": 4, "w": 1}, "cl:18": {"b": 2, "due": 3, "n": 2, "w": 0}, "cl:19": {"b": 1, "due": 3, "n": 3, "w": 1}, "cl:20": {"b": 2, "due": 4, "n": 2, "w": 0}, "cl:21": {"b": 2, "due": 5, "n": 4, "w": 1}, "n:0": {"b": 1, "due": 3, "n": 1, "w": 0}, "n:1": {"b": 1, "due": 3, "n": 1, "w": 0}, "n:10": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:2": {"b": 1, "due": 3, "n": 1, "w": 0}, "n:3": {"b": 0, "due": 3, "n": 2, "w": 1}, "n:4": {"b": 0, "due": 3, "f": "2026-10-22", "n": 2, "w": 1}, "n:5": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:6": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:7": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:8": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:9": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:0": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:1": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:2": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:3": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:4": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:5": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:6": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "pr:7": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "pr:8": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:gdzie:ans": {"b": 4, "due": 9, "n": 4, "w": 0}, "qa:imie:ans": {"b": 2, "due": 4, "n": 2, "w": 0}, "qa:imie:en": {"b": 1, "due": 2, "n": 1, "w": 0}, "qa:ma:ans": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:ma:en": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:nazwisko:ans": {"b": 2, "due": 5, "n": 2, "w": 0}, "qa:nazwisko:en": {"b": 1, "due": 2, "n": 7, "w": 2}, "qa:nazywa:ans": {"b": 1, "due": 2, "n": 1, "w": 0}, "qa:nazywa:en": {"b": 1, "due": 2, "n": 1, "w": 0}, "qa:skad:ans": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:skad:en": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:slychac": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "v:być:0": {"b": 2, "due": 5, "n": 2, "w": 0}, "v:być:1": {"b": 1, "due": 2, "n": 1, "w": 0}, "v:być:2": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:3": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:4": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:5": {"b": 1, "due": 3, "n": 1, "w": 0}, "w:4": {"b": 1, "due": 2, "n": 1, "w": 0}, "w:5": {"b": 2, "due": 5, "n": 2, "w": 0}};
+if(!Object.keys(S).length){S=JSON.parse(JSON.stringify(SEED));saveLocal()}
+
+/* ---------- account sync: one private progress document per person ---------- */
+let cloud=null,cloudBusy=false,cloudDirty=false,cloudTimer=null,cloudRetried=false,syncState='local',view='home';
+function scheduleSync(){if(!cloud)return;cloudDirty=true;clearTimeout(cloudTimer);cloudTimer=setTimeout(pushCloud,1500)}
+async function pushCloud(){
+ if(!cloud||cloudBusy||!cloudDirty)return;cloudBusy=true;cloudDirty=false;
+ try{await cloud.set({s:S,at:Date.now()});syncState='cloud';cloudRetried=false}
+ catch(e){const c=e&&e.code;
+  if(c==='unavailable'&&!cloudRetried){cloudRetried=true;cloudDirty=true;cloudBusy=false;setTimeout(pushCloud,1500+Math.random()*1500);return}
+  syncState='local';if(c&&c!=='unavailable'&&c!=='resource_exhausted')cloud=null}
+ cloudBusy=false;updSync();if(cloudDirty)scheduleSync()}
+function mergeS(a,b){const out={};
+ new Set([...Object.keys(a),...Object.keys(b)]).forEach(k=>{if(k[0]==='_')return;const x=a[k],y=b[k];
+  out[k]=!x?{...y}:!y?{...x}:(y.n>x.n||(y.n===x.n&&y.b>x.b))?{...y}:{...x}});
+ const t=dayKey(),da=a._d&&a._d.d===t?a._d.n:0,db_=b._d&&b._d.d===t?b._d.n:0;
+ if(da||db_)out._d={d:t,n:Math.max(da,db_)};
+ const r=Math.max(a._r||0,b._r||0);if(r)out._r=r;
+ const ta=a._t&&a._t.d===t?a._t:null,tb=b._t&&b._t.d===t?b._t:null;
+ if(tb||ta)out._t={...(tb||ta),r:Math.max(ta?ta.r:0,tb?tb.r:0)};const pc=a._p||b._p;if(pc)out._p=pc;return out}
+function updSync(){const el=document.getElementById('sync');if(el)el.textContent=syncState==='cloud'?'Progress saved to your Claude account, so it follows you to any device.':'Progress saved on this device only.'}
+(async()=>{try{
+ if(!window.claude||!window.claude.use)return;
+ const [user,db]=await Promise.all([claude.use('user'),claude.use('db')]);if(!user||!db)return;
+ const uid=await user.id();if(!uid)return;
+ const ref=db.doc('data/users/'+uid+'/progress');
+ const snap=await ref.get();const remote=snap.exists?((snap.data()||{}).s||{}):{};
+ const merged=mergeS(S,remote);const changed=JSON.stringify(merged)!==JSON.stringify(remote);
+ S=merged;saveLocal();cloud=ref;syncState='cloud';
+ if(changed){cloudDirty=true;pushCloud()}
+ if(view==='home'&&!sess)home();else updSync();
+}catch(e){}})();
+const box=id=>S[id]?S[id].b:-1;
+const weight=id=>{const b=box(id);return b<0?2.5:[4,2.5,1,.5,.25][Math.min(b,4)]};
+const mastery=its=>its.reduce((s,it)=>s+Math.min(Math.max(box(it.id),0),2)/2,0)/its.length;
+const GRADES=[[.9,6,'celujący'],[.75,5,'bardzo dobry'],[.6,4,'dobry'],[.45,3,'dostateczny'],[.3,2,'dopuszczający'],[0,1,'niedostateczny']];
+const gradeOf=m=>{const g=GRADES.find(g=>m>=g[0]);return{n:g[1],name:g[2]}};
+const weakItems=()=>ITEMS.filter(it=>S[it.id]&&S[it.id].w>0&&S[it.id].b<2);
+const dayKey=()=>{const d=new Date();return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`};
+const todayCount=()=>S._d&&S._d.d===dayKey()?S._d.n:0;
+/* spacing: a right answer sits out 1, 2, 4, 7… rounds; a mistake is due again right away */
+const round=()=>S._r||0,pace=()=>S._p||5;
+const GAP=[0,1,2,4,7,12,20];
+function record(id,res){const s=S[id]||{b:0,n:0,w:0,f:dayKey()};s.n++;
+ if(res==='right'){s.b=Math.min(s.b+1,6);s.due=round()+1+GAP[s.b]}
+ else if(res==='wrong'){s.b=0;s.w++;s.due=round()}
+ else s.due=round()+1;
+ S[id]=s;S._d={d:dayKey(),n:todayCount()+1};save()}
+const dueNow=it=>S[it.id]&&(S[it.id].due??0)<=round();
+function wsample(items,n){const pool=items.map(it=>({it,w:weight(it.id)}));const out=[];
+ while(out.length<n&&pool.length){let t=pool.reduce((s,p)=>s+p.w,0),r=Math.random()*t,k=0;for(;k<pool.length-1;k++){r-=pool[k].w;if(r<=0)break}out.push(pool.splice(k,1)[0].it)}return out}
+const daysLeft=()=>{const n=new Date();return Math.round((new Date(2026,9,26)-new Date(n.getFullYear(),n.getMonth(),n.getDate()))/864e5)};
+function countdown(){const d=daysLeft();
+ return d>1?`<b>in ${d} days</b>`:d===1?'<b>tomorrow</b>':d===0?'<b>today</b>':'done'}
+
+/* ---------- speech (uses the phone's Polish voice when it has one) ---------- */
+const canSpeak='speechSynthesis' in window;let plVoice=null;
+function loadVoices(){try{const v=speechSynthesis.getVoices();plVoice=v.find(x=>/^pl/i.test(x.lang))||null}catch(e){}}
+if(canSpeak){loadVoices();try{speechSynthesis.onvoiceschanged=loadVoices}catch(e){}}
+function say(t){if(!canSpeak||!t)return;try{const u=new SpeechSynthesisUtterance(t);u.lang='pl-PL';if(plVoice)u.voice=plVoice;u.rate=.88;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
+const SPK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4z" fill="currentColor"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>';
+const spkBtn=t=>canSpeak&&t?`<button class="spk" data-say="${esc(t)}" aria-label="Play audio">${SPK}</button>`:'';
+let autoAudio=true;try{autoAudio=localStorage.getItem('pl-test1-audio')!=='0'}catch(e){}
+
+/* ---------- word glosses (tap or hover a Polish word on teaching screens) ---------- */
+const GL={
+'ja':'I','ty':'you (one friend)','on':'he','ona':'she','ono':'it','my':'we','wy':'you (several people)',
+'oni':'they (men, or a mixed group)','one':'they (only women, children or things)',
+'pan':'you (formal, to a man) · Mr','pani':'you (formal, to a woman) · Mrs / Ms','państwo':'you (formal, a mixed group) · Mr and Mrs',
+'panowie':'gentlemen · you (formal, several men)','panie':'ladies · you (formal, several women)',
+'być':'to be','jestem':'I am','jesteś':'you are','jest':'is (he / she / it is)','jesteśmy':'we are','jesteście':'you (all) are','są':'they are',
+'mieć':'to have','mam':'I have','masz':'you have','ma':'has (he / she has)','mamy':'we have','macie':'you (all) have','mają':'they have',
+'mieszkać':'to live','mieszkam':'I live','mieszkasz':'you live','mieszka':'lives (he / she lives)','mieszkamy':'we live','mieszkacie':'you (all) live','mieszkają':'they live',
+'nazywać':'to call · nazywać się = to be called','nazywam':'nazywam się = my name is','nazywasz':'nazywasz się = you are called','nazywa':'nazywa się = he / she is called','nazywamy':'nazywamy się = we are called','nazywacie':'nazywacie się = you (all) are called','nazywają':'nazywają się = they are called',
+'się':'oneself (makes the verb reflexive)',
+'czytać':'to read','czytam':'I read','czytasz':'you read','czyta':'reads','czytamy':'we read','czytacie':'you (all) read','czytają':'they read',
+'pytać':'to ask','pytam':'I ask','pytasz':'you ask','pyta':'asks','pytamy':'we ask','pytacie':'you (all) ask','pytają':'they ask',
+'przepraszać':'to apologise','przepraszam':'sorry · excuse me','przepraszasz':'you apologise','przeprasza':'apologises','przepraszamy':'we apologise','przepraszacie':'you (all) apologise','przepraszają':'they apologise',
+'jak':'how','jaki':'what · which','skąd':'where from','gdzie':'where','co':'what','kto':'who','ile':'how much · how many','czy':'turns a sentence into a yes/no question',
+'na':'on · mam na imię = my first name is','imię':'first name','nazwisko':'surname','adres':'address','numer':'number','telefonu':'of the phone · numer telefonu = phone number','telefon':'phone',
+'z':'from','ze':'from (before some consonant clusters)','w':'in','we':'in (before some consonant clusters)','i':'and','to':'this · it','nie':'not · no','tak':'yes',
+'dobrze':'well · fine','świetnie':'great','dziękuję':'thank you','wszystko':'everything','porządku':'order · w porządku = fine, OK','słychać':'(can be) heard · co słychać? = how is it going?',
+'miło':'nice · pleasant','mi':'to me · miło mi = nice to meet you','bardzo':'very',
+'dzień':'day','dobry':'good','do':'to · until','widzenia':'seeing · do widzenia = goodbye','cześć':'hi · bye (informal)','dobranoc':'good night',
+'proszę':'please · here you are','rozumiem':'I understand','wiem':'I know','znaczy':'means','po':'po polsku = in Polish','polsku':'po polsku = in Polish','niderlandzku':'po niderlandzku = in Dutch',
+'mówić':'to speak','wolniej':'more slowly','napisać':'to write (down)','przeczytać':'to read (out)','powtórzyć':'to repeat','przeliterować':'to spell',
+'pytanie':'question','toaleta':'toilet','sekretariat':'office · secretariat','odpowiedź':'answer','kontakt':'contact','oficjalny':'formal','nieoficjalny':'informal',
+'ulica':'street','ul':'street (short for ulica)','aleja':'avenue','al':'avenue (short for aleja)','osiedle':'housing estate','os':'housing estate (short for osiedle)','plac':'square','pl':'square (short for plac)',
+'kraj':'country','prosta':'Prosta (a street name: “Straight”)','mickiewicza':'Mickiewicz (street named after the poet)','miasto':'city · town',
+'belgia':'Belgium','belgii':'Belgium · z Belgii = from Belgium','niemcy':'Germany (also: Germans)','niemiec':'Germany · z Niemiec = from Germany',
+'anglia':'England','anglii':'England · z Anglii = from England','francja':'France','francji':'France · z Francji = from France',
+'włochy':'Italy','włoch':'Italy · z Włoch = from Italy','japonia':'Japan','japonii':'Japan · z Japonii = from Japan',
+'holandia':'the Netherlands','holandii':'the Netherlands · z Holandii = from the Netherlands','polska':'Poland','polski':'Poland · z Polski = from Poland (also: Polish)',
+'rosja':'Russia','rosji':'Russia · z Rosji = from Russia','hiszpania':'Spain','hiszpanii':'Spain · z Hiszpanii = from Spain',
+'ameryka':'America','ameryki':'America · z Ameryki = from America','stany':'states','zjednoczone':'united','stanów':'states · ze Stanów Zjednoczonych = from the USA','zjednoczonych':'united · ze Stanów Zjednoczonych = from the USA',
+'flandria':'Flanders','flandrii':'Flanders · z Flandrii = from Flanders',
+'gandawa':'Ghent','gandawie':'Ghent · w Gandawie = in Ghent','bruksela':'Brussels','brukseli':'Brussels · w Brukseli = in Brussels','antwerpia':'Antwerp','antwerpii':'Antwerp · w Antwerpii = in Antwerp',
+'warszawa':'Warsaw','warszawie':'Warsaw · w Warszawie = in Warsaw','kraków':'Kraków','krakowie':'Kraków · w Krakowie = in Kraków','gdańsk':'Gdańsk','gdańsku':'Gdańsk · w Gdańsku = in Gdańsk',
+'poznań':'Poznań','poznaniu':'Poznań · w Poznaniu = in Poznań','łódź':'Łódź','łodzi':'Łódź · w Łodzi = in Łódź','wrocław':'Wrocław','wrocławiu':'Wrocław · we Wrocławiu = in Wrocław',
+'barcelonie':'Barcelona · w Barcelonie = in Barcelona','berlinie':'Berlin · w Berlinie = in Berlin','nowym':'New · w Nowym Jorku = in New York','jorku':'York · w Nowym Jorku = in New York',
+'rzymie':'Rome · w Rzymie = in Rome','moskwie':'Moscow · w Moskwie = in Moscow','paryżu':'Paris · w Paryżu = in Paris','londynie':'London · w Londynie = in London','tokio':'Tokyo',
+'zero':'zero','jeden':'one','dwa':'two','trzy':'three','cztery':'four','pięć':'five','sześć':'six','siedem':'seven','osiem':'eight','dziewięć':'nine','dziesięć':'ten','plus':'plus','minus':'minus',
+'teraz':'now','problem':'problem','dom':'house · home','nowe':'new','auto':'car','dzisiaj':'today','dziecko':'child','kowalski':'a common surname','nowak':'a common surname'
+};
+const PL_LETTER=/([A-Za-zÀ-ÿĄąĆćĘęŁłŃńÓóŚśŹźŻż]+)/;
+function gl(t){return String(t).split(PL_LETTER).map((p,i)=>{if(i%2===0)return esc(p);const g=GL[p.toLowerCase()];return g?`<span class="gw" tabindex="0" data-g="${esc(g)}">${esc(p)}</span>`:esc(p)}).join('')}
+const tip=document.createElement('div');tip.id='tip';tip.setAttribute('role','tooltip');tip.hidden=true;document.body.appendChild(tip);let tipOn=null;
+function showTip(el){if(tipOn)tipOn.classList.remove('on');tipOn=el;el.classList.add('on');tip.textContent=el.dataset.g;tip.hidden=false;
+ const r=el.getBoundingClientRect(),w=tip.offsetWidth,h=tip.offsetHeight;let x=Math.max(8,Math.min(r.left+r.width/2-w/2,innerWidth-w-8)),y=r.top-h-8;if(y<8)y=r.bottom+8;
+ tip.style.left=x+'px';tip.style.top=y+'px'}
+function hideTip(){tip.hidden=true;if(tipOn)tipOn.classList.remove('on');tipOn=null}
+document.addEventListener('click',e=>{const g=e.target.closest&&e.target.closest('.gw');if(g){if(tipOn===g)hideTip();else showTip(g)}else hideTip()});
+document.addEventListener('pointerover',e=>{if(e.pointerType!=='mouse')return;const g=e.target.closest&&e.target.closest('.gw');if(g&&g!==tipOn)showTip(g)});
+document.addEventListener('pointerout',e=>{if(e.pointerType!=='mouse'||!tipOn)return;if(!(e.relatedTarget&&tipOn.contains(e.relatedTarget)))hideTip()});
+document.addEventListener('focusin',e=>{if(e.target.classList&&e.target.classList.contains('gw'))showTip(e.target)});
+document.addEventListener('focusout',e=>{if(e.target===tipOn)hideTip()});
+addEventListener('scroll',hideTip,{passive:true});
+
+/* ---------- views ---------- */
+const app=$('#app'),nav=$('#nav');
+function setTab(t){$('#t-home').setAttribute('aria-current',t==='home'?'page':'false');$('#t-sheet').setAttribute('aria-current',t==='sheet'?'page':'false')}
+let sess=null;
+
+/* new terms arrive only while few items are still shaky */
+/* today: snapshot of terms still to meet at the start of the day, spread over the days before the test */
+function today(){if(!S._t||S._t.d!==dayKey()){S._t={d:dayKey(),u0:ORDER.filter(it=>!S[it.id]).length,r:0};save()}return S._t}
+function plan(pool){
+ const ord=ORDER.filter(it=>pool.includes(it));
+ const seen=ord.filter(it=>S[it.id]),unseen=ord.filter(it=>!S[it.id]);
+ const shaky=seen.filter(it=>S[it.id].b===0||(S[it.id].b<2&&dueNow(it))).length,p=pace();
+ const nNew=Math.min(unseen.length,shaky<p*2?p:shaky<p*3?Math.ceil(p/2):0);
+ return{seen,unseen,due:seen.filter(dueNow),nNew,fresh:unseen.slice(0,nNew)}}
+const revCount=(P,n)=>Math.min(P.due.length,Math.max(n-P.nNew*2,5));
+function buildQueue(pool,n){
+ const P=plan(pool);
+ let rev=wsample(P.due,revCount(P,n));
+ if(!rev.length&&!P.fresh.length)rev=P.seen.slice().sort((a,b)=>(S[a.id].due??0)-(S[b.id].due??0)).slice(0,n);
+ const q=shuffle(rev).map(it=>({it,retry:false}));
+ P.fresh.forEach((it,k)=>q.splice(Math.min(q.length,k*2),0,{it,retry:false}));
+ return q;
+}
+function currentStage(){const it=ORDER.find(it=>!S[it.id]||S[it.id].b<2);return it?it.stage:STAGES.length-1}
+const hintOf=q=>{const a=q.accept?q.accept[0]:(q.mcAnswer||q.answer);const w=a.replace(/[.!?]$/,'').split(' ');
+ return w.length>2?w.slice(0,Math.ceil(w.length/2)).join(' ')+' …':w.length===2?w[0]+' …':a.slice(0,Math.max(1,Math.ceil(a.length/2)))+'…'};
+
+function home(){
+ view='home';sess=null;nav.hidden=false;app.className='app';setTab('home');
+ const m=mastery(ITEMS),g=gradeOf(m),weak=weakItems(),cs=currentStage(),st=STAGES[cs];
+ const known=ITEMS.filter(it=>box(it.id)>=2).length,started=ITEMS.filter(it=>S[it.id]).length;
+ const P=plan(ITEMS),rl=Math.ceil(P.unseen.length/pace()),dl=daysLeft(),perDay=dl>0?Math.ceil(rl/dl):rl;
+ /* f = day a term was first met; terms from before day-tracking existed were all met on 22.10, the app's first day */
+ const T=today(),met=ITEMS.filter(it=>S[it.id]&&(S[it.id].f||'2026-10-22')===dayKey()).length,u0=P.unseen.length+met;
+ const goal=dl>0?Math.ceil(u0/dl):u0,left=Math.max(0,goal-met);
+ if(dayKey()==='2026-10-22')T.r=Math.max(T.r,round());
+ const onTrack=met>=goal,tpct=goal?Math.min(100,Math.round(met/goal*100)):100,rToGo=Math.ceil(left/pace());
+ const path=STAGES.map((s,i)=>{const its=ITEMS.filter(it=>it.stage===i),p=Math.round(its.filter(it=>box(it.id)>=2).length/its.length*100);return `<i class="${i===cs?'cur':''}" title="${esc(s.n)}"><b style="width:${p}%"></b></i>`}).join('');
+ app.innerHTML=`
+ <header class="hero"><div>
+   <p class="eyebrow">Test 1 · lekcja 0 i 1</p>
+   <h1>Poniedziałek 26.10</h1>
+   <p class="when">${countdown()} · ${todayCount()} answers today</p>
+ </div><div class="grade-wrap"><div class="grade" aria-label="Forecast grade ${g.n} of 6">${g.n}</div><p class="grade-lbl">${g.name}</p></div></header>
+ <section class="stage" aria-label="Learning path">
+  <div class="stage-h"><p>Etap ${cs+1} · ${esc(st.n)}</p><span>${known}/${ITEMS.length} known</span></div>
+  <div class="path">${path}</div>
+  <p class="lede">${started?`Now: ${esc(st.en)}.`:'Starts from zero with greetings.'} Every new term climbs the same ladder, and new terms only arrive once the current ones stick.</p>
+  <div class="ladder"><span>1 · see it</span><span>2 · pick it</span><span>3 · write it yourself</span><span>→ known</span></div>
+  <div class="plan">
+   <p>${P.unseen.length?`About <b>${rl} round${rl>1?'s':''} left</b> to meet all ${P.unseen.length} new terms${dl>0?`: ${perDay} a day until Monday`:''}.`:'<b>You have met every term.</b> Rounds now bring back whatever is due.'} ${P.due.length} term${P.due.length===1?' is':'s are'} due for review now. Terms you get right sit out a round or more, longer each time.</p>
+   <div class="seg" role="group" aria-label="New terms per round"><span>New terms per round</span>${[3,5,8,12].map(v=>`<button data-p="${v}" aria-pressed="${pace()===v}">${v}</button>`).join('')}</div>
+  </div>
+ </section>
+ <section class="stage today" aria-label="Today">
+  <div class="stage-h"><p>Dziś · today</p><span class="pill ${onTrack?'ok':'behind'}">${onTrack?'On track':`${rToGo} round${rToGo>1?'s':''} to go`}</span></div>
+  <div class="meter tm"><i style="width:${tpct}%"></i></div>
+  <p class="tline"><b>${met} of ${goal}</b> new terms met today · ${T.r} round${T.r===1?'':'s'} done · ${P.due.length} review${P.due.length===1?'':'s'} due</p>
+  <p class="lede">${goal===0?'Nothing new left to meet. Keep the reviews at zero and do a mock test.'
+   :onTrack?`Today's new terms are done. More rounds now are a head start for tomorrow${P.due.length>20?', and a good moment to clear the reviews that are due':''}.`
+   :`${left} more new term${left>1?'s':''} today to stay on track: about ${rToGo} round${rToGo>1?'s':''} at ${pace()} new per round.`}${dl<=0?' It’s test day: focus on reviews and a mock test.':''}</p>
+ </section>
+ <button class="cta" id="go-learn"><span>${started?'Ucz się dalej':'Zaczynamy'}</span><small>Round ${round()+1} · ${P.fresh.length} new, ${revCount(P,15)} to review</small></button>
+ <button class="cta2" id="go-test" style="border-color:var(--blue);color:var(--blue);background:var(--blue-soft)">Próbny test · mock test: 20 written questions from everything, no hints</button>
+ ${weak.length?`<button class="cta2" id="go-weak">Popraw błędy · fix ${Math.min(weak.length,20)} recent mistakes</button>`:''}
+ <p class="lede">Forecast grade on the Polish 1–6 school scale: a term counts as known once you get it right twice in a row, the last time written without a hint. A mistake sends it back a step.</p>
+ <h2 class="sec">Działy · practise one topic</h2>
+ <div class="decks">${Object.entries(DECKS).map(([k,d])=>{const its=ITEMS.filter(i=>i.deck===k),dm=Math.round(mastery(its)*100);
+   return `<button class="deck" data-deck="${k}"><span class="dn">${d.pl}</span><span class="dp">${dm}%</span><span class="de">${d.en}</span><span class="meter"><i style="width:${dm}%"></i></span></button>`}).join('')}</div>
+ <div class="foot">
+  ${canSpeak?`<label class="toggle"><input type="checkbox" id="aud" ${autoAudio?'checked':''}> Play the answer aloud</label>`:''}
+  <button class="ghost" id="reset">Reset progress</button>
+ </div>
+ <p class="note" id="sync"></p>`;
+ updSync();
+ $('#go-learn').onclick=()=>start(buildQueue(ITEMS,15),'Nauka',false);
+ $('#go-test').onclick=()=>start(wsample(ITEMS,20).map(it=>({it,retry:false})),'Próbny test',true);
+ if(weak.length)$('#go-weak').onclick=()=>start(shuffle(weak).slice(0,20).map(it=>({it,retry:false})),'Popraw błędy',false);
+ app.querySelectorAll('.deck').forEach(b=>b.onclick=()=>start(buildQueue(ITEMS.filter(i=>i.deck===b.dataset.deck),15),DECKS[b.dataset.deck].pl,false));
+ const a=$('#aud');if(a)a.onchange=()=>{autoAudio=a.checked;try{localStorage.setItem('pl-test1-audio',a.checked?'1':'0')}catch(e){}};
+ app.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{S._p=+b.dataset.p;save();home()});
+ const r=$('#reset');r.onclick=()=>{if(r.classList.contains('armed')){S={};save();home()}else{r.classList.add('armed');r.textContent='Tap again to erase all progress'}};
+}
+
+function start(queue,title,test){sess={title,test,queue,i:0,log:[],fresh:0,stage0:currentStage()};nav.hidden=true;app.className='app quiz';ask()}
+
+function promptHTML(q,fill,g){const f=g?gl:esc;let p=f(q.prompt);p=fill!=null?p.replace('___',`<b class="fill">${f(fill)}</b>`):p.replace('___','<span class="blank"></span>');return `<h2 class="prompt${q.big?' big':''}">${p}</h2>`}
+const topBar=(cur)=>`<div class="qtop"><button class="qx" id="qx" aria-label="Stop and go home">✕</button><div class="bar"><i style="width:${Math.round(sess.i/sess.queue.length*100)}%"></i></div><span class="count">${sess.i+1}/${sess.queue.length}</span></div>`;
+
+function ask(){
+ if(sess.i>=sess.queue.length)return results();
+ const cur=sess.queue[sess.i],q=cur.it.make();cur.q=q;const b=box(cur.it.id);
+ q.kind=!sess.test&&b<0?'intro':!sess.test&&b<1&&q.options?'mc':q.reveal?'reveal':'type';
+ const canHint=!sess.test&&q.kind==='type';let usedHint=false;
+ const level=sess.test?'':q.kind==='intro'?'<span class="tag">nowe</span>':q.kind==='mc'?'<span class="tag">pick</span>':q.kind==='type'?'<span class="tag">write</span>':'';
+
+ if(q.kind==='intro'){
+  const inBlank=q.prompt.includes('___');
+  app.innerHTML=`${topBar(cur)}
+  <article class="card intro"><p class="eyebrow">${esc(q.eyebrow)}${level}</p>
+   ${inBlank?`<div class="prow">${promptHTML(q,q.answer,1)}${spkBtn(q.sayAns)}</div>`
+     :q.reveal?`<div class="prow"><h2 class="prompt">${gl(q.prompt)}</h2>${spkBtn(q.say)}</div><p class="meaning">${esc(q.answer)}</p>`
+     :`<p class="meaning">${q.say?gl(q.prompt):esc(q.prompt)}${q.sub?' · '+esc(q.sub):''}</p><div class="prow"><h2 class="prompt">${gl(q.mcAnswer||q.answer)}</h2>${spkBtn(q.sayAns)}</div>`}
+   ${q.note?`<p class="note">${esc(q.note)}</p>`:''}
+  </article>
+  <div class="two"><button class="check" id="got">Mam! · Got it</button><button class="next" id="knowit" style="background:var(--blue-soft);color:var(--blue)">I know this · test me later</button></div>`;
+  $('#qx').onclick=home;
+  if(autoAudio)say(q.sayAns);
+  $('#knowit').onclick=()=>{S[cur.it.id]={b:1,n:0,w:0,due:round()+2,f:dayKey()};save();sess.fresh++;next()};
+  $('#got').onclick=()=>{S[cur.it.id]={b:0,n:0,w:0,due:round(),f:dayKey()};save();sess.fresh++;
+   sess.queue.splice(Math.min(sess.queue.length,sess.i+4),0,{it:cur.it,retry:false});next()};
+  $('#got').focus({preventScroll:true});
+  return;
+ }
+
+ app.innerHTML=`${topBar(cur)}
+ <article class="card"><p class="eyebrow">${esc(q.eyebrow)}${level}${cur.retry?' · second try':''}</p>
+  <div class="prow">${promptHTML(q)}${spkBtn(q.say)}</div>${q.sub?`<p class="sub">${esc(q.sub)}</p>`:''}
+  <p class="hint" id="hintx" hidden>${esc(hintOf(q))}</p></article>
+ ${q.kind==='mc'
+  ?`<div class="opts">${q.options.map((o,i)=>`<button class="opt" data-i="${i}">${esc(o)}</button>`).join('')}</div>`
+  :q.kind==='reveal'?`<button class="check" id="rv">Show the meaning</button>`
+  :`<form class="typed" id="tf"><input id="ti" type="text" lang="pl" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Your answer" placeholder="Write it in Polish…">
+     <div class="keys">${'ąćęłńóśźż'.split('').map(c=>`<button type="button" data-k="${c}">${c}</button>`).join('')}</div>
+     <div class="two"><button class="check" type="submit">Sprawdź · Check</button>${canHint?'<button class="next alt" type="button" id="hb">Podpowiedź · hint</button>':''}</div></form>`}
+ <div id="fb"></div>`;
+ $('#qx').onclick=home;
+ if(q.kind==='mc'){const right=q.mcAnswer||q.answer;app.querySelectorAll('.opt').forEach(btn=>btn.onclick=()=>{
+   const given=q.options[+btn.dataset.i],res=given===right?'right':'wrong';
+   app.querySelectorAll('.opt').forEach(x=>{x.disabled=true;const o=q.options[+x.dataset.i];if(o===right)x.classList.add('right');else if(x===btn)x.classList.add('wrong')});
+   finish(res,given)})}
+ else if(q.kind==='reveal'){$('#rv').onclick=()=>{$('#rv').hidden=true;const pe=app.querySelector('.card .prompt');if(pe)pe.outerHTML=promptHTML(q,null,1);
+   $('#fb').innerHTML=`<div class="fb"><div class="ansline"><p>${esc(q.answer)}</p>${spkBtn(q.sayAns)}</div><p class="note">Did you know it?</p><div class="two"><button class="next" id="kn">Yes</button><button class="next alt" id="dk">Not yet</button></div></div>`;
+   if(autoAudio)say(q.sayAns);
+   $('#kn').onclick=()=>finish('right','',null,true);$('#dk').onclick=()=>finish('wrong','',null,true)}}
+ else{const ti=$('#ti');ti.focus();
+   app.querySelectorAll('.keys button').forEach(k=>k.onclick=()=>{const s=ti.selectionStart??ti.value.length,e=ti.selectionEnd??s;ti.value=ti.value.slice(0,s)+k.dataset.k+ti.value.slice(e);ti.focus();ti.setSelectionRange(s+1,s+1)});
+   const hb=$('#hb');if(hb)hb.onclick=()=>{usedHint=true;$('#hintx').hidden=false;hb.disabled=true;ti.focus()};
+   $('#tf').onsubmit=e=>{e.preventDefault();if(ti.readOnly){next();return}if(!ti.value.trim())return;
+     const g=norm(ti.value);let r;
+     if(q.check)r=q.check(g);else{const acc=q.accept.map(norm);r={res:acc.includes(g)?'right':acc.map(strip).includes(strip(g))?'accent':'wrong'}}
+     if(usedHint&&r.res==='right')r.res='hint';
+     ti.readOnly=true;app.querySelector('.keys').hidden=true;app.querySelector('#tf .two').hidden=true;finish(r.res,ti.value,r.msg)}}
+}
+
+const MARKS={hint:['Dobrze, z podpowiedzią.'],right:['Dobrze!','Bardzo dobrze!','Świetnie!','Brawo!'],accent:['Prawie! Uwaga na ogonki.'],wrong:['Niestety…','Jeszcze nie.']};
+function finish(res,given,msg,quick){
+ const cur=sess.queue[sess.i],q=cur.q,id=cur.it.id;
+ const prev=S[id]?{...S[id]}:null,prevDay=S._d?{...S._d}:null;
+ record(id,res);const entry={it:cur.it,q,res,given,retry:cur.retry};sess.log.push(entry);
+ let requeued=false;if(res==='wrong'&&!cur.retry){sess.queue.push({it:cur.it,retry:true});requeued=true}
+ if(quick)return next();
+ const shown=q.kind==='mc'?(q.mcAnswer||q.answer):q.answer;
+ let tgt=q.reveal&&q.kind!=='type'?null:(q.kind==='type'&&q.accept?q.accept[0]:(q.mcAnswer||q.answer));
+ if(tgt){if(/[.!?…] \/ /.test(tgt))tgt=tgt.split(' / ')[0];tgt=tgt.replace(/pan \/ pani/g,'pani');if(/^\d+$/.test(tgt)||/^For example/.test(tgt))tgt=null}
+ const pe=app.querySelector('.card .prompt');
+ if(pe&&(q.say||q.prompt.includes('___')))pe.outerHTML=promptHTML(q,q.prompt.includes('___')?(q.mcAnswer||q.answer):null,1);
+ const cls=res==='right'||res==='hint'?'r':res==='accent'?'a':'w';
+ $('#fb').innerHTML=`<div class="fb ${cls}"><p class="mark">${pick(MARKS[res])}</p>
+  ${res!=='right'&&res!=='hint'&&tgt?'<button class="next alt" id="drill">Write it 3 times</button>':''}
+  ${res!=='right'&&q.kind==='type'?`<p class="note">You wrote: <b>${esc(given)}</b></p>`:''}
+  <div class="ansline"><p>${res==='accent'?'Spelled: ':''}${q.reveal?esc(shown):gl(shown)}</p>${spkBtn(q.sayAns)}</div>
+  ${msg?`<p class="note">${esc(msg)}</p>`:''}
+  ${q.note&&res!=='right'?`<p class="note">${esc(q.note)}</p>`:''}
+  ${res==='hint'?'<p class="note">Write it once without the hint and it counts as known.</p>':''}
+  ${res==='accent'?'<p class="note">The ogonki (ą ę ł ó ś ż…) count on the test, so this one stays on your list.</p>':''}
+  ${res==='wrong'&&q.kind==='type'?'<button class="ghost ov" id="ov">My answer was correct too</button>':''}
+  ${res==='right'&&!sess.test?`<button class="ghost ov" id="easy">${q.kind==='mc'&&!q.reveal?'Too easy · let me write it':'Too easy · push it further back'}</button>`:''}
+  <button class="next" id="nx">Dalej →</button></div>`;
+ $('#nx').onclick=next;
+ const dr=$('#drill');if(dr)dr.onclick=()=>drill(tgt,q);
+ const ez=$('#easy');if(ez)ez.onclick=()=>{
+  if(q.kind==='mc'&&!q.reveal){sess.queue.splice(Math.min(sess.queue.length,sess.i+3),0,{it:cur.it,retry:false});next();return}
+  const t=S[id];t.b=Math.min(t.b+1,6);t.due=round()+1+GAP[t.b];save();next()};
+ const ov=$('#ov');if(ov)ov.onclick=()=>{if(prev)S[id]=prev;else delete S[id];if(prevDay)S._d=prevDay;record(id,'right');entry.res='right';if(requeued)sess.queue.pop();next()};
+ if(q.kind!=='type')$('#nx').focus({preventScroll:true});
+ $('#fb').scrollIntoView({block:'nearest',behavior:'smooth'});
+ if(autoAudio)say(q.sayAns);
+}
+function next(){sess.i++;ask()}
+
+/* optional copy drill after a miss: twice with the answer visible, the third time from memory */
+function drill(t,q){let n=0;const fb=$('#fb');
+ const draw=msg=>{
+  fb.innerHTML=`<div class="fb"><p class="eyebrow">Write it 3 times · ${n} of 3 done</p>
+   ${n<2?`<div class="ansline"><p>${gl(t)}</p>${spkBtn(q.sayAns)}</div>`
+     :`<p class="note">Last one: from memory.</p><div class="ansline" id="pk" hidden><p>${gl(t)}</p></div><button type="button" class="ghost ov" id="peek">Show it</button>`}
+   <form class="typed" id="df"><input id="di" type="text" lang="pl" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Write the answer" placeholder="Write it…">
+    <div class="keys">${'ąćęłńóśźż'.split('').map(c=>`<button type="button" data-k="${c}">${c}</button>`).join('')}</div>
+    <button class="check" type="submit">Sprawdź · Check</button></form>
+   ${msg?`<p class="note">${msg}</p>`:''}
+   <button class="ghost ov" id="dskip">Stop and continue →</button></div>`;
+  const di=$('#di');di.focus();
+  fb.querySelectorAll('.keys button').forEach(k=>k.onclick=()=>{const s0=di.selectionStart??di.value.length,e0=di.selectionEnd??s0;di.value=di.value.slice(0,s0)+k.dataset.k+di.value.slice(e0);di.focus();di.setSelectionRange(s0+1,s0+1)});
+  const pk=$('#peek');if(pk)pk.onclick=()=>{$('#pk').hidden=false;pk.hidden=true;di.focus()};
+  $('#dskip').onclick=next;
+  $('#df').onsubmit=e=>{e.preventDefault();if(!di.value.trim())return;
+   if(norm(di.value)===norm(t)){n++;if(autoAudio&&n===3)say(q.sayAns);
+    if(n>=3){fb.innerHTML='<div class="fb r"><p class="mark">Gotowe!</p></div>';setTimeout(next,700)}else draw('✓ Dobrze.')}
+   else draw(norm(di.value)&&strip(norm(di.value))===strip(norm(t))?'Almost: check the ogonki (ą ę ł ó ś ż…).':'Not quite. Write it exactly as shown.')};
+  fb.scrollIntoView({block:'nearest',behavior:'smooth'});
+ };
+ draw('');
+}
+
+function results(){
+ if(!sess.counted){sess.counted=1;S._r=round()+1;today().r++;save()}
+ const first=sess.log.filter(l=>!l.retry),ok=first.filter(l=>l.res==='right').length;
+ const missed=[];first.forEach(l=>{if(l.res!=='right'&&!missed.find(m=>m.it===l.it))missed.push(l)});
+ const cs=currentStage(),up=cs>sess.stage0;
+ app.innerHTML=`
+ <header class="row"><p class="eyebrow">${esc(sess.title)} · round ${round()} done</p>
+  <p class="score">${ok}<small> / ${first.length} right first time</small></p>
+  <p class="lede">${sess.fresh?`${sess.fresh} new term${sess.fresh>1?'s':''} this round. `:''}${up?`<b>Next stage unlocked: ${esc(STAGES[cs].n)}.</b> `:''}${missed.length?'Missed questions came back once at the end. Here they are again:':'Clean round.'}</p></header>
+ ${missed.length?`<div class="miss"><ul>${missed.map(l=>`<li><p class="q">${(l.q.say||l.q.prompt.includes('___')?gl:esc)(l.q.prompt.replace('___','…'))}${l.q.sub?' · '+esc(l.q.sub):''}</p><p class="a">${l.q.reveal?esc(l.q.answer):gl(l.q.answer)}</p></li>`).join('')}</ul></div>`:''}
+ <div class="row">
+  <button class="cta" id="more"><span>${sess.test?'Ucz się dalej':'Następna runda'}</span><small>${sess.test?'Back to the learning path':'Next round · about 15 steps'}</small></button>
+  ${missed.length?'<button class="cta2" id="again">Again: just the ones I missed</button>':''}
+  <button class="ghost" id="hm">Back to overview</button></div>`;
+ if(missed.length)$('#again').onclick=()=>start(shuffle(missed.map(m=>({it:m.it,retry:false}))),'Powtórka',sess.test);
+ $('#more').onclick=()=>start(buildQueue(ITEMS,15),'Nauka',false);
+ $('#hm').onclick=home;
+}
+
+function sheet(){
+ view='sheet';sess=null;nav.hidden=false;app.className='app';setTab('sheet');
+ const t=(head,rows,plCols)=>`<div class="tw"><table><thead><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map((c,i)=>plCols.includes(i)?`<td class="say" data-say="${esc(sp(c))}">${gl(c)}</td>`:`<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+ const vk=['być','mieć','mieszkać','nazywać się'];
+ app.innerHTML=`
+ <header class="row"><p class="eyebrow">Ściąga · cheat sheet</p><h1>Everything on Test 1</h1>
+  <p class="lede">Built from the teacher's test overview. ${canSpeak?'Tap any blue Polish text to hear it.':''}</p></header>
+ <details open><summary>Ty ↔ pan / pani</summary>
+  ${t(['ty · friend','pan / pani · formal','answer'],QA.map(q=>[q.inf,q.form,q.ans]),[0,1,2])}
+  <p class="tip"><b>Formal = on / ona verb form.</b> masz → ma, jesteś → jest, mieszkasz → mieszka, nazywasz się → nazywa się.</p>
+  ${t(['about him / her','answer'],QA.map(q=>[q.third,q.ans3]),[0,1])}
+  ${t(['also on the test','meaning'],[['Co słychać? – Wszystko w porządku.',"How's it going? – All fine."],['Miło mi. / Bardzo mi miło.','Nice to meet you.'],['Ile jest…?','How much is…?']],[0])}
+ </details>
+ <details><summary>Czasowniki · verbs</summary>
+  ${t(['',...vk],PERS_LBL.map((p,i)=>[p,...vk.map(v=>VERBS[v].f[i])]),[1,2,3,4])}
+  <p class="tip"><b>AM/ASZ group:</b> ja -am · ty -asz · on -a · my -amy · wy -acie · oni -ają. Also czytać, pytać, przepraszać. <b>być</b> is irregular.</p>
+ </details>
+ <details><summary>Zaimki · oni czy one?</summary>
+  ${t(['pronoun','who'],[['ja','I'],['ty','you (friend)'],['on / ona','he / she'],['my','we'],...PRON],[0])}
+ </details>
+ <details><summary>Skąd jesteś? · Jestem z …</summary>
+  ${t(['kraj','skąd?','English'],COUNTRIES.map(c=>[c[1],c[2],c[0]]),[1])}
+  <p class="tip">USA: <b>ze Stanów Zjednoczonych</b> or <b>z Ameryki</b>.</p>
+ </details>
+ <details><summary>Gdzie mieszkasz? · Mieszkam w …</summary>
+  ${t(['miasto','mieszkam…'],CITIES.map(c=>[c[1],c[2]]),[1])}
+ </details>
+ <details><summary>Liczby 0–10</summary>
+  ${t(['',''],NUMS.map((w,i)=>[String(i),w]),[1])}
+ </details>
+ <details><summary>W klasie · classroom</summary>
+  ${t(['po polsku','meaning'],CLASS,[0])}
+ </details>
+ <details><summary>Adres i słowa</summary>
+  ${t(['skrót','słowo','meaning'],ABBR.map(a=>[a[0],a[1],WORDS.find(w=>w[0]===a[1])[1]]),[1])}
+  ${t(['słowo','meaning'],WORDS.slice(4),[0])}
+ </details>`;
+}
+
+document.addEventListener('click',e=>{const b=e.target.closest('[data-say]');if(b&&!e.target.closest('.gw'))say(b.dataset.say)});
+$('#t-home').onclick=home;$('#t-sheet').onclick=sheet;
+home();
+</script>
+
+<script>
+try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
+if('serviceWorker' in navigator){addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{})})}
+</script>
+</body></html>
