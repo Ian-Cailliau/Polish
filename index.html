@@ -193,6 +193,15 @@ td.say:active{opacity:.6}
 .ttab .given{font-size:19px;font-weight:600;color:var(--muted);padding-left:11px}
 .ttab .corr{display:block;font-weight:700;color:var(--ok);padding:4px 0 0 2px}
 
+.gw-plain{border-bottom:0;cursor:pointer}
+button.grade-wrap{background:none;border:0;padding:0;font:inherit}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{display:flex;flex-direction:column;gap:2px;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:10px 10px 9px}
+.stat b{font-family:var(--f-display);font-weight:800;font-size:24px;line-height:1;font-variant-numeric:tabular-nums}
+.stat b small{font-size:15px;color:var(--muted);font-weight:600}
+.stat span{font-size:13px;color:var(--muted)}
+.trow{display:flex;align-items:center;gap:10px}.trow .meter{flex:1;min-width:0}
+
 /* nav */
 .nav{position:fixed;left:0;right:0;bottom:0;z-index:5;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;justify-content:center;gap:8px}
 .nav button{flex:1;max-width:220px;background:none;border:0;padding:12px 8px 14px;font-weight:700;font-size:15.5px;color:var(--muted);border-top:3px solid transparent}
@@ -611,34 +620,27 @@ function home(){
  if(dayKey()==='2026-10-22')T.r=Math.max(T.r,round());
  const onTrack=met>=goal,tpct=goal?Math.min(100,Math.round(met/goal*100)):100,rToGo=Math.ceil(left/pace());
  const path=STAGES.map((s,i)=>{const its=ITEMS.filter(it=>it.stage===i),p=Math.round(its.filter(it=>box(it.id)>=2).length/its.length*100);return `<i class="${i===cs?'cur':''}" title="${esc(s.n)}"><b style="width:${p}%"></b></i>`}).join('');
+ const ig=(t,a,b2)=>esc([t,a,b2].filter(Boolean).join('|'));
  app.innerHTML=`
  <header class="hero"><div>
    <p class="eyebrow">Test 1 · lekcja 0 i 1</p>
    <h1>Poniedziałek 26.10</h1>
-   <p class="when">${countdown()} · ${todayCount()} answers today</p>
- </div><div class="grade-wrap"><div class="grade" aria-label="Forecast grade ${g.n} of 6">${g.n}</div><p class="grade-lbl">${g.name}</p></div></header>
- <section class="stage" aria-label="Learning path">
-  <div class="stage-h"><p>Etap ${cs+1} · ${esc(st.n)}</p><span>${known}/${ITEMS.length} known</span></div>
+   <p class="when">${countdown()} · ${todayCount()} answer${todayCount()===1?'':'s'} today</p>
+ </div><button class="grade-wrap gw gw-plain" data-g="${ig(`Forecast: ${g.n} · ${g.name}`,'Polish 1–6 school scale, based on how many terms you know','A term counts as known after two right answers in a row, the last one written without a hint. A mistake sends it back a step.')}"><span class="grade" aria-label="Forecast grade ${g.n} of 6">${g.n}</span><span class="grade-lbl">${g.name}</span></button></header>
+ <section class="stage" aria-label="Progress">
+  <div class="stage-h"><p class="gw gw-plain" data-g="${ig(`Etap ${cs+1} of ${STAGES.length} · ${st.en}`,'Every new term goes: see it → pick it → write it yourself → known','New terms only arrive once the current ones stick.')}">Etap ${cs+1} · ${esc(st.n)}</p><span>${known}/${ITEMS.length} known</span></div>
   <div class="path">${path}</div>
-  <p class="lede">${started?`Now: ${esc(st.en)}.`:'Starts from zero with greetings.'} Every new term climbs the same ladder, and new terms only arrive once the current ones stick.</p>
-  <div class="ladder"><span>1 · see it</span><span>2 · pick it</span><span>3 · write it yourself</span><span>→ known</span></div>
-  <div class="plan">
-   <p>${P.unseen.length?`About <b>${rl} round${rl>1?'s':''} left</b> to meet all ${P.unseen.length} new terms${dl>0?`: ${perDay} a day until Monday`:''}.`:'<b>You have met every term.</b> Rounds now bring back whatever is due.'} ${P.due.length} term${P.due.length===1?' is':'s are'} due for review now. Terms you get right sit out a round or more, longer each time.</p>
-   <div class="seg" role="group" aria-label="New terms per round"><span>New terms per round</span>${[3,5,8,12].map(v=>`<button data-p="${v}" aria-pressed="${pace()===v}">${v}</button>`).join('')}</div>
+  <div class="stats">
+   <div class="stat gw gw-plain" data-g="${ig(P.unseen.length?`${P.unseen.length} new terms still to meet`:'Every term met','At your current pace'+(dl>0?`: about ${perDay} rounds a day until Monday`:''),'')}"><b>${P.unseen.length?'≈'+rl:'0'}</b><span>rounds left</span></div>
+   <div class="stat gw gw-plain" data-g="${ig(`${met} of ${goal} new terms met today`,`${T.r} round${T.r===1?'':'s'} done today`,goal===0?'Nothing new left: keep reviews at zero and do a mock test.':onTrack?'Today is done. More rounds are a head start for tomorrow.':`${left} more to stay on track: about ${rToGo} round${rToGo>1?'s':''}.`)}"><b>${met}<small>/${goal}</small></b><span>new today</span></div>
+   <div class="stat gw gw-plain" data-g="${ig(`${P.due.length} term${P.due.length===1?'':'s'} due for review`,'Terms you get right sit out 1, 2, 4, 7… rounds, longer each time','A mistake brings a term straight back.')}"><b>${P.due.length}</b><span>due now</span></div>
   </div>
- </section>
- <section class="stage today" aria-label="Today">
-  <div class="stage-h"><p>Dziś · today</p><span class="pill ${onTrack?'ok':'behind'}">${onTrack?'On track':`${rToGo} round${rToGo>1?'s':''} to go`}</span></div>
-  <div class="meter tm"><i style="width:${tpct}%"></i></div>
-  <p class="tline"><b>${met} of ${goal}</b> new terms met today · ${T.r} round${T.r===1?'':'s'} done · ${P.due.length} review${P.due.length===1?'':'s'} due</p>
-  <p class="lede">${goal===0?'Nothing new left to meet. Keep the reviews at zero and do a mock test.'
-   :onTrack?`Today's new terms are done. More rounds now are a head start for tomorrow${P.due.length>20?', and a good moment to clear the reviews that are due':''}.`
-   :`${left} more new term${left>1?'s':''} today to stay on track: about ${rToGo} round${rToGo>1?'s':''} at ${pace()} new per round.`}${dl<=0?' It’s test day: focus on reviews and a mock test.':''}</p>
+  <div class="trow"><div class="meter tm"><i style="width:${tpct}%"></i></div><span class="pill ${onTrack?'ok':'behind'}">${onTrack?'On track today':`${rToGo} round${rToGo>1?'s':''} to go today`}</span></div>
+  <div class="seg" role="group" aria-label="New terms per round"><span>New per round</span>${[3,5,8,12].map(v=>`<button data-p="${v}" aria-pressed="${pace()===v}">${v}</button>`).join('')}</div>
  </section>
  <button class="cta" id="go-learn"><span>${started?'Ucz się dalej':'Zaczynamy'}</span><small>Round ${round()+1} · ${P.fresh.length} new, ${revCount(P,15)} to review</small></button>
  <button class="cta2" id="go-test" style="border-color:var(--blue);color:var(--blue);background:var(--blue-soft)">Próbny test · mock test: 20 written questions from everything, no hints</button>
  ${weak.length?`<button class="cta2" id="go-weak">Popraw błędy · fix ${Math.min(weak.length,20)} recent mistakes</button>`:''}
- <p class="lede">Forecast grade on the Polish 1–6 school scale: a term counts as known once you get it right twice in a row, the last time written without a hint. A mistake sends it back a step.</p>
  <h2 class="sec">Działy · practise one topic</h2>
  <div class="decks">${Object.entries(DECKS).map(([k,d])=>{const its=ITEMS.filter(i=>i.deck===k),dm=Math.round(mastery(its)*100);
    return `<button class="deck" data-deck="${k}"><span class="dn">${d.pl}</span><span class="dp">${dm}%</span><span class="de">${d.en}</span><span class="meter"><i style="width:${dm}%"></i></span></button>`}).join('')}</div>
