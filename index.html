@@ -298,29 +298,32 @@ function nomTrap(k,g){
  return null}
 /* open questions: any valid answer counts. valid = right options, bad = options that do not fit or break the grammar,
    traps = typical mistakes caught when writing, also = the range of correct answers shown afterwards */
-const MOODS='świetnie|bardzo dobrze|dobrze|nieźle|w porządku|tak sobie|źle|super|dziękuję';
+/* the whole answer must be a known mood answer, optionally with dziękuję or mam się / wszystko */
+const MOOD='(bardzo dobrze|dobrze|świetnie|nieźle|tak sobie|źle|super|w porządku|wszystko w porządku|bardzo źle)';
+const MOOD_RE=new RegExp(`^((dziękuję )?(mam się )?${MOOD}( dziękuję)?|(dziękuję )?${MOOD} (mam się)?|wszystko w porządku( dziękuję)?)$`);
+const MOODS=MOOD;
 const OPEN={
- imie:{pat:/^(mam na imię|nazywam się) \S+/,valid:['Mam na imię Jan.','Mam na imię Anna.','Mam na imię Ian.'],bad:['Jestem na imię Jan.','Mam imię Jan.','Nazywam na imię Jan.','Jestem z Belgii.'],
+ imie:{pat:/^(mam na imię|nazywam się) \S+( \S+)?$/,valid:['Mam na imię Jan.','Mam na imię Anna.','Mam na imię Ian.'],bad:['Jestem na imię Jan.','Mam imię Jan.','Nazywam na imię Jan.','Jestem z Belgii.'],
   traps:[[/^mam imię/,'Don’t forget na: Mam na imię …'],[/^jestem /,'Use Mam na imię … (literally “I have as first name”).']],also:'Mam na imię … · Nazywam się …'},
- nazwisko:{pat:/^(mam na nazwisko|nazywam się) \S+/,valid:['Mam na nazwisko Kowalski.','Nazywam się Kowalski.','Mam na nazwisko Nowak.'],bad:['Jestem na nazwisko Kowalski.','Mam nazwisko Kowalski.','Nazywam na nazwisko Kowalski.','Mieszkam w Gandawie.'],
+ nazwisko:{pat:/^(mam na nazwisko|nazywam się) \S+( \S+)?$/,valid:['Mam na nazwisko Kowalski.','Nazywam się Kowalski.','Mam na nazwisko Nowak.'],bad:['Jestem na nazwisko Kowalski.','Mam nazwisko Kowalski.','Nazywam na nazwisko Kowalski.','Mieszkam w Gandawie.'],
   traps:[[/^mam nazwisko/,'Don’t forget na: Mam na nazwisko …'],[/^jestem /,'Use Mam na nazwisko … or Nazywam się …']],also:'Mam na nazwisko … · Nazywam się …'},
- nazywa:{pat:/^(nazywam się|mam na imię) \S+/,valid:['Nazywam się Jan Kowalski.','Nazywam się Anna Nowak.'],bad:['Nazywam Jan Kowalski.','Jestem się Jan Kowalski.','Nazywasz się Jan Kowalski.','Jestem z Polski.'],
+ nazywa:{pat:/^(nazywam się|mam na imię) \S+( \S+)?$/,valid:['Nazywam się Jan Kowalski.','Nazywam się Anna Nowak.'],bad:['Nazywam Jan Kowalski.','Jestem się Jan Kowalski.','Nazywasz się Jan Kowalski.','Jestem z Polski.'],
   traps:[[/^nazywam (?!się)/,'Don’t forget się: Nazywam się …'],[/^nazywasz/,'Answer with the ja-form: Nazywam się …']],also:'Nazywam się [first name + surname]'},
- ma:{pat:new RegExp('('+MOODS+')'),valid:['Świetnie, dziękuję.','Dobrze, dziękuję.','Nieźle.','Tak sobie.','Źle.'],bad:['Jestem dobrze.','Mam dobrze.','Dobry, dziękuję.','Mam na imię Jan.'],
+ ma:{pat:MOOD_RE,valid:['Świetnie, dziękuję.','Dobrze, dziękuję.','Nieźle.','Tak sobie.','Źle.'],bad:['Jestem dobrze.','Mam dobrze.','Dobry, dziękuję.','Mam na imię Jan.'],
   traps:[[/^jestem /,'Polish doesn’t use jestem here: just Dobrze, or Mam się dobrze.'],[/^mam (?!się)/,'Without się it means “I have”: say Dobrze, or Mam się dobrze.'],[/\bdobry\b/,'Use the adverb dobrze (well), not dobry (good).']],also:'Świetnie · Bardzo dobrze · Dobrze · Nieźle · Tak sobie · Źle (+ dziękuję)'},
- skad:{pat:/^(jestem )?ze? \S+/,valid:['Jestem z Belgii.','Jestem z Polski.','Jestem z Holandii.'],bad:['Jestem z Belgia.','Jestem w Belgii.','Mieszkam z Belgii.','Jestem Belgii.'],
+ skad:{pat:/^(jestem )?ze? \S+( \S+)?$/,valid:['Jestem z Belgii.','Jestem z Polski.','Jestem z Holandii.'],bad:['Jestem z Belgia.','Jestem w Belgii.','Mieszkam z Belgii.','Jestem Belgii.'],
   traps:[[/^jestem w /,'“From” is z, not w: Jestem z …'],[/^jestem (?!ze? )/,'Don’t forget z: Jestem z …']],also:'Jestem z + genitive: z Belgii · z Polski · z Holandii · z Niemiec …'},
- gdzie:{pat:/^(mieszkam )?we? \S+/,valid:['Mieszkam w Gandawie.','Mieszkam w Brukseli.','Mieszkam w Krakowie.'],bad:['Mieszkam w Gandawa.','Mieszkam z Gandawie.','Mieszkam Gandawie.','Jestem z Belgii.'],
+ gdzie:{pat:/^(mieszkam )?we? \S+( \S+)?$/,valid:['Mieszkam w Gandawie.','Mieszkam w Brukseli.','Mieszkam w Krakowie.'],bad:['Mieszkam w Gandawa.','Mieszkam z Gandawie.','Mieszkam Gandawie.','Jestem z Belgii.'],
   traps:[[/^mieszkam z /,'“In” is w, not z: Mieszkam w …'],[/^mieszkam (?!we? )/,'Don’t forget w: Mieszkam w …']],also:'Mieszkam w + locative: w Gandawie · w Brukseli · w Krakowie · we Wrocławiu …'},
  adres:{pat:/^(ul|ulica|al|aleja|pl|plac|os|osiedle) \S+/,valid:['Ulica Prosta 69.','Aleja Wolności 5.','Plac Zamkowy 1.'],bad:['Mam na imię Jan.','Jestem z Belgii.','Zero, cztery, siedem…'],traps:[],also:'ulica (ul.) · aleja (al.) · plac (pl.) · osiedle (os.) + name + number'},
  tel:{pat:/(\d|zero|jeden|dwa|trzy|cztery|pięć|sześć|siedem|osiem|dziewięć)/,valid:['Zero, cztery, siedem, pięć…','Dwa, trzy, pięć, osiem…'],bad:['Mam na imię Jan.','Mieszkam w Gandawie.','Ulica Prosta 69.'],traps:[],also:'Say the digits one by one: zero, cztery, siedem…'},
- slychac:{pat:new RegExp('('+MOODS+')'),valid:['Wszystko w porządku.','Dobrze, dziękuję.','Nieźle.'],bad:['Jestem w porządku.','Mam na imię Jan.','Dobry.'],
+ slychac:{pat:MOOD_RE,valid:['Wszystko w porządku.','Dobrze, dziękuję.','Nieźle.'],bad:['Jestem w porządku.','Mam na imię Jan.','Dobry.'],
   traps:[[/^jestem /,'Just Wszystko w porządku or Dobrze, without jestem.'],[/\bdobry\b/,'Use the adverb dobrze, not dobry.']],also:'Wszystko w porządku · Dobrze · Nieźle · Tak sobie'}
 };
 function openQ(k,base){const o=OPEN[k],nv=Math.random()<.5?1:2,opts=shuffle([...shuffle(o.valid).slice(0,nv),...shuffle(o.bad).slice(0,4-nv)]);
  return{...base,open:1,valid:o.valid,options:opts,also:o.also,mcAnswer:o.valid[0],answer:`For example: ${o.valid[0]}`,sayAns:o.valid[0],
   check:g=>{for(const [re,msg] of o.traps)if(re.test(g))return{res:'wrong',msg};const bad=nomTrap(k,g);if(bad)return{res:'wrong',msg:bad};
-   const r=patTest(o.pat,g);return r?{res:r}:{res:'wrong',msg:`Answer with a full sentence, for example: ${o.valid[0]}`}}}}
+   const r=patTest(o.pat,g);return r?{res:r}:{res:'wrong',msg:`Not a correct answer to this question. Check the spelling of each word. For example: ${o.valid[0]}`}}}}
 const free=(pat,k,ex)=>g=>{const bad=k&&nomTrap(k,g);if(bad)return{res:'wrong',msg:bad};const r=patTest(pat,g);return r?{res:r}:{res:'wrong',msg:`Answer with a full sentence, for example: ${ex}`}};
 
 QA.forEach(q=>{
