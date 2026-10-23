@@ -202,6 +202,11 @@ button.grade-wrap{background:none;border:0;padding:0;font:inherit}
 .stat span{font-size:13px;color:var(--muted)}
 .trow{display:flex;align-items:center;gap:10px}.trow .meter{flex:1;min-width:0}
 
+p.diff{font-size:21px;font-weight:600;letter-spacing:.01em;line-height:1.5;overflow-wrap:anywhere}
+.diff del,.dkey del{color:var(--pen);text-decoration:line-through;text-decoration-thickness:2px;background:var(--pen-soft);border-radius:3px}
+.diff ins,.dkey ins{color:var(--ok);text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px;background:var(--ok-soft);border-radius:3px}
+.dkey{white-space:nowrap}
+
 /* nav */
 .nav{position:fixed;left:0;right:0;bottom:0;z-index:5;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;justify-content:center;gap:8px}
 .nav button{flex:1;max-width:220px;background:none;border:0;padding:12px 8px 14px;font-weight:700;font-size:15.5px;color:var(--muted);border-top:3px solid transparent}
@@ -282,6 +287,20 @@ const mc=(ans,pool,n=3)=>shuffle([ans,...shuffle([...new Set(pool.filter(x=>x!==
 const sp=t=>t.replace(/pan \/ pani/g,'pani').replace(/ \/ /g,', ').replace(/…/g,'');
 const norm=s=>s.toLowerCase().replace(/[.,!?;:…]/g,'').replace(/\s+/g,' ').trim();
 const strip=s=>s.normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/ł/g,'l');
+/* letter-level comparison with the closest correct answer: what is wrong, missing or extra */
+function editOps(a,b){const n=a.length,m=b.length,D=Array.from({length:n+1},(_,i)=>{const r=new Array(m+1).fill(0);r[0]=i;return r});
+ for(let j=0;j<=m;j++)D[0][j]=j;
+ for(let i=1;i<=n;i++)for(let j=1;j<=m;j++)D[i][j]=Math.min(D[i-1][j]+1,D[i][j-1]+1,D[i-1][j-1]+(a[i-1]===b[j-1]?0:strip(a[i-1])===strip(b[j-1])?0.5:1));
+ const ops=[];let i=n,j=m;
+ while(i>0||j>0){if(i>0&&j>0&&D[i][j]===D[i-1][j-1]+(a[i-1]===b[j-1]?0:strip(a[i-1])===strip(b[j-1])?0.5:1)){ops.push(a[i-1]===b[j-1]?['=',a[i-1]]:['~',a[i-1],b[j-1]]);i--;j--}
+  else if(i>0&&D[i][j]===D[i-1][j]+1){ops.push(['-',a[i-1]]);i--}else{ops.push(['+',b[j-1]]);j--}}
+ return{dist:D[n][m],ops:ops.reverse()}}
+function closeDiff(given,cands){const g=norm(given);if(!g)return null;let best=null;
+ cands.forEach(c=>{const t=norm(c.replace(/^For example: /,''));if(!t)return;const r=editOps(g,t);if(!best||r.dist<best.dist)best={...r,t}});
+ if(!best||best.dist===0||best.dist>Math.max(2,best.t.length*0.3))return null;
+ const html=best.ops.map(([o,x,y])=>o==='='?esc(x):o==='~'?`<del>${esc(x)}</del><ins>${esc(y)}</ins>`:o==='-'?`<del>${esc(x)}</del>`:`<ins>${esc(x)}</ins>`).join('');
+ const n=best.ops.filter(o=>o[0]!=='=').length;return{html,n}}
+
 
 /* ---------- items ----------
    Every item can be asked three ways, from easy to hard:
@@ -844,7 +863,9 @@ function finish(res,given,msg,quick){
  const cls=res==='right'||res==='hint'?'r':res==='accent'?'a':'w';
  $('#fb').innerHTML=`<div class="fb ${cls}"><p class="mark">${pick(MARKS[res])}</p>
   ${res!=='right'&&res!=='hint'&&tgt?'<button class="next alt" id="drill">Write it 3 times</button>':''}
-  ${res!=='right'&&q.kind==='type'?`<p class="note">You wrote: <b>${esc(given)}</b></p>`:''}
+  ${res!=='right'&&q.kind==='type'?(()=>{const d=closeDiff(given,q.accept||q.valid||[q.answer]);
+    return d?`<p class="diff" aria-label="Your answer with corrections">${d.html}</p><p class="note">Close: ${d.n===1?'one letter':d.n+' letters'} to fix. <span class="dkey"><del>red</del> = wrong or extra, <ins>green</ins> = should be there.</span></p>`
+     :`<p class="note">You wrote: <b>${esc(given)}</b></p>`})():''}
   ${q.table?'':`<div class="ansline"><p>${res==='accent'?'Spelled: ':''}${q.reveal?esc(shown):gl(shown)}</p>${spkBtn(q.sayAns)}</div>`}
   ${msg?`<p class="note">${esc(msg)}</p>`:''}
   ${q.note&&res!=='right'?`<p class="note">${esc(q.note)}</p>`:''}
