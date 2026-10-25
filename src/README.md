@@ -23,3 +23,6 @@
   - `feedback.js` / `feedback-round.js` (`PORT` env) – feedback button against a fake GitHub API.
 
 Progress lives in localStorage `pl-test1` (term id → state), the open round in `pl-test1-round`, and is synced through a private gist (`pl-gh-token`, `pl-gh-gist`). Term ids are the keys of that progress: keep them stable.
+
+## Modes
+Every exercise shows its mode above the question, by what you do, so later lessons slot in without new categories (`MODES`, `modeOf()` in `app.html`): **Rozmowa** (answer a Polish question), **Tłumaczenie** (English → Polish), **Znaczenie** (Polish → English), **Przekształcenie** (turn one sentence into another: formal / informal now; later tense, negation, plural), **Koniugacja** (a verb's form), **Deklinacja** (a noun's, adjective's or pronoun's form). Each has its colour (label, top of the card, answer box). Konjugacja and Deklinacja show the word being practised large on top. Next to the mode only the unusual is shown: 2. próba, rozgrzewka · nie liczy się, nowe, dodatkowe, seria k/n. The terms' own eyebrow and sub text are unchanged (the terms snapshot still matches); the mode and the shorter line under the question are worked out when the question is shown.

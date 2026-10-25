@@ -91,6 +91,27 @@ p{margin:0}
 .fb.r .mark{color:var(--ok)} .fb.w .mark,.fb.a .mark{color:var(--pen)}
 .ansline{display:flex;gap:10px;align-items:center}
 .ansline p{flex:1;min-width:0;font-size:19px;font-weight:700}
+/* modes: colour of the label, the top of the question card and the answer box */
+.app[data-mode="rozmowa"]{--mc:#0E7C86;--ms:#DCF1F2}.app[data-mode="tlum"]{--mc:#2450C4;--ms:#E5ECFB}.app[data-mode="przeksz"]{--mc:#6D3FC0;--ms:#EEE7FB}
+.app[data-mode="konj"]{--mc:#A35A06;--ms:#FBEEDC}.app[data-mode="dekl"]{--mc:#5E7210;--ms:#EEF2D9}.app[data-mode="znacz"]{--mc:#4F5D75;--ms:#E8ECF2}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .app[data-mode]{--ms:color-mix(in srgb,var(--mc) 22%,var(--card))}
+ :root:not([data-theme="light"]) .app[data-mode="rozmowa"]{--mc:#4FC7CF}:root:not([data-theme="light"]) .app[data-mode="tlum"]{--mc:#88A8FF}:root:not([data-theme="light"]) .app[data-mode="przeksz"]{--mc:#B79BFF}
+ :root:not([data-theme="light"]) .app[data-mode="konj"]{--mc:#F0A85A}:root:not([data-theme="light"]) .app[data-mode="dekl"]{--mc:#B5CC5A}:root:not([data-theme="light"]) .app[data-mode="znacz"]{--mc:#A9B6CC}}
+:root[data-theme="dark"] .app[data-mode]{--ms:color-mix(in srgb,var(--mc) 22%,var(--card))}
+:root[data-theme="dark"] .app[data-mode="rozmowa"]{--mc:#4FC7CF}:root[data-theme="dark"] .app[data-mode="tlum"]{--mc:#88A8FF}:root[data-theme="dark"] .app[data-mode="przeksz"]{--mc:#B79BFF}
+:root[data-theme="dark"] .app[data-mode="konj"]{--mc:#F0A85A}:root[data-theme="dark"] .app[data-mode="dekl"]{--mc:#B5CC5A}:root[data-theme="dark"] .app[data-mode="znacz"]{--mc:#A9B6CC}
+.app[data-mode] .qtop+.card{border-top:4px solid var(--mc)}
+.app[data-mode] .typed input{border-color:color-mix(in srgb,var(--mc) 55%,var(--line))}.app[data-mode] .typed input:focus{border-color:var(--mc)}
+.app[data-mode] .card .blank{border-bottom-color:var(--mc)}
+.lab{display:flex;align-items:center;gap:6px 8px;flex-wrap:wrap}
+.mode{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mc,var(--blue));background:var(--ms,var(--blue-soft));border-radius:99px;padding:4px 10px 4px 8px}
+.mode svg{width:16px;height:16px;flex:none}
+.mdet{font-size:12.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.mx{font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);background:var(--paper);border-radius:99px;padding:3px 9px}
+.lab .mdet+.mx,.lab .mode+.mx{margin-left:auto}.mx.r{color:var(--pen);background:var(--pen-soft)}
+.plate{display:flex;align-items:baseline;gap:4px 10px;flex-wrap:wrap;background:var(--ms,var(--blue-soft));border-radius:12px;padding:10px 14px}
+.plate b{font-family:var(--f-display);font-size:30px;font-weight:800;color:var(--mc,var(--blue));line-height:1.05}
+.plate>span{font-size:15.5px}.plate em{font-style:normal;font-size:12.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--mc,var(--blue))}
 /* the result sheet after an answer: slides up over the bottom of the screen */
 .fb.sheet{position:fixed;left:0;right:0;bottom:0;z-index:6;max-width:560px;margin:0 auto;box-sizing:border-box;border:0;border-top:1px solid var(--line);border-radius:24px 24px 0 0;
  box-shadow:0 -10px 30px rgba(10,16,28,.16);padding:8px max(18px,env(safe-area-inset-left,0px)) calc(16px + env(safe-area-inset-bottom,0px));gap:12px;max-height:calc(100dvh - 96px);overflow-y:auto;overscroll-behavior:contain;animation:sheetup .22s ease-out}
@@ -1563,7 +1584,7 @@ const hintOf=q=>{const a=q.accept?q.accept[0]:(q.mcAnswer||q.answer);const w=a.r
 
 const GRADE_EN={'niedostateczny':'insufficient (fail)','dopuszczający':'passing','dostateczny':'satisfactory','dobry':'good','bardzo dobry':'very good','celujący':'excellent'};
 const DECK_IC={qa:'qa',verbs:'verbs',kraje:'kraje',num:'num',klasa:'klasa',words:'words'};
-function home(){sheetOff();
+function home(){sheetOff();delete app.dataset.mode;
  hideTip();closeReview();view='home';sess=null;nav.hidden=false;app.className='app';setTab('home');
  const m=mastery(vis()),g=gradeOf(m),known=vis().filter(it=>isKnown(it.id)).length;
  const P=planRound(vis()),M=mix(),total=M.n+M.m+M.c,rl=Math.ceil(slotsFor(P.unseen)/pace()),dl=daysLeft();
@@ -1700,7 +1721,7 @@ function showBlock(cur,name){
 function showTable(cur,q,level){
  const scaffold=!sess.test&&box(cur.it.id)<1;
  app.innerHTML=`${topBar(cur)}
- <article class="card"><p class="eyebrow">${eyeb(q.eyebrow)}${level}${cur.retry?' · second try':''}</p>
+ <article class="card">${headHTML(cur,q).html}
   <h2 class="prompt">${esc(q.prompt)}</h2><p class="sub">${esc(q.sub)}${scaffold?' · half is filled in for you':''}</p></article>
  <form class="typed" id="tf"><div class="tw"><table class="ttab"><tbody>${q.rows.map((r,i)=>`<tr><td class="tl">${esc(r.label)}</td><td>${scaffold&&i%2===0
    ?`<span class="given">${esc(r.answer)}</span>`
@@ -1723,7 +1744,50 @@ function showTable(cur,q,level){
   finish(worst,ins.map(x=>x.value).join(', '),worst==='right'?null:`${wrongRows.length} of ${ins.length} to fix: the correct form is next to each one.`)};
 }
 
-function ask(){hideTip();sheetOff();
+/* ---------- modes: what kind of exercise this is, named by what you do, so later lessons fit too ----------
+   rozmowa      someone asks you in Polish and you answer
+   tlum         English → Polish
+   znacz        Polish → English (or what a short form stands for)
+   przeksz      turn one Polish sentence into another (formal / informal now; later past tense, negation, plural …)
+   konj         the form of a verb: person now; later tense, aspect, mood
+   dekl         the form of a noun, adjective, pronoun or number: case, gender, number
+   Each has its colour (label, top of the card, answer box). Only what is unusual is shown next to it:
+   2. próba, rozgrzewka · nie liczy się, nowe, dodatkowe, the place in a series. */
+const MI=p=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
+const MODES={
+ rozmowa:{pl:'Rozmowa',en:'conversation',gr:'someone asks you in Polish; you answer',ic:MI('<path d="M4 5h11a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H9l-4 3v-3H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/><path d="M19 9h1a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-1v3l-4-3h-3"/>')},
+ tlum:{pl:'Tłumaczenie',en:'translation',gr:'English → Polish',ic:MI('<path d="M3 5h8"/><path d="M7 3v2c0 4-2 7-4 8"/><path d="M5 9c1 2 3 3.5 5 4"/><path d="m12 21 4.5-10L21 21"/><path d="M13.5 18h6"/>')},
+ przeksz:{pl:'Przekształcenie',en:'rephrase',gr:'turn one Polish sentence into another',ic:MI('<path d="M17 3l4 4-4 4"/><path d="M3 11V9a2 2 0 0 1 2-2h16"/><path d="M7 21l-4-4 4-4"/><path d="M21 13v2a2 2 0 0 1-2 2H3"/>')},
+ konj:{pl:'Koniugacja',en:'conjugation (vervoegen)',gr:'the form of a verb: who does it',ic:MI('<circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><path d="M8.5 6H14a3 3 0 0 1 3 3"/><path d="M8.5 18H14a3 3 0 0 0 3-3"/><path d="M17 9v6"/><path d="M17 12h4"/>')},
+ dekl:{pl:'Deklinacja',en:'declension (verbuigen)',gr:'the form of a noun or pronoun: case, gender, number',ic:MI('<path d="M4 4h6v6H4z"/><path d="M10 7h4"/><path d="M14 4h6v6h-6z"/><path d="M17 10v4"/><path d="M14 14h6v6h-6z"/>')},
+ znacz:{pl:'Znaczenie',en:'meaning',gr:'Polish → English',ic:MI('<path d="M4 19V5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2"/><path d="M8 7h6M8 11h4"/>')}};
+const FAM_PL=f=>/irregular/.test(f)?['nieregularny','irregular']:/-am \/ -asz/.test(f)?['-am / -asz','the -am / -asz family']:null;
+function modeOf(it,q){const id=it.id,eb=String(q.eyebrow||'');
+ if(q.reveal||/^What does it mean|which number\?/.test(eb))return {m:'znacz'};
+ if(/^ab:/.test(id))return {m:'znacz',d:['skrót','abbreviation: write it out']};
+ if(/^qa:[a-z]+:ans$|^qa:slychac$|^ile:/.test(id))return {m:'rozmowa',d:/:ans$/.test(id)?['pełnym zdaniem','in a full sentence, with your own details']:null};
+ if(/^qa:[a-z]+:a3$/.test(id))return {m:'rozmowa',d:['o kimś','about someone else: use the fact below']};
+ if(/^qa:[a-z]+:form$/.test(id)){const g=/\bpani\b/i.test(String(q.answer))?'pani':'pan';return {m:'przeksz',d:[`na ${g}`,`make it formal, to a ${g==='pan'?'man':'woman'}`]}}
+ if(/^(qa:[a-z]+:inf$|tmp:inf:)/.test(id))return {m:'przeksz',d:['na ty','make it informal, to a friend']};
+ if(/^v:/.test(id)){const [inf,en,fam]=eb.split(' · ');return {m:'konj',plate:{w:inf,en,tag:FAM_PL(fam||'')}}}
+ if(/^vs:/.test(id)){const inf=eb.split(' · ')[0],v=VERBS[inf];return {m:'konj',plate:{w:inf,en:v?v.en:'',tag:v?FAM_PL(v.fam==='am'?'-am / -asz':'irregular'):null}}}
+ if(/^kr:/.test(id)){const nom=id.split(':')[1].split(' · ')[0],c=COUNTRIES.find(x=>x[1].split(' · ')[0]===nom);return {m:'dekl',plate:{w:nom,en:c?c[0]:'',tag:['z + dopełniacz','z (from) + the genitive']}}}
+ if(/^oni:/.test(id))return {m:'dekl',d:['oni czy one?','oni: men or a mixed group · one: no men']};
+ return {m:'tlum'}}
+/* the line under the question, only when it adds something the mode does not already say */
+function subOf(q){const t=String(q.sub||'');if(!t)return '';
+ if(/^(Write a full sentence about you|Write the verb form|Write the missing verb|Ask the same question.*)$/.test(t)||/: write the form after z$/.test(t))return '';
+ const m=t.match(/^Answer in Polish: (“.*”)$/);return m?m[1]:t}
+function headHTML(cur,q){const M=modeOf(cur.it,q),m=MODES[M.m],x=[];
+ if(cur.retry)x.push(`<span class="mx r">${L('2. próba','second try','próba = try, attempt')}</span>`);
+ if(q.kind==='mc'&&!sess.test)x.push(`<span class="mx">${L('rozgrzewka · nie liczy się','warm-up · does not count yet','rozgrzewka = warm-up · liczyć się = to count')}${cur.slot==='fix'&&S[cur.it.id]&&S[cur.it.id].dr?' · '+L('spadek poziomu','dropped a level','after 3 wrong in a row'):''}</span>`);
+ if(q.kind==='intro')x.push(`<span class="mx">${L('nowe','new')}</span>`);
+ if(cur.practice)x.push(`<span class="mx">${L('dodatkowe','extra, does not count')}</span>`);
+ if(cur.burst)x.push(`<span class="mx">${L(`seria ${cur.burst.k}/${cur.burst.n}`,`rapid fire: ${cur.burst.k} of ${cur.burst.n}`,'seria = series',esc(cur.burst.name))}</span>`);
+ const pl=M.plate;
+ return {m:M.m,html:`<div class="lab"><span class="mode">${m.ic}${L(m.pl,m.en,m.gr)}</span>${M.d?`<span class="mdet">${L(M.d[0],M.d[1])}</span>`:''}${x.join('')}</div>`
+  +(pl?`<div class="plate"><b>${gl(pl.w)}</b>${pl.en?`<span>${esc(pl.en)}</span>`:''}${pl.tag?`<em>${L(pl.tag[0],pl.tag[1])}</em>`:''}</div>`:'')}}
+function ask(){hideTip();sheetOff();delete app.dataset.mode;
  if(sess.i>=sess.queue.length)return results();
  const cur=sess.queue[sess.i],b0=box(cur.it.id),stage=sess.test?'write':cur.st||(b0<1?'pick':'write'),q=cur.it.make(stage==='write'?'write':'pick');cur.q=q;const b=b0;
  if(!cur.st)cur.st=sess.test?'write':b<0?'intro':b<1&&q.options?'pick':'write';
@@ -1736,17 +1800,15 @@ function ask(){hideTip();sheetOff();
  if(cur.st==='intro'&&cur.it.pattern){if(!S[cur.it.id]){S[cur.it.id]={b:1,n:0,w:0,due:round(),f:dayKey()};sess.fresh++;save()}cur.st='write'}
  q.kind=cur.st==='intro'?'intro':cur.st==='pick'?'mc':q.reveal?'reveal':'type';
  const canHint=!sess.test&&q.kind==='type';let usedHint=false;
- const burstTag=cur.burst?` · <span class="ser">${L(`${cur.burst.k}/${cur.burst.n}`,`rapid fire: ${cur.burst.k} of ${cur.burst.n}`,'seria = series',esc(cur.burst.name))}${cur.practice?' · '+L('dodatkowe','extra, does not count'):''}</span>`:'';
- const level0=sess.test?'':q.kind==='intro'?`<span class="tag">${L('nowe','new')}</span>`:q.kind==='mc'?`<span class="tag">${L('rozgrzewka','warm-up','not counted')}${cur.slot==='fix'&&S[cur.it.id]&&S[cur.it.id].dr?' · '+L('spadek poziomu','dropped a level','after 3 wrong in a row'):cur.slot==='new'?' · '+L('nowe','new'):''}</span>`:q.kind==='type'?`<span class="tag">${L('pisz · liczy się','write · counts','pisać, imperative · liczyć się = to count')}${cur.slot==='fix'?' · '+L('do poprawy','to fix'):cur.slot==='rev'?' · '+L('powtórka','review'):cur.slot==='new'?' · '+L('nowe','new'):''}</span>`:'';
- const level=cur.burst?burstTag:level0;
+ const H=headHTML(cur,q);app.dataset.mode=H.m;const sub=subOf(q);
 
  if(q.kind==='intro'){
   const inBlank=q.prompt.includes('___');
   app.innerHTML=`${topBar(cur)}
-  <article class="card intro"><p class="eyebrow">${eyeb(q.eyebrow)}${level}</p>
+  <article class="card intro">${H.html}
    ${inBlank?`<div class="prow">${promptHTML(q,q.answer,1)}${spkBtn(q.sayAns)}</div>`
      :q.reveal?`<div class="prow"><h2 class="prompt">${gl(q.prompt)}</h2>${spkBtn(q.say)}</div><p class="meaning">${esc(q.answer)}</p>`
-     :`<p class="meaning">${q.say?gl(q.prompt):esc(q.prompt)}${q.sub?' · '+esc(q.sub):''}</p><div class="prow"><h2 class="prompt">${gl(q.mcAnswer||q.answer)}</h2>${spkBtn(q.sayAns)}</div>`}
+     :`<p class="meaning">${q.say?gl(q.prompt):esc(q.prompt)}${sub?' · '+esc(sub):''}</p><div class="prow"><h2 class="prompt">${gl(q.mcAnswer||q.answer)}</h2>${spkBtn(q.sayAns)}</div>`}
    ${q.note?`<p class="note">${esc(q.note)}</p>`:''}
    ${q.also?`<p class="note"><b>${L('Każda z tych odpowiedzi jest dobra:','any of these works:','każda = each (feminine, agrees with odpowiedź)')}</b> ${gl(q.also)}</p>`:''}
   </article>
@@ -1762,8 +1824,8 @@ function ask(){hideTip();sheetOff();
  }
 
  app.innerHTML=`${topBar(cur)}
- <article class="card"><p class="eyebrow">${eyeb(q.eyebrow)}${level}${cur.retry?' · second try':''}</p>
-  <div class="prow">${promptHTML(q)}${spkBtn(q.say)}</div>${q.sub?`<p class="sub">${esc(q.sub)}</p>`:''}
+ <article class="card">${H.html}
+  <div class="prow">${promptHTML(q)}${spkBtn(q.say)}</div>${sub?`<p class="sub">${esc(sub)}</p>`:''}
   <p class="hint" id="hintx" hidden>${esc(hintOf(q))}</p></article>
  ${q.kind==='mc'
   ?`<div class="opts">${q.options.map((o,i)=>`<button class="opt" data-i="${i}"><kbd class="kn">${i+1}</kbd><span class="ot">${esc(o)}</span></button>`).join('')}</div><p class="ktyped" id="ktyped" hidden></p>`
@@ -1905,7 +1967,7 @@ function drill(t,q){sheetOff();let n=0;const fb=$('#fb');
  draw('');
 }
 
-function results(){
+function results(){delete app.dataset.mode;
  hideTip();clearSess();
  const first=sess.drill?sess.log.filter(l=>l.firstTry):sess.log.filter(l=>l.counts),ok=first.filter(l=>l.res==='right').length;
  if(!sess.counted){sess.counted=1;if(!sess.nut&&!sess.drill){S._r=round()+1;today().r++;if(!sess.test&&first.length)S._acc={ok,n:first.length}}save()}
