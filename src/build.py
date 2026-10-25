@@ -132,6 +132,7 @@ tail='''
 <style>
 #fbk{position:fixed;z-index:25;right:max(14px,env(safe-area-inset-right,0px));bottom:calc(86px + env(safe-area-inset-bottom,0px));width:46px;height:46px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--blue);display:grid;place-items:center;box-shadow:0 4px 14px rgba(0,0,0,.12);padding:0}
 #fbk svg{width:24px;height:24px}#nav[hidden]~#fbk{bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+body.has-sheet #fbk,body.has-sheet #nav[hidden]~#fbk{bottom:calc(var(--sheet-h,0px) + 12px)}
 body.picking #fbk{background:var(--blue);color:var(--on-blue)}
 #pickbar{position:fixed;z-index:26;left:0;right:0;top:0;padding:calc(10px + env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));background:var(--blue);color:var(--on-blue);font-weight:700;font-size:14.5px}
 #pickbar .sy-link{color:inherit}
