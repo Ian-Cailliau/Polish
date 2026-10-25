@@ -1,0 +1,1333 @@
+<title>Polski Test 1</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Caveat:wght@600;700&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+/* Layout: one-column phone app on squared notebook paper; teacher's red pen for grades and marks, ink blue for actions */
+:root{
+  --slate:#ECEFF4;
+  --paper:#F4F6FA; --slate:#E9EDF3; --grid:rgba(60,100,170,.09); --card:#FFFFFF; --ink:#18202E; --muted:#5A667A; --line:#D7DFEA;
+  --blue:#2450C4; --blue-soft:#E5ECFB; --on-blue:#FFFFFF;
+  --pen:#CC2237; --pen-soft:#FCE7EA; --ok:#17794A; --ok-soft:#E2F3E9;
+  --f-display:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif;
+  --f-body:'Source Sans 3',system-ui,-apple-system,sans-serif;
+  --f-hand:'Caveat','Bradley Hand','Comic Sans MS',cursive;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#10151F; --slate:#222B3A; --grid:rgba(130,165,230,.07); --card:#18202D; --ink:#E7ECF4; --muted:#95A2B6; --line:#2B3547;
+  --blue:#88A8FF; --blue-soft:#1D2A49; --on-blue:#0E1526;
+  --pen:#FF6577; --pen-soft:#3A1C25; --ok:#4FCB8E; --ok-soft:#14322A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#10151F; --slate:#222B3A; --grid:rgba(130,165,230,.07); --card:#18202D; --ink:#E7ECF4; --muted:#95A2B6; --line:#2B3547;
+  --blue:#88A8FF; --blue-soft:#1D2A49; --on-blue:#0E1526;
+  --pen:#FF6577; --pen-soft:#3A1C25; --ok:#4FCB8E; --ok-soft:#14322A; color-scheme:dark}
+
+body{background-color:var(--paper);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:22px 22px;color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.45;min-height:100vh}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.app{max-width:560px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:18px calc(92px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:16px}
+.app.quiz{padding-bottom:calc(28px + env(safe-area-inset-bottom,0px))}
+h1,h2{font-family:var(--f-display);text-wrap:balance;margin:0;letter-spacing:-.01em}
+h1{font-size:30px;font-weight:800;line-height:1.05}
+p{margin:0}
+.eyebrow{font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.lede{color:var(--muted);font-size:15.5px;max-width:60ch}
+
+/* home */
+.hero{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding-top:6px}
+.hero>div{min-width:0;display:flex;flex-direction:column;gap:6px}
+.when{color:var(--muted);font-size:15px}
+.when b{color:var(--pen);font-weight:700}
+.grade-wrap{display:flex;flex-direction:column;align-items:center;gap:2px}
+.grade{font-family:var(--f-hand);font-weight:700;font-size:62px;line-height:1;color:var(--pen);width:88px;height:88px;display:grid;place-items:center;border:3px solid var(--pen);border-radius:52% 46% 55% 44% / 48% 55% 45% 52%;transform:rotate(-7deg)}
+.grade-lbl{font-family:var(--f-hand);font-size:21px;color:var(--pen);line-height:1}
+.cta{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;border:0;border-radius:16px;padding:18px 20px;background:var(--blue);color:var(--on-blue);text-align:left}
+.cta span{font-family:var(--f-display);font-weight:800;font-size:24px}
+.cta small{font-size:15px;opacity:.85}
+.cta2{width:100%;border:2px solid var(--pen);background:var(--pen-soft);color:var(--pen);border-radius:14px;padding:13px 18px;font-weight:700;text-align:left}
+.sec{font-size:19px;font-weight:600;margin-top:6px}
+.decks{display:flex;flex-direction:column;gap:10px}
+.deck{display:grid;grid-template-columns:1fr auto;gap:2px 12px;align-items:baseline;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.dn{font-weight:700;font-size:17.5px;min-width:0}
+.dp{font-variant-numeric:tabular-nums;font-weight:700;color:var(--blue);font-size:15px}
+.de{grid-column:1/-1;color:var(--muted);font-size:14.5px}
+.meter{grid-column:1/-1;height:6px;border-radius:3px;background:var(--blue-soft);margin-top:8px;overflow:hidden}
+.meter i{display:block;height:100%;background:var(--blue);border-radius:3px}
+.foot{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-top:6px}
+.ghost{background:none;border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:14.5px;color:var(--muted)}
+.ghost.armed{border-color:var(--pen);color:var(--pen)}
+.toggle{display:flex;align-items:center;gap:8px;font-size:14.5px;color:var(--muted)}
+.toggle input{width:20px;height:20px;accent-color:var(--blue)}
+
+/* quiz */
+.qtop{display:flex;align-items:center;gap:12px}
+.qx{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--card);display:grid;place-items:center;flex:none}
+.bar{flex:1;height:8px;background:var(--blue-soft);border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--blue);transition:width .25s}
+.count{font-variant-numeric:tabular-nums;font-size:14.5px;color:var(--muted);flex:none}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px 18px 22px;display:flex;flex-direction:column;gap:10px}
+.prow{display:flex;gap:10px;align-items:flex-start}
+.prompt{font-family:var(--f-display);font-weight:600;font-size:26px;line-height:1.2;flex:1;min-width:0;overflow-wrap:anywhere}
+.prompt.big{font-size:56px;font-weight:800}
+.sub{color:var(--muted);font-size:15.5px}
+.blank{display:inline-block;min-width:2.6em;height:.9em;border-bottom:3px solid var(--blue);margin:0 .12em;vertical-align:-.05em}
+.spk{width:40px;height:40px;flex:none;border-radius:50%;border:1px solid var(--line);background:var(--blue-soft);color:var(--blue);display:grid;place-items:center}
+.spk svg{width:20px;height:20px}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{width:100%;text-align:left;background:var(--card);border:1.5px solid var(--line);border-radius:13px;padding:14px 16px;font-size:17.5px;line-height:1.3}
+.opt.right{border-color:var(--ok);background:var(--ok-soft);color:var(--ok);font-weight:700}
+.opt.wrong{border-color:var(--pen);background:var(--pen-soft);color:var(--pen);text-decoration:line-through}
+.opt:disabled{cursor:default}
+.typed{display:flex;flex-direction:column;gap:10px}
+.typed input{width:100%;box-sizing:border-box;font:inherit;font-size:23px;font-weight:600;padding:13px 14px;border-radius:13px;border:1.5px solid var(--line);background:var(--card);color:var(--ink)}
+.typed input:focus{border-color:var(--blue);outline:none}
+.keys{display:flex;flex-wrap:wrap;gap:6px}
+.keys button{min-width:40px;height:42px;border-radius:10px;border:1px solid var(--line);background:var(--card);font-size:19px;font-weight:600}
+.check{width:100%;border:0;border-radius:13px;padding:14px;background:var(--blue);color:var(--on-blue);font-weight:700;font-size:18px}
+.fb{display:flex;flex-direction:column;gap:8px;border-radius:16px;padding:14px 16px;border:1.5px solid var(--line);background:var(--card)}
+.fb.r{border-color:var(--ok)} .fb.w,.fb.a{border-color:var(--pen)}
+.mark{font-family:var(--f-hand);font-weight:700;font-size:32px;line-height:1}
+.fb.r .mark{color:var(--ok)} .fb.w .mark,.fb.a .mark{color:var(--pen)}
+.ansline{display:flex;gap:10px;align-items:center}
+.ansline p{flex:1;min-width:0;font-size:19px;font-weight:700}
+.note{color:var(--muted);font-size:15px}
+.next{width:100%;border:0;border-radius:13px;padding:14px;background:var(--ink);color:var(--paper);font-weight:700;font-size:18px}
+
+/* results */
+.score{font-family:var(--f-display);font-weight:800;font-size:64px;line-height:1;font-variant-numeric:tabular-nums}
+.score small{font-size:26px;color:var(--muted)}
+.miss{display:flex;flex-direction:column;gap:8px}
+.miss li{list-style:none;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+.miss ul{margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.miss .q{color:var(--muted);font-size:14.5px}
+.miss .a{font-weight:700}
+.row{display:flex;flex-direction:column;gap:10px}
+
+/* sheet */
+details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:4px 16px}
+details[open]{padding-bottom:14px}
+summary{font-family:var(--f-display);font-weight:600;font-size:19px;padding:12px 0;cursor:pointer}
+.tw{overflow-x:auto;margin:0 -4px}
+table{border-collapse:collapse;width:100%;font-size:15.5px}
+th{text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:700;padding:6px 8px;border-bottom:1.5px solid var(--line)}
+td{padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+td.say{color:var(--blue);cursor:pointer}
+td.say:active{opacity:.6}
+.tip{font-size:15px;color:var(--muted);margin-top:10px}
+.tip b{color:var(--ink)}
+
+/* learning path + ladder */
+.stage{display:flex;flex-direction:column;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px}
+.stage-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.stage-h p{font-weight:700;font-size:17.5px;min-width:0}
+.stage-h span{font-variant-numeric:tabular-nums;color:var(--muted);font-size:14px;flex:none}
+.path{display:grid;grid-template-columns:repeat(9,1fr);gap:5px}
+.path i{display:block;height:9px;border-radius:5px;background:var(--blue-soft);overflow:hidden}
+.path i b{display:block;height:100%;background:var(--blue)}
+.path i.cur{outline:2px solid var(--blue);outline-offset:1px}
+.ladder{display:flex;flex-wrap:wrap;gap:6px;font-size:13.5px;color:var(--muted)}
+.ladder span{border:1px solid var(--line);border-radius:999px;padding:3px 10px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.next.alt{background:var(--pen-soft);color:var(--pen)}
+.hint{font-family:var(--f-hand);font-size:24px;color:var(--blue);line-height:1.1}
+.intro .meaning{color:var(--muted);font-size:16px}
+.intro .prompt b,.fill{color:var(--blue)}
+.tag{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-radius:999px;padding:2px 9px;background:var(--blue-soft);color:var(--blue);margin-left:6px;vertical-align:2px}
+.ov{align-self:flex-start}
+
+.plan{display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--line);padding-top:12px}
+.plan p{font-size:15.5px;color:var(--muted)} .plan b{color:var(--ink)}
+.seg{display:flex;align-items:center;flex-wrap:wrap;gap:6px}
+.seg span{font-size:14px;color:var(--muted);margin-right:4px}
+.seg button{min-width:46px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--paper);font-weight:700;font-variant-numeric:tabular-nums}
+.seg button[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:var(--on-blue)}
+
+.gw{border-bottom:1.5px dotted currentColor;cursor:pointer;border-radius:3px;-webkit-tap-highlight-color:transparent}
+.gw.on{background:var(--blue-soft)}
+#tip{position:fixed;z-index:30;display:flex;flex-direction:column;gap:3px;max-width:min(300px,calc(100vw - 32px));background:var(--ink);color:var(--paper);font-family:var(--f-body);font-size:14.5px;font-weight:600;line-height:1.3;padding:7px 11px;border-radius:9px;pointer-events:none;box-shadow:0 6px 18px rgba(0,0,0,.2)}
+
+.pill{font-size:13px;font-weight:700;border-radius:999px;padding:3px 10px;flex:none}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.behind{background:var(--pen-soft);color:var(--pen)}
+.meter.tm{height:10px;margin-top:0;border-radius:5px}
+.today .tline{font-size:15.5px;font-variant-numeric:tabular-nums}
+
+#tip b{font-size:15.5px}
+#tip .tf{font-weight:600;opacity:.8;font-size:13.5px}
+#tip .ty{font-weight:400;opacity:.92;font-size:13.5px}
+
+.btab td{font-size:16.5px}
+.btab .end{color:var(--blue)}
+.sayrow{cursor:pointer}.sayrow:active td{background:var(--blue-soft)}
+.fam{display:flex;flex-direction:column;gap:6px;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:15px}
+.fam p:empty{display:none}
+.ttab td{vertical-align:middle;padding:6px 6px}
+.ttab .tl{color:var(--muted);font-size:14.5px;width:42%}
+.ttab input{width:100%;box-sizing:border-box;font:inherit;font-size:19px;font-weight:600;padding:9px 10px;border-radius:10px;border:1.5px solid var(--line);background:var(--card);color:var(--ink)}
+.ttab input:focus{border-color:var(--blue);outline:none}
+.ttab input.ok{border-color:var(--ok);background:var(--ok-soft);color:var(--ok)}
+.ttab input.almost{border-color:var(--pen);background:var(--pen-soft)}
+.ttab input.bad{border-color:var(--pen);background:var(--pen-soft);color:var(--pen);text-decoration:line-through}
+.ttab .given{font-size:19px;font-weight:600;color:var(--muted);padding-left:11px}
+.ttab .corr{display:block;font-weight:700;color:var(--ok);padding:4px 0 0 2px}
+
+.gw-plain{border-bottom:0;cursor:pointer}
+button.grade-wrap{background:none;border:0;padding:0;font:inherit}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{display:flex;flex-direction:column;gap:2px;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:10px 10px 9px}
+.stat b{font-family:var(--f-display);font-weight:800;font-size:24px;line-height:1;font-variant-numeric:tabular-nums}
+.stat b small{font-size:15px;color:var(--muted);font-weight:600}
+.stat span{font-size:13px;color:var(--muted)}
+.trow{display:flex;align-items:center;gap:10px}.trow .meter{flex:1;min-width:0}
+
+p.diff{font-size:21px;font-weight:600;letter-spacing:.01em;line-height:1.5;overflow-wrap:anywhere}
+.diff del,.dkey del{color:var(--pen);text-decoration:line-through;text-decoration-thickness:2px;background:var(--pen-soft);border-radius:3px}
+.diff ins,.dkey ins{color:var(--ok);text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:3px;background:var(--ok-soft);border-radius:3px}
+.dkey{white-space:nowrap}
+
+.mix{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.mixl{grid-column:1/-1;font-size:14px;color:var(--muted)}
+.stp{display:grid;grid-template-columns:32px 1fr 32px;grid-template-rows:auto auto;align-items:center;justify-items:center;column-gap:4px;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:5px 5px 3px}
+.stp button{width:32px;height:32px;padding:0;border-radius:9px;border:1px solid var(--line);background:var(--card);font-size:19px;font-weight:700;line-height:1}
+.stp b{font-family:var(--f-display);font-size:20px;min-width:24px;text-align:center;font-variant-numeric:tabular-nums}
+.stp small{grid-column:1/-1;font-size:12px;color:var(--muted)}
+
+.kn{display:none}
+@media (hover:hover) and (pointer:fine){.kn{display:inline-grid;place-items:center;min-width:20px;height:20px;margin-right:10px;border:1px solid var(--line);border-radius:5px;font:600 12px/1 var(--f-body);color:var(--muted);vertical-align:2px}}
+.opt.khit{border-color:var(--blue);background:var(--blue-soft)}
+.ktyped{font-size:14px;color:var(--muted);margin-top:-4px}
+
+.muted{color:var(--muted);font-size:14px}
+
+#review{position:fixed;inset:0;z-index:20;overflow-y:auto;background:var(--paper);padding-top:env(safe-area-inset-top,0px);padding-bottom:calc(24px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.rv-bar{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:10px;background:var(--paper);padding:12px 0;max-width:560px;margin:0 auto;border-bottom:1px solid var(--line)}
+.rv-bar span{flex:1;min-width:0;font-size:14px;color:var(--muted)}
+.rv-back{border:0;border-radius:11px;padding:10px 12px;background:var(--blue);color:var(--on-blue);font-weight:700;font-size:14.5px}
+.rv-body{max-width:560px;margin:14px auto 0;display:flex;flex-direction:column;gap:16px;opacity:.95}
+.qx:disabled{opacity:.35}
+
+.opt.done{cursor:help}
+.opt .omean{display:block;font-size:14px;font-weight:600;margin-top:4px;text-decoration:none;opacity:.9}
+.opt.wrong .omean{text-decoration:none}
+.opt.wrong{text-decoration:none}.opt.wrong .ot{text-decoration:line-through}
+
+.conf{background:var(--blue-soft);color:var(--ink);border-radius:10px;padding:8px 10px}
+
+.hidl summary{cursor:pointer;color:var(--muted);font-size:15px;padding:6px 0}
+.hidrow{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.hidrow .ghost{text-align:left}
+.hidebtn{align-self:center;font-size:13.5px;padding:6px 10px}
+
+#go-nut{border-color:var(--ink);color:var(--ink);background:var(--card)}
+
+.drills{display:flex;flex-wrap:wrap;gap:8px}
+.drill{background:var(--card);color:var(--ink);font-weight:600;font-size:15px;padding:10px 12px;border-radius:12px}
+
+.tag.burst{background:var(--ink);color:var(--paper)}
+
+.moved{position:sticky;top:env(safe-area-inset-top,0px);z-index:6;background:var(--pen);color:#fff;font-size:14.5px;line-height:1.4;padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.moved a{color:#fff;font-weight:700}
+
+
+/* redesign: home, tiles, topics, settings */
+.ico{display:inline-grid;place-items:center;line-height:0}.ico svg{width:100%;height:100%}
+.gx{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+.hd2{display:flex;align-items:center;gap:14px}.hd2 .t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.hd2 h1{font-size:30px}.when2{color:var(--pen);font-weight:700;font-size:15.5px;margin:2px 0 0}
+#gradeb{background:none;border:0;padding:0}
+.hint1{font-size:14px;color:var(--muted);background:var(--card);border:1px dashed var(--line);border-radius:12px;padding:8px 12px}
+.today2{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px}
+.ring{width:60px;height:60px;flex:none}.ring .r0{fill:none;stroke:var(--blue-soft);stroke-width:5}.ring .r1{fill:none;stroke:var(--blue);stroke-width:5;stroke-linecap:round}
+.today2 .tx{display:flex;flex-direction:column;min-width:0}.today2 .tx b{font-family:var(--f-display);font-weight:800;font-size:23px;font-variant-numeric:tabular-nums}.today2 .tx .gx{color:var(--muted);font-size:14px}
+.pill2{margin-left:auto;font-size:12.5px;font-weight:700;border-radius:99px;padding:5px 10px;white-space:nowrap;flex:none}
+.pill2.ok{background:var(--ok-soft);color:var(--ok)}.pill2.behind{background:var(--pen-soft);color:var(--pen)}
+.go2{display:flex;align-items:center;gap:12px;width:100%;border:0;border-radius:20px;background:var(--blue);color:var(--on-blue);padding:16px 18px;text-align:left;box-shadow:0 8px 20px rgba(36,80,196,.22)}
+.go2 .gi{width:38px;height:38px;flex:none}.go2 .l{display:flex;flex-direction:column;gap:2px;min-width:0}
+.go2 b{font-family:var(--f-display);font-weight:800;font-size:26px;line-height:1.1}.go2 .sub{font-size:14px;opacity:.9;color:inherit}
+.mixrow2{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}.mixrow2 i{font-style:normal;font-size:11.5px;font-weight:700;border-radius:99px;padding:3px 8px;background:rgba(255,255,255,.18);white-space:nowrap}
+.newr{align-self:center;margin-top:-6px;font-size:14px}
+.tiles2{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.tile2{border:0;border-radius:16px;padding:14px 12px;min-height:104px;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;gap:10px;text-align:left;font-weight:700;font-size:14.5px;line-height:1.2;color:var(--ink)}
+.tile2 .ti{width:32px;height:32px}
+.t-nut{background:var(--slate)}.t-nut .ti{color:var(--ink)}.t-fix{background:var(--pen-soft)}.t-fix .ti{color:var(--pen)}.t-test{background:var(--blue-soft)}.t-test .ti{color:var(--blue)}
+.tile2.off .ti,.tile2.off>.gx{opacity:.45}
+.sec2{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:4px}.sec2 h2{font-size:19px}.sec2>span{font-size:13.5px;color:var(--muted)}
+.pills{display:flex;flex-direction:column;gap:8px}
+.pill3{position:relative;overflow:hidden;display:flex;align-items:center;gap:12px;width:100%;background:var(--card);border:1px solid var(--line);border-radius:99px;padding:10px 18px 10px 14px;text-align:left;font-weight:700;font-size:15.5px;color:var(--ink)}
+.pill3 .pi{width:24px;height:24px;color:var(--blue);flex:none}.pill3 .gx{flex:1;min-width:0}
+.pill3 .pc{font-weight:700;font-size:14px;color:var(--blue);font-variant-numeric:tabular-nums}
+.pill3 .pb{position:absolute;left:0;right:0;bottom:0;height:3px;background:transparent}.pill3 .pb i{display:block;height:100%;background:var(--blue);opacity:.55}
+.setc{display:flex;flex-direction:column;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px}.setc h2{font-size:17px}
+.nav button{display:flex;flex-direction:column;align-items:center;gap:3px}.nav .ico{width:24px;height:24px}
+
+.why{display:flex;flex-direction:column;gap:6px;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:14.5px}
+.why p{margin:0;line-height:1.4}.why .wk{display:inline-block;font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--pen);background:var(--pen-soft);border-radius:99px;padding:1px 8px;margin-right:4px}
+
+/* nav */
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:5;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;justify-content:center;gap:8px}
+.nav button{flex:1;max-width:220px;background:none;border:0;padding:12px 8px 14px;font-weight:700;font-size:15.5px;color:var(--muted);border-top:3px solid transparent}
+.nav button[aria-current="page"]{color:var(--blue);border-top-color:var(--blue)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+
+<!--CLAUDE-ONLY--><div class="moved" id="moved"><b>This copy no longer syncs with your phone.</b> Use the app at <a href="https://ian-cailliau.github.io/Polish/" target="_blank" rel="noopener">ian-cailliau.github.io/Polish</a> on every device. Your progress from here has been copied into it.</div><!--/CLAUDE-ONLY-->
+<main class="app" id="app"></main>
+<nav class="nav" id="nav">
+  <button id="t-home" aria-current="page"></button>
+  <button id="t-sheet"></button>
+  <button id="t-set"></button>
+</nav>
+
+<script>
+/* ---------- content (from the Test 1 overview slide + lessons 0–1) ---------- */
+const QA=[
+ {k:'imie',en:"What's your first name?",en3:"Ask about her: what's her first name?",inf:"Jak masz na imię?",form:"Jak ma pan / pani na imię?",formAlt:["Jak pan / pani ma na imię?"],trap:"Jak masz pani na imię?",third:"Jak ona ma na imię?",thirdAlt:["Jak ma ona na imię?"],fact:"Her first name is Anna.",ans:"Mam na imię Jan.",ans3:"Ona ma na imię Anna.",acc3:["Ma na imię Anna."],pat:/^mam na imię \S+/},
+ {k:'nazwisko',en:"What's your surname?",en3:"Ask about him: what's his surname?",inf:"Jak masz na nazwisko?",form:"Jak ma pan / pani na nazwisko?",formAlt:["Jak pan / pani ma na nazwisko?"],trap:"Jak masz pan na nazwisko?",third:"Jak on ma na nazwisko?",thirdAlt:["Jak ma on na nazwisko?"],fact:"His surname is Kowalski.",ans:"Mam na nazwisko Kowalski.",ans3:"On ma na nazwisko Kowalski.",acc3:["Ma na nazwisko Kowalski."],pat:/^mam na nazwisko \S+/},
+ {k:'nazywa',en:"What's your (full) name?",en3:"Ask about him: what's he called?",inf:"Jak się nazywasz?",form:"Jak się pan / pani nazywa?",formAlt:["Jak pan / pani się nazywa?"],trap:"Jak się pani nazywasz?",third:"Jak on się nazywa?",thirdAlt:["Jak się on nazywa?"],fact:"His name is Jan Kowalski.",ans:"Nazywam się Jan Kowalski.",ans3:"On nazywa się Jan Kowalski.",acc3:["Nazywa się Jan Kowalski.","On się nazywa Jan Kowalski."],pat:/^nazywam się \S+/},
+ {k:'ma',en:"How are you?",en3:"Ask about her: how is she?",inf:"Jak się masz?",form:"Jak się pan / pani ma?",formAlt:["Jak pan / pani się ma?"],trap:"Jak się pani masz?",third:"Jak ona się ma?",thirdAlt:["Jak się ona ma?"],fact:"She is doing well.",ans:"Świetnie, dziękuję.",ans3:"Ona ma się dobrze.",acc3:["Ma się dobrze.","Ona się ma dobrze.","Dobrze.","Ona ma się bardzo dobrze."],pat:/(dobrze|świetnie|nieźle|w porządku|tak sobie|źle|super)/},
+ {k:'skad',en:"Where are you from?",en3:"Ask about him: where is he from?",inf:"Skąd jesteś?",form:"Skąd pan / pani jest?",formAlt:["Skąd jest pan / pani?"],trap:"Skąd pani jesteś?",third:"Skąd on jest?",thirdAlt:["Skąd jest on?"],fact:"He is from Poland.",ans:"Jestem z Belgii.",ans3:"On jest z Polski.",acc3:["Jest z Polski.","Z Polski."],pat:/^jestem ze? \S+/},
+ {k:'gdzie',en:"Where do you live?",en3:"Ask about her: where does she live?",inf:"Gdzie mieszkasz?",form:"Gdzie pan / pani mieszka?",formAlt:["Gdzie mieszka pan / pani?"],trap:"Gdzie pani mieszkasz?",third:"Gdzie ona mieszka?",thirdAlt:["Gdzie mieszka ona?"],fact:"She lives in Warsaw.",ans:"Mieszkam w Gandawie.",ans3:"Ona mieszka w Warszawie.",acc3:["Mieszka w Warszawie.","W Warszawie."],pat:/^mieszkam we? \S+/},
+ {k:'adres',en:"What's your address?",en3:"Ask about him: what's his address?",inf:"Jaki masz adres?",form:"Jaki ma pan / pani adres?",formAlt:["Jaki pan / pani ma adres?"],trap:"Jaki masz pani adres?",third:"Jaki on ma adres?",thirdAlt:["Jaki ma on adres?"],fact:"His address is 7 Mickiewicz Street (write it the Polish way).",ans:"Ulica Prosta 69.",ans3:"Ulica Mickiewicza 7.",acc3:["ul. Mickiewicza 7","On ma adres ulica Mickiewicza 7","On ma adres ul. Mickiewicza 7"],pat:/^(ul|ulica|al|aleja|pl|plac|os|osiedle) \S+/},
+ {k:'tel',en:"What's your phone number?",en3:"Ask about her: what's her phone number?",inf:"Jaki masz numer telefonu?",form:"Jaki ma pan / pani numer telefonu?",formAlt:["Jaki pan / pani ma numer telefonu?"],trap:"Jaki pani masz numer telefonu?",third:"Jaki ona ma numer telefonu?",thirdAlt:["Jaki ma ona numer telefonu?"],fact:"Her number is 0123 456 789 (digits are fine).",ans:"Zero, cztery, siedem, pięć…",ans3:"0123 456 789",acc3:[],pat3:/\d{3}/,pat:/(\d|zero|jeden|dwa|trzy|cztery|pięć|sześć|siedem|osiem|dziewięć)/}
+];
+const AM_END='-am, -asz, -a, -amy, -acie, -ają';
+const VERBS={
+ 'być':{en:'to be',f:['jestem','jesteś','jest','jesteśmy','jesteście','są'],fam:'irr',note:'Irregular: no family to copy from. Learn the six forms as one block.'},
+ 'mieć':{en:'to have',f:['mam','masz','ma','mamy','macie','mają'],fam:'am',stem:'m',note:`The infinitive is irregular, but the forms take the -am / -asz family endings: ${AM_END}.`},
+ 'mieszkać':{en:'to live',f:['mieszkam','mieszkasz','mieszka','mieszkamy','mieszkacie','mieszkają'],fam:'am',stem:'mieszk',model:1,note:`Model verb of the -am / -asz family: drop -ać, add ${AM_END}. czytać, pytać, przepraszać and nazywać się work exactly the same way.`},
+ 'nazywać się':{en:'to be called',f:['nazywam się','nazywasz się','nazywa się','nazywamy się','nazywacie się','nazywają się'],fam:'am',stem:'nazyw',note:'-am / -asz family, exactly like mieszkać, plus się.'},
+ 'czytać':{en:'to read',f:['czytam','czytasz','czyta','czytamy','czytacie','czytają'],fam:'am',stem:'czyt',note:'-am / -asz family, exactly like mieszkać.',bonus:1},
+ 'pytać':{en:'to ask',f:['pytam','pytasz','pyta','pytamy','pytacie','pytają'],fam:'am',stem:'pyt',note:'-am / -asz family, exactly like mieszkać.',bonus:1},
+ 'przepraszać':{en:'to apologise',f:['przepraszam','przepraszasz','przeprasza','przepraszamy','przepraszacie','przepraszają'],fam:'am',stem:'przeprasz',note:'-am / -asz family, exactly like mieszkać.',bonus:1}
+};
+const PRON_CORE=[['I','ja'],['you (one person, informal)','ty'],['he','on'],['she','ona'],['it','ono'],['we','my'],['you (several people, informal)','wy'],['they (men, or a mixed group)','oni'],['they (no men in the group)','one']];
+const FORMAL=[['to one man','pan'],['to one woman','pani'],['to a mixed group','państwo'],['to several men','panowie'],['to several women','panie']];
+const PERS=[['ja'],['ty'],['on','ona','pan','pani'],['my'],['wy'],['oni','one','państwo']];
+const PERS_LBL=['ja','ty','on / ona / ono · pan / pani','my','wy','oni / one · państwo'];
+const SENT=[
+ ['Skąd (ty) ___?','jesteś','być'],['(ja) ___ z Polski.','jestem','być'],['One ___ z Niemiec.','są','być'],['Skąd (wy) ___?','jesteście','być'],['Ona ___ z Włoch.','jest','być'],['(my) ___ z Francji.','jesteśmy','być'],
+ ['Jak (ty) ___ na imię?','masz','mieć'],['Oni ___ problem.','mają','mieć'],['(my) ___ dom w Krakowie.','mamy','mieć'],['(ja) ___ na imię Andrzej.','mam','mieć'],['On ___ pytanie.','ma','mieć'],['Czy (wy) ___ nowe auto?','macie','mieć'],
+ ['Gdzie on ___?','mieszka','mieszkać'],['Michael teraz ___ w Krakowie.','mieszka','mieszkać'],['(my) ___ w Poznaniu.','mieszkamy','mieszkać'],['Oni ___ w Gdańsku.','mieszkają','mieszkać'],['Czy (wy) teraz ___ w Łodzi?','mieszkacie','mieszkać'],['Teraz (ja) ___ w Gandawie.','mieszkam','mieszkać'],
+ ['Jak się pani ___?','nazywa','nazywać się'],['(my) ___ się Nowak.','nazywamy','nazywać się']
+];
+const COUNTRIES=[['Belgium','Belgia','z Belgii'],['Germany','Niemcy','z Niemiec'],['England','Anglia','z Anglii'],['France','Francja','z Francji'],['Italy','Włochy','z Włoch'],['Japan','Japonia','z Japonii'],['the Netherlands','Holandia','z Holandii'],['Poland','Polska','z Polski'],['Russia','Rosja','z Rosji'],['Spain','Hiszpania','z Hiszpanii'],['America / USA','Ameryka · Stany Zjednoczone','z Ameryki',['ze stanów zjednoczonych']],['Flanders','Flandria','z Flandrii']];
+const PEOPLE=[['Ignatio','w Barcelonie','On','z Hiszpanii'],['Andreas','w Berlinie','On','z Niemiec'],['Pan Smith','w Nowym Jorku','On','z Ameryki'],['Pani Wysocka','w Poznaniu','Ona','z Polski'],['Roberto','w Rzymie','On','z Włoch'],['Paul','w Birmingham','On','z Anglii'],['Mami','w Tokio','Ona','z Japonii'],['Tatiana','w Moskwie','Ona','z Rosji'],['Nicole','w Paryżu','Ona','z Francji'],['Alexandra','w Londynie','Ona','z Anglii']];
+const CITIES=[['Ghent','Gandawa','w Gandawie'],['Brussels','Bruksela','w Brukseli'],['Antwerp','Antwerpia','w Antwerpii'],['Warsaw','Warszawa','w Warszawie'],['Kraków','Kraków','w Krakowie'],['Gdańsk','Gdańsk','w Gdańsku'],['Poznań','Poznań','w Poznaniu'],['Łódź','Łódź','w Łodzi'],['Wrocław','Wrocław','we Wrocławiu']];
+const NUMS=['zero','jeden','dwa','trzy','cztery','pięć','sześć','siedem','osiem','dziewięć','dziesięć'];
+const CLASS=[
+ ['Co to znaczy…?','What does … mean?'],['Jak jest po polsku…?','How do you say … in Polish?'],['Jak jest po niderlandzku…?','How do you say … in Dutch?'],
+ ['Nie rozumiem.',"I don't understand."],['Nie wiem.',"I don't know."],['Proszę mówić wolniej.','Please speak more slowly.'],['Proszę napisać.','Please write it down.'],
+ ['Proszę przeczytać.','Please read it.'],['Proszę powtórzyć.','Please repeat.'],['Proszę przeliterować.','Please spell it.'],['Mam pytanie!','I have a question!'],
+ ['Gdzie jest toaleta?','Where is the toilet?'],['Przepraszam, gdzie jest sekretariat?','Excuse me, where is the office?'],
+ ['Dzień dobry.','Hello / good day (formal).'],['Do widzenia.','Goodbye (formal).'],['Cześć!','Hi! / Bye! (informal)'],['Dobranoc.','Good night.'],['Dziękuję.','Thank you.'],
+ ['Proszę.','Please. / Here you are.'],['Przepraszam.','Sorry. / Excuse me.'],['Rozumiem.','I understand.'],['Miło mi. / Bardzo mi miło.','Nice to meet you.'],['Co słychać?',"How's it going? / What's new?"],['Wszystko w porządku.','Everything is fine.']
+];
+const WORDS=[['ulica','street'],['aleja','avenue'],['osiedle','housing estate'],['plac','square'],['imię','first name'],['nazwisko','surname'],['kraj','country'],['adres','address'],['numer telefonu','phone number'],['pytanie','question'],['odpowiedź','answer'],['kontakt oficjalny','formal contact (pan / pani)'],['kontakt nieoficjalny','informal contact (ty)']];
+const ABBR=[['ul.','ulica'],['al.','aleja'],['os.','osiedle'],['pl.','plac']];
+const ONI=[['Magda i Dominika','One'],['Agnieszka i Jacek','Oni'],['pani Kruszańska i pani Wojciechowska','One'],['Piotrek i Mariusz','Oni'],['pan Kamil i pani Grażyna','Oni'],['Tadeusz i Andrzej','Oni'],['Anna i dziecko','One'],['Jan i Anna','Oni']];
+const PRON=[['ono','it (e.g. a baby)'],['oni','they: men, or a mixed group'],['one','they: only women, children, animals or things'],['państwo','you, formal: a mixed group (ladies and gentlemen)'],['panowie','you, formal: several men'],['panie','you, formal: several women'],['pan','you, formal: one man'],['pani','you, formal: one woman'],['wy','you, informal plural']];
+
+const DECKS={
+ qa:{pl:'Pytania i odpowiedzi',en:'Questions & answers · ty ↔ pan / pani · on / ona'},
+ verbs:{pl:'Czasowniki',en:'verb forms in small groups, then in sentences'},
+ kraje:{pl:'Skąd? Gdzie?',en:'Countries with z …, cities with w …'},
+ num:{pl:'Liczby 0–10',en:'Numbers and “Ile jest…?”'},
+ klasa:{pl:'W klasie',en:'Classroom phrases and greetings'},
+ words:{pl:'Słowa i zaimki',en:'ulica, aleja, osiedle, plac · oni czy one?'}
+};
+
+/* ---------- helpers ---------- */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const pick=a=>a[Math.random()*a.length|0];
+const mc=(ans,pool,n=3)=>shuffle([ans,...shuffle([...new Set(pool.filter(x=>x!==ans))]).slice(0,n)]);
+const sp=t=>t.replace(/pan \/ pani/g,'pani').replace(/ \/ /g,', ').replace(/…/g,'');
+const norm=s=>s.toLowerCase().replace(/[.,!?;:…]/g,'').replace(/\s+/g,' ').trim();
+const strip=s=>s.normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/ł/g,'l');
+/* letter-level comparison with the closest correct answer: what is wrong, missing or extra */
+function editOps(a,b){const n=a.length,m=b.length,D=Array.from({length:n+1},(_,i)=>{const r=new Array(m+1).fill(0);r[0]=i;return r});
+ for(let j=0;j<=m;j++)D[0][j]=j;
+ for(let i=1;i<=n;i++)for(let j=1;j<=m;j++)D[i][j]=Math.min(D[i-1][j]+1,D[i][j-1]+1,D[i-1][j-1]+(a[i-1]===b[j-1]?0:strip(a[i-1])===strip(b[j-1])?0.5:1));
+ const ops=[];let i=n,j=m;
+ while(i>0||j>0){if(i>0&&j>0&&D[i][j]===D[i-1][j-1]+(a[i-1]===b[j-1]?0:strip(a[i-1])===strip(b[j-1])?0.5:1)){ops.push(a[i-1]===b[j-1]?['=',a[i-1]]:['~',a[i-1],b[j-1]]);i--;j--}
+  else if(i>0&&D[i][j]===D[i-1][j]+1){ops.push(['-',a[i-1]]);i--}else{ops.push(['+',b[j-1]]);j--}}
+ return{dist:D[n][m],ops:ops.reverse()}}
+
+/* ---------- what went wrong: compares your words with the right answer and names the kind of mistake ---------- */
+const JAKI=['jaki','jaka','jakie','jakiego'],NOUN_G={adres:'m',numer:'m',telefon:'m',kraj:'m',dom:'m',problem:'m',ulica:'f',aleja:'f',auto:'n',imię:'n',nazwisko:'n',pytanie:'n',miasto:'n',osiedle:'n'};
+const G_EN={m:'masculine',f:'feminine',n:'neuter'},JAKI_FOR={m:'jaki',f:'jaka',n:'jakie'};
+let VFORM=null;
+function vform(w){if(!VFORM){VFORM={};Object.entries(VERBS).forEach(([inf,v])=>v.f.forEach((f,i)=>{VFORM[f.split(' ')[0]]={inf,i}}))}return VFORM[w]}
+const PERSON=['ja','ty','on / ona / pan / pani','my','wy','oni / one / państwo'];
+const nomOf=(w,list,idx)=>list.find(c=>c[1].split(' · ').some(n=>strip(n.toLowerCase())===strip(w)));
+function explainSub(g,t,T){
+ if(strip(g)===strip(t))return null;
+ if((g==='jak'&&JAKI.includes(t))||(t==='jak'&&JAKI.includes(g)))return ['jak / jaki','<b>jak</b> = how, used with a verb (<i>Jak się masz?</i>, and the name questions <i>Jak masz na imię?</i>). <b>jaki / jaka / jakie</b> = what, which: it describes a noun and matches its gender (<i>Jaki masz adres?</i>).'];
+ if(JAKI.includes(g)&&JAKI.includes(t)){const n=T.find(w=>NOUN_G[w]);return ['gender','<b>'+t+'</b>, not '+g+': it agrees with '+(n?'<b>'+n+'</b>, which is '+G_EN[NOUN_G[n]]:'the noun')+'. jaki + masculine, jaka + feminine, jakie + neuter.']}
+ const vg=vform(g),vt=vform(t);
+ if(vg&&vt&&vg.inf===vt.inf){const formal=T.some(w=>['pan','pani'].includes(w)),third=T.some(w=>['on','ona'].includes(w));
+  return ['verb person','You used the <b>'+PERSON[vg.i]+'</b> form <i>'+g+'</i>; here it has to be the <b>'+PERSON[vt.i]+'</b> form <i>'+t+'</i>.'+(formal&&vt.i===2?' With <b>pan / pani</b> the verb always takes the on / ona form.':third&&vt.i===2?' Talking about him or her takes the on / ona form.':'')]}
+ if(vg&&vt)return ['different verb','<i>'+g+'</i> is '+vg.inf+' ('+((GL[g]||'').split('|')[0])+'); you need <i>'+t+'</i>, from '+vt.inf+' ('+((GL[t]||'').split('|')[0])+').'];
+ const pair=(a,b)=>(g===a&&t===b)||(g===b&&t===a);
+ if(pair('on','ona'))return ['he / she','<b>on</b> = he, <b>ona</b> = she: check who the sentence is about.'];
+ if(pair('oni','one'))return ['oni / one','<b>oni</b> as soon as one man is in the group; <b>one</b> only when there is no man.'];
+ if(pair('pan','pani'))return ['pan / pani','<b>pan</b> to a man, <b>pani</b> to a woman.'];
+ if(pair('z','w')||pair('ze','w')||pair('z','we'))return ['z / w','<b>z</b> = from (+ genitive: <i>z Belgii</i>); <b>w</b> = in (+ locative: <i>w Gandawie</i>).'];
+ if(pair('dobry','dobrze'))return ['dobry / dobrze','<b>dobry</b> = good (adjective, describes a noun); <b>dobrze</b> = well (adverb, describes how something is done or how you are).'];
+ const c=nomOf(g,COUNTRIES);if(c&&strip(t)===strip(c[2].replace(/^ze? /,'').toLowerCase()))return ['case','After <b>z</b> (from) the country goes into the <b>genitive</b>: '+c[1].split(' · ')[0]+' → <i>'+c[2]+'</i>.'];
+ const ct=nomOf(g,CITIES);if(ct&&strip(t)===strip(ct[2].replace(/^we? /,'').toLowerCase()))return ['case','After <b>w</b> (in) the city goes into the <b>locative</b>: '+ct[1]+' → <i>'+ct[2]+'</i>.'];
+ if(g.length>3&&t.length>3&&g.slice(0,3)===t.slice(0,3)&&GL[t])return ['ending','Right word, wrong ending: <i>'+t+'</i> ('+GL[t].split('|').slice(0,2).join(' · ')+').'];
+ if(GL[g]&&GL[t])return ['word','<i>'+g+'</i> means “'+GL[g].split('|')[0]+'”; you need <i>'+t+'</i> (“'+GL[t].split('|')[0]+'”).'];
+ return null}
+function explainMissing(t){
+ if(t==='się')return ['missing się','<b>się</b> is part of the verb here: <i>nazywać się</i> = to be called, <i>mieć się</i> = to be doing.'];
+ if(t==='na')return ['missing na','<i>Mam <b>na</b> imię …</i>: the name expression needs <b>na</b> (“I have as first name”).'];
+ if(t==='z'||t==='ze')return ['missing z','“From” needs <b>z</b>, and the country goes into the genitive.'];
+ if(t==='w'||t==='we')return ['missing w','“In” needs <b>w</b>, and the place goes into the locative.'];
+ if(vform(t))return ['missing verb','The verb <i>'+t+'</i> is missing.'];
+ return GL[t]?['missing word','Missing: <i>'+t+'</i> (“'+GL[t].split('|')[0]+'”).']:null}
+function explainExtra(g){
+ if(['jestem','jest','jesteś'].includes(g))return ['extra “to be”','Polish does not use <i>'+g+'</i> here.'];
+ if(g==='się')return ['extra się','This verb does not take <b>się</b> here.'];
+ return null}
+function diagnose(given,q){
+ if(q.open||q.check)return [];
+ const G=norm(given).split(' ').filter(Boolean);if(!G.length)return [];
+ let best=null;(q.accept||[q.mcAnswer||q.answer]).forEach(a=>{const T=norm(String(a)).split(' ').filter(Boolean);const r=editOps(G,T);if(!best||r.dist<best.dist)best={...r,T}});
+ if(!best||best.dist===0)return [];
+ const T=best.T,notes=[];
+ if(G.length===T.length&&[...G].sort().join(' ')===[...T].sort().join(' ')){
+  const sie=T.indexOf('się')>=0&&T.indexOf('się')!==G.indexOf('się');
+  notes.push(['word order',G[0]==='się'?'<b>się</b> never comes first in the sentence: <i>'+T.join(' ')+'</i>.':sie?'<b>się</b> sits early, right after the question word (or after the first word): <i>'+T.join(' ')+'</i>.':'Right words, wrong order: <i>'+T.join(' ')+'</i>. Polish questions start with the question word.']);return notes}
+ if(best.dist>Math.max(3,T.length))return [];
+ best.ops.forEach(([o,x,y])=>{const n=o==='~'?explainSub(x,y,T):o==='+'?explainMissing(x):o==='-'?explainExtra(x):null;if(n&&!notes.some(m=>m[0]===n[0]))notes.push(n)});
+ return notes.slice(0,3)}
+function closeDiff(given,cands){const g=norm(given);if(!g)return null;let best=null;
+ cands.forEach(c=>{const t=norm(c.replace(/^For example: /,''));if(!t)return;const r=editOps(g,t);if(!best||r.dist<best.dist)best={...r,t}});
+ if(!best||best.dist===0||best.dist>Math.max(2,best.t.length*0.3))return null;
+ const html=best.ops.map(([o,x,y])=>o==='='?esc(x):o==='~'?`<del>${esc(x)}</del><ins>${esc(y)}</ins>`:o==='-'?`<del>${esc(x)}</del>`:`<ins>${esc(x)}</ins>`).join('');
+ const n=best.ops.filter(o=>o[0]!=='=').length;return{html,n}}
+
+
+/* ---------- items ----------
+   Every item can be asked three ways, from easy to hard:
+   intro (see it) → options (pick it, when the item has them) → write it.
+   accept = accepted written answers · check = free-answer checker · reveal = meaning card you mark yourself */
+const ITEMS=[];const add=(deck,id,make)=>ITEMS.push({deck,id,make});
+const FORMAL_NOTE='With pan / pani the verb takes the on / ona form: ma, jest, mieszka, nazywa się.';
+const expand=s=>s.includes('pan / pani')?['pan','pani','pan/pani','pani/pan','pani / pan','pan / pani'].map(x=>s.replace('pan / pani',x)):[s];
+const acceptOf=s=>/[.!?…] \/ /.test(s)?s.split(' / '):expand(s);
+const patTest=(pat,g)=>pat.test(g)?'right':new RegExp(strip(pat.source),pat.flags).test(strip(g))?'accent':null;
+function nomTrap(k,g){
+ if(k==='skad'){const m=g.match(/^jestem ze? (.+)$/);if(m){const c=COUNTRIES.find(c=>c[1].split(' · ').some(n=>strip(n.toLowerCase())===strip(m[1])));if(c)return `After z the country changes form: ${c[2]}.`}}
+ if(k==='gdzie'){const m=g.match(/^mieszkam we? (.+)$/);if(m){const c=CITIES.find(c=>strip(c[1].toLowerCase())===strip(m[1])&&c[1].toLowerCase()!==c[2].replace(/^we? /,'').toLowerCase());if(c)return `After w the city changes form: ${c[2]}.`}}
+ return null}
+/* open questions: any valid answer counts. valid = right options, bad = options that do not fit or break the grammar,
+   traps = typical mistakes caught when writing, also = the range of correct answers shown afterwards */
+/* the whole answer must be a known mood answer, optionally with dziękuję or mam się / wszystko */
+const MOOD='(bardzo dobrze|dobrze|świetnie|nieźle|tak sobie|źle|super|w porządku|wszystko w porządku|bardzo źle)';
+const MOOD_RE=new RegExp(`^((dziękuję )?(mam się )?${MOOD}( dziękuję)?|(dziękuję )?${MOOD} (mam się)?|wszystko w porządku( dziękuję)?)$`);
+const MOODS=MOOD;
+const OPEN={
+ imie:{pat:/^(mam na imię|nazywam się) \S+( \S+)?$/,valid:['Mam na imię Jan.','Mam na imię Anna.','Mam na imię Ian.'],bad:['Jestem na imię Jan.','Mam imię Jan.','Nazywam na imię Jan.','Jestem z Belgii.'],
+  traps:[[/^mam imię/,'Don’t forget na: Mam na imię …'],[/^jestem /,'Use Mam na imię … (literally “I have as first name”).']],also:'Mam na imię … · Nazywam się …'},
+ nazwisko:{pat:/^(mam na nazwisko|nazywam się) \S+( \S+)?$/,valid:['Mam na nazwisko Kowalski.','Nazywam się Kowalski.','Mam na nazwisko Nowak.'],bad:['Jestem na nazwisko Kowalski.','Mam nazwisko Kowalski.','Nazywam na nazwisko Kowalski.','Mieszkam w Gandawie.'],
+  traps:[[/^mam nazwisko/,'Don’t forget na: Mam na nazwisko …'],[/^jestem /,'Use Mam na nazwisko … or Nazywam się …']],also:'Mam na nazwisko … · Nazywam się …'},
+ nazywa:{pat:/^(nazywam się|mam na imię) \S+( \S+)?$/,valid:['Nazywam się Jan Kowalski.','Nazywam się Anna Nowak.'],bad:['Nazywam Jan Kowalski.','Jestem się Jan Kowalski.','Nazywasz się Jan Kowalski.','Jestem z Polski.'],
+  traps:[[/^nazywam (?!się)/,'Don’t forget się: Nazywam się …'],[/^nazywasz/,'Answer with the ja-form: Nazywam się …']],also:'Nazywam się [first name + surname]'},
+ ma:{pat:MOOD_RE,valid:['Świetnie, dziękuję.','Dobrze, dziękuję.','Nieźle.','Tak sobie.','Źle.'],bad:['Jestem dobrze.','Mam dobrze.','Dobry, dziękuję.','Mam na imię Jan.'],
+  traps:[[/^jestem /,'Polish doesn’t use jestem here: just Dobrze, or Mam się dobrze.'],[/^mam (?!się)/,'Without się it means “I have”: say Dobrze, or Mam się dobrze.'],[/\bdobry\b/,'Use the adverb dobrze (well), not dobry (good).']],also:'Świetnie · Bardzo dobrze · Dobrze · Nieźle · Tak sobie · Źle (+ dziękuję)'},
+ skad:{pat:/^(jestem )?ze? \S+( \S+)?$/,valid:['Jestem z Belgii.','Jestem z Polski.','Jestem z Holandii.'],bad:['Jestem z Belgia.','Jestem w Belgii.','Mieszkam z Belgii.','Jestem Belgii.'],
+  traps:[[/^jestem w /,'“From” is z, not w: Jestem z …'],[/^jestem (?!ze? )/,'Don’t forget z: Jestem z …']],also:'Jestem z + genitive: z Belgii · z Polski · z Holandii · z Niemiec …'},
+ gdzie:{pat:/^(mieszkam )?we? \S+( \S+)?$/,valid:['Mieszkam w Gandawie.','Mieszkam w Brukseli.','Mieszkam w Krakowie.'],bad:['Mieszkam w Gandawa.','Mieszkam z Gandawie.','Mieszkam Gandawie.','Jestem z Belgii.'],
+  traps:[[/^mieszkam z /,'“In” is w, not z: Mieszkam w …'],[/^mieszkam (?!we? )/,'Don’t forget w: Mieszkam w …']],also:'Mieszkam w + locative: w Gandawie · w Brukseli · w Krakowie · we Wrocławiu …'},
+ adres:{pat:/^(ul|ulica|al|aleja|pl|plac|os|osiedle) \S+/,valid:['Ulica Prosta 69.','Aleja Wolności 5.','Plac Zamkowy 1.'],bad:['Mam na imię Jan.','Jestem z Belgii.','Zero, cztery, siedem…'],traps:[],also:'ulica (ul.) · aleja (al.) · plac (pl.) · osiedle (os.) + name + number'},
+ tel:{pat:/(\d|zero|jeden|dwa|trzy|cztery|pięć|sześć|siedem|osiem|dziewięć)/,valid:['Zero, cztery, siedem, pięć…','Dwa, trzy, pięć, osiem…'],bad:['Mam na imię Jan.','Mieszkam w Gandawie.','Ulica Prosta 69.'],traps:[],also:'Say the digits one by one: zero, cztery, siedem…'},
+ slychac:{pat:MOOD_RE,valid:['Wszystko w porządku.','Dobrze, dziękuję.','Nieźle.'],bad:['Jestem w porządku.','Mam na imię Jan.','Dobry.'],
+  traps:[[/^jestem /,'Just Wszystko w porządku or Dobrze, without jestem.'],[/\bdobry\b/,'Use the adverb dobrze, not dobry.']],also:'Wszystko w porządku · Dobrze · Nieźle · Tak sobie'}
+};
+const OPEN_MEAN={
+ imie:{'Mam na imię Jan.':'My first name is Jan.','Mam na imię Anna.':'My first name is Anna.','Mam na imię Ian.':'My first name is Ian.','Jestem na imię Jan.':'✗ “I am as first name Jan”: use mam (I have)','Mam imię Jan.':'✗ missing na: Mam na imię …','Nazywam na imię Jan.':'✗ mixes nazywam się and mam na imię','Jestem z Belgii.':'I’m from Belgium: does not answer the question'},
+ nazwisko:{'Mam na nazwisko Kowalski.':'My surname is Kowalski.','Nazywam się Kowalski.':'My name is Kowalski.','Mam na nazwisko Nowak.':'My surname is Nowak.','Jestem na nazwisko Kowalski.':'✗ jestem (I am) does not work here: use mam','Mam nazwisko Kowalski.':'✗ missing na: Mam na nazwisko …','Nazywam na nazwisko Kowalski.':'✗ mixes nazywam się and mam na nazwisko','Mieszkam w Gandawie.':'I live in Ghent: does not answer the question'},
+ nazywa:{'Nazywam się Jan Kowalski.':'My name is Jan Kowalski.','Nazywam się Anna Nowak.':'My name is Anna Nowak.','Nazywam Jan Kowalski.':'✗ missing się: “I call Jan Kowalski”','Jestem się Jan Kowalski.':'✗ się does not go with jestem','Nazywasz się Jan Kowalski.':'Your name is Jan Kowalski: wrong person (ty-form)','Jestem z Polski.':'I’m from Poland: does not answer the question'},
+ ma:{'Świetnie, dziękuję.':'Great, thanks.','Dobrze, dziękuję.':'Fine, thanks.','Nieźle.':'Not bad.','Tak sobie.':'So-so.','Źle.':'Bad.','Jestem dobrze.':'✗ word for word “I am well”: Polish does not say this','Mam dobrze.':'✗ “I have well”: needs się (Mam się dobrze)','Dobry, dziękuję.':'✗ dobry = good (adjective); you need dobrze (well)','Mam na imię Jan.':'My first name is Jan: does not answer the question'},
+ skad:{'Jestem z Belgii.':'I’m from Belgium.','Jestem z Polski.':'I’m from Poland.','Jestem z Holandii.':'I’m from the Netherlands.','Jestem z Belgia.':'✗ after z the country changes: z Belgii','Jestem w Belgii.':'I am in Belgium: w = in, not from','Mieszkam z Belgii.':'✗ “I live from Belgium”','Jestem Belgii.':'✗ missing z (from)'},
+ gdzie:{'Mieszkam w Gandawie.':'I live in Ghent.','Mieszkam w Brukseli.':'I live in Brussels.','Mieszkam w Krakowie.':'I live in Kraków.','Mieszkam w Gandawa.':'✗ after w the city changes: w Gandawie','Mieszkam z Gandawie.':'✗ z = from; “in” is w','Mieszkam Gandawie.':'✗ missing w (in)','Jestem z Belgii.':'I’m from Belgium: does not say where you live'},
+ adres:{'Ulica Prosta 69.':'Prosta Street 69.','Aleja Wolności 5.':'Freedom Avenue 5.','Plac Zamkowy 1.':'Castle Square 1.','Mam na imię Jan.':'My first name is Jan: not an address','Jestem z Belgii.':'I’m from Belgium: not an address','Zero, cztery, siedem…':'Zero, four, seven…: a phone number'},
+ tel:{'Zero, cztery, siedem, pięć…':'Zero, four, seven, five…','Dwa, trzy, pięć, osiem…':'Two, three, five, eight…','Mam na imię Jan.':'My first name is Jan: not a number','Mieszkam w Gandawie.':'I live in Ghent: not a number','Ulica Prosta 69.':'Prosta Street 69: an address'},
+ slychac:{'Wszystko w porządku.':'Everything’s fine.','Dobrze, dziękuję.':'Fine, thanks.','Nieźle.':'Not bad.','Jestem w porządku.':'✗ word for word “I am fine”: not said like this','Mam na imię Jan.':'My first name is Jan: does not answer the question','Dobry.':'✗ dobry = good (adjective); say dobrze'}
+};
+function openQ(k,base){const o=OPEN[k],nv=Math.random()<.5?1:2,opts=shuffle([...shuffle(o.valid).slice(0,nv),...shuffle(o.bad).slice(0,4-nv)]);
+ return{...base,open:1,mean:OPEN_MEAN[k],valid:o.valid,options:opts,also:o.also,mcAnswer:o.valid[0],answer:`For example: ${o.valid[0]}`,sayAns:o.valid[0],
+  check:g=>{for(const [re,msg] of o.traps)if(re.test(g))return{res:'wrong',msg};const bad=nomTrap(k,g);if(bad)return{res:'wrong',msg:bad};
+   const r=patTest(o.pat,g);return r?{res:r}:{res:'wrong',msg:`Not a correct answer to this question. Check the spelling of each word. For example: ${o.valid[0]}`}}}}
+const free=(pat,k,ex)=>g=>{const bad=k&&nomTrap(k,g);if(bad)return{res:'wrong',msg:bad};const r=patTest(pat,g);return r?{res:r}:{res:'wrong',msg:`Answer with a full sentence, for example: ${ex}`}};
+
+QA.forEach(q=>{
+ add('qa',`qa:${q.k}:ans`,()=>{const ask=Math.random()<.5?q.inf:q.form;return openQ(q.k,{eyebrow:'Answer as yourself · any true answer counts',prompt:ask,say:sp(ask),sub:'Write a full sentence about you'})});
+ add('qa',`qa:${q.k}:en`,()=>({eyebrow:'Ask a friend (ty)',prompt:q.en,answer:q.inf,accept:[q.inf],options:mc(q.inf,QA.map(x=>x.inf)),sayAns:q.inf}));
+ add('qa',`qa:${q.k}:form`,()=>{const g=Math.random()<.5?'pan':'pani',f=q.form.replace('pan / pani',g),alts=q.formAlt.map(x=>x.replace('pan / pani',g));
+  return{eyebrow:'Make it formal',prompt:q.inf,say:q.inf,sub:`Ask the same question politely, to a ${g==='pan'?'man (pan)':'woman (pani)'}`,answer:f,accept:[f,...alts],options:shuffle([q.form,q.trap,...shuffle(QA.filter(x=>x!==q).map(x=>x.form)).slice(0,2)]),sayAns:f,note:FORMAL_NOTE}});
+ add('qa',`qa:${q.k}:inf`,()=>({eyebrow:'Make it informal · ty',prompt:q.form,say:sp(q.form),sub:'Ask the same question to a friend',answer:q.inf,accept:[q.inf],options:mc(q.inf,QA.map(x=>x.inf)),sayAns:q.inf}));
+ add('qa',`qa:${q.k}:3`,()=>{const he=Math.random()<.5,sw=t=>he?t.replace(/\bona\b/,'on'):t.replace(/\bon\b/,'ona');
+  const en=he?q.en3.replace('about her','about him').replace(/\bher\b/g,'his').replace(/\bshe\b/g,'he'):q.en3.replace('about him','about her').replace(/\bhis\b/g,'her').replace(/\bhe\b/g,'she');
+  const t3=sw(q.third);return{eyebrow:'Ask about someone · on / ona',prompt:en,answer:t3,accept:[t3,...q.thirdAlt.map(sw)],options:mc(q.third,QA.map(x=>x.third)),sayAns:t3}});
+ add('qa',`qa:${q.k}:a3`,()=>({eyebrow:'Answer about someone · translate',prompt:q.third,say:q.third,sub:`Answer in Polish: “${q.fact}”`,answer:q.ans3,...(q.pat3?{check:g=>q.pat3.test(g)?{res:'right'}:{res:'wrong'},mcAnswer:q.ans3}:{accept:[q.ans3,...q.acc3]}),options:mc(q.ans3,QA.map(x=>x.ans3)),sayAns:q.ans3}));
+});
+add('qa','qa:slychac',()=>openQ('slychac',{eyebrow:'Answer naturally · any fitting answer counts',prompt:'Co słychać?',say:'Co słychać?',sub:"How's it going?"}));
+add('qa','qa:milo',()=>({eyebrow:'Say it in Polish',prompt:'Nice to meet you.',answer:'Miło mi. / Bardzo mi miło.',accept:['Miło mi','Bardzo mi miło'],options:shuffle(['Miło mi. / Bardzo mi miło.','Nie rozumiem.','Mam pytanie!','Dobranoc.']),sayAns:'Bardzo mi miło.'}));
+
+Object.entries(VERBS).forEach(([inf,v])=>v.f.forEach((f,i)=>{add('verbs',`v:${inf}:${i}`,()=>{const p=pick(PERS[i]);const acc=[f];if(f.endsWith(' się'))acc.push('się '+f.replace(' się',''));
+ return{eyebrow:`${inf} · ${v.en}${v.fam==='am'?' · -am / -asz family':' · irregular'}`,prompt:`${p} ___`,sub:'Write the verb form',answer:f,accept:acc,options:mc(f,v.f),sayAns:`${p} ${f}`,note:v.note}});
+ const it=ITEMS[ITEMS.length-1];it.group=`verb:${inf}:${i<3?'sg':'pl'}`}));
+SENT.forEach(([s,a,v],i)=>add('verbs',`vs:${i}`,()=>({eyebrow:`${v} · fill the gap`,prompt:s,sub:'Write the missing verb',answer:a,accept:[a],options:mc(a,VERBS[v].f.map(x=>x.replace(' się',''))),sayAns:s.replace('___',a).replace(/\((ja|ty|my|wy)\) /,''),note:VERBS[v].note})));
+
+/* countries: 1) the structure “Jestem z …” once, 2) the genitive of each country, taught in small groups by ending */
+const KR_GROUPS={'kraje:ii':['Belgia','Anglia','Holandia','Flandria','Japonia'],'kraje:ji':['Hiszpania','Francja','Rosja'],'kraje:ki':['Polska','Ameryka','Niemcy','Włochy']};
+COUNTRIES.forEach(([en,pl,gen,alt])=>{const nom=pl.split(' · ')[0],g=gen.replace(/^ze? /,'');
+ add('kraje',`kr:${pl}:g`,()=>({eyebrow:'Kraje · from which country?',prompt:pick([`${nom} → z ___`,`Jestem z ___ (${nom}).`,`On jest z ___ (${nom}).`,`Ona jest z ___ (${nom}).`]),sub:`${en}: write the form after z`,answer:g,accept:[g,gen,...(alt||[]),...(alt||[]).map(x=>x.replace(/^ze? /,''))],options:mc(g,COUNTRIES.map(c=>c[2].replace(/^ze? /,''))),sayAns:gen}));
+ ITEMS[ITEMS.length-1].group=Object.keys(KR_GROUPS).find(k=>KR_GROUPS[k].includes(nom))});
+const metCountries=()=>{const m=COUNTRIES.filter(c=>S[`kr:${c[1]}:g`]);return m.length?m:COUNTRIES.filter(c=>c[1]==='Belgia'||c[1]==='Polska')};
+add('kraje','kr:s:ja',()=>{const [en,pl,gen]=pick(metCountries());return{eyebrow:'Skąd jesteś? · the structure',prompt:`I'm from ${en}.`,answer:`Jestem ${gen}.`,accept:[`Jestem ${gen}`],options:shuffle([`Jestem ${gen}.`,`Jestem w ${gen.replace(/^ze? /,'')}.`,`Jestem ${pl.split(' · ')[0]}.`,`Mieszkam ${gen}.`]),sayAns:`Jestem ${gen}.`,note:'Jestem z + the country in the genitive.'}});
+add('kraje','kr:s:on',()=>{const [en,pl,gen]=pick(metCountries()),he=Math.random()<.5;const pr=he?'On':'Ona';return{eyebrow:'Skąd on / ona jest? · the structure',prompt:`${he?'He':'She'} is from ${en}.`,answer:`${pr} jest ${gen}.`,accept:[`${pr} jest ${gen}`,`Jest ${gen}`],options:shuffle([`${pr} jest ${gen}.`,`${pr} jestem ${gen}.`,`${pr} jest ${pl.split(' · ')[0]}.`,`${pr} jest w ${gen.replace(/^ze? /,'')}.`]),sayAns:`${pr} jest ${gen}.`,note:'jest for on / ona; the country stays in the genitive after z.'}});
+CITIES.forEach(([en,pl,loc])=>add('kraje',`city:${pl}`,()=>{const [e,p2]=pick([['I live','Mieszkam'],['She lives','Ona mieszka'],['He lives','On mieszka'],['We live','Mieszkamy']]);return{eyebrow:'Gdzie mieszka?',prompt:`${e} in ${en}.`,sub:`${pl}`,answer:`${p2} ${loc}.`,accept:[`${p2} ${loc}`,loc,...(p2.includes(' ')?[`${p2.split(' ')[1]} ${loc}`]:[])],options:mc(`Mieszkam ${loc}.`,CITIES.map(c=>`Mieszkam ${c[2]}.`)),sayAns:`${p2} ${loc}.`,note:`${pl} → ${loc}`}}));
+
+NUMS.forEach((w,n)=>add('num',`n:${n}`,st=>(st==='write'||Math.random()<.65)
+ ?{eyebrow:'Liczby · write the word',prompt:String(n),big:1,answer:w,accept:[w],options:mc(w,NUMS),sayAns:w}
+ :{eyebrow:'Liczby · which number?',prompt:w,say:w,answer:String(n),accept:[String(n)],options:mc(String(n),NUMS.map((_,i)=>String(i))),sayAns:w}));
+for(let k=0;k<5;k++)add('num',`ile:${k}`,()=>{let a,b,op,r;do{a=Math.random()*11|0;b=Math.random()*11|0;op=Math.random()<.6?'+':'−';r=op==='+'?a+b:a-b}while(r<0||r>10);const q=`Ile jest ${NUMS[a]} ${op==='+'?'plus':'minus'} ${NUMS[b]}?`;return{eyebrow:'Ile jest…? · write the result as a word',prompt:q,say:q,answer:NUMS[r],accept:[NUMS[r]],options:mc(NUMS[r],NUMS),sayAns:NUMS[r],note:`${a} ${op} ${b} = ${r}`}});
+
+CLASS.forEach(([pl,en],i)=>add('klasa',`cl:${i}`,st=>(st==='write'||Math.random()<.65)
+ ?{eyebrow:'Say it in Polish',prompt:en,answer:pl,accept:acceptOf(pl),options:mc(pl,CLASS.map(c=>c[0])),sayAns:sp(pl)}
+ :{eyebrow:'What does it mean?',prompt:pl,say:sp(pl),answer:en,reveal:1,options:mc(en,CLASS.map(c=>c[1])),sayAns:sp(pl)}));
+WORDS.forEach(([pl,en],i)=>add('words',`w:${i}`,st=>(st==='write'||Math.random()<.65)
+ ?{eyebrow:'Say it in Polish',prompt:en,answer:pl,accept:[pl],options:mc(pl,WORDS.map(c=>c[0])),sayAns:pl}
+ :{eyebrow:'What does it mean?',prompt:pl,say:pl,answer:en,reveal:1,options:mc(en,WORDS.map(c=>c[1])),sayAns:pl}));
+ABBR.forEach(([ab,full])=>add('words',`ab:${ab}`,()=>({eyebrow:'On an address, write out…',prompt:ab,big:1,answer:full,accept:[full],options:shuffle(ABBR.map(a=>a[1])),sayAns:full})));
+/* oni / one: one rule, taught as one group card; 5 distinct cases */
+const ONI_KEEP=[0,1,3,4,6],ONI_WHY={0:'two women',1:'a man and a woman',3:'two men',4:'a man and a woman (formal)',6:'a woman and a child'};
+ONI.forEach(([who,a],i)=>ONI_KEEP.includes(i)&&add('words',`oni:${i}`,()=>({eyebrow:'Oni czy one?',prompt:`(${who}) ___ są z Polski.`,answer:a,accept:[a],options:['Oni','One'],sayAns:`${a} są z Polski.`,note:'oni = men or a mixed group · one = only women, children, animals, things'})));
+PRON_CORE.forEach(([en,pl],i)=>{add('words',`pn:${pl}`,()=>({eyebrow:'Zaimki · say it in Polish',prompt:en,answer:pl,accept:[pl],options:mc(pl,PRON_CORE.map(x=>x[1])),sayAns:pl,note:pl==='oni'||pl==='one'?'oni as soon as one man is in the group; one only when there is no man.':null}));ITEMS[ITEMS.length-1].group=i<5?'pron:sg':'pron:pl'});
+FORMAL.forEach(([en,pl])=>{add('words',`pf:${pl}`,()=>({eyebrow:'Formal “you” · say it in Polish',prompt:`“you”, formal: ${en}`,answer:pl,accept:[pl],options:mc(pl,FORMAL.map(x=>x[1])),sayAns:pl,note:'A noun, not a pronoun: the verb takes the on / ona form with pan, pani, and the oni form with państwo, panowie, panie.'}));ITEMS[ITEMS.length-1].group='formal'});
+/* blocks: things taught together */
+/* only grammar sets are taught as groups: verb forms, pronouns, numbers */
+const CL_GROUPS={};
+ITEMS.forEach(it=>{let m;
+ if((m=it.id.match(/^cl:(\d+)$/))){const g=Object.keys(CL_GROUPS).find(k=>CL_GROUPS[k].includes(+m[1]));if(g)it.group='cl:'+g}
+ if(/^oni:/.test(it.id))it.group='oni';
+ if(/^ile:/.test(it.id))it.group='ile';
+ if((m=it.id.match(/^n:(\d+)$/))&&+m[1]>0)it.group=+m[1]<=5?'num:1-5':'num:6-10';
+
+ if(it.group){it.block=it.group;it.member=1}
+ if(/^city:/.test(it.id)||/^qa:gdzie:(ans|a3)$/.test(it.id))it.block='miasta';
+ /* kind of knowledge: word (own card, warm-up), set (group card, warm-up), pattern (one concept card, then straight to writing) */
+ if(/^qa:[a-z]+:form$/.test(it.id)){it.pattern=1;it.block='cf:formal'}
+ if(/^qa:[a-z]+:(3|a3)$/.test(it.id)){it.pattern=1;it.block=it.block==='miasta'?'miasta':'cf:third'}
+ if(/^vs:/.test(it.id)){it.pattern=1;it.block='cf:sentence'}
+ if(/^(ile:|oni:|kr:)/.test(it.id))it.pattern=1;
+ it.kind=it.pattern?'pattern':it.group?'set':'word'});
+
+/* ---------- the learning path: small steps, in this order ---------- */
+const STAGES=[
+ {n:'Powitania',en:'greetings',m:/^cl:(1[3-9]|2[01])$/},
+ {n:'Imię i nazwisko',en:'asking and giving your name',m:/^(w:[45]|qa:(imie|nazwisko|nazywa):(en|ans))$/},
+ {n:'być · zaimki · 0–10',en:'to be, pronouns, numbers',m:/^(v:być:\d|pn:.*|n:\d+)$/},
+ {n:'Jak się masz? Skąd jesteś?',en:'how are you, where are you from',m:/^(qa:(ma|skad):(en|ans)|qa:slychac|qa:milo|cl:2[23]|kr:s:ja|w:6)$/},
+ {n:'mieć · mieszkać · adres',en:'to have, to live, your address',m:/^(v:(mieć|mieszkać|nazywać się):|city:|qa:(gdzie|adres):(en|ans)$|w:[0-37]$|ab:)/},
+ {n:'Kraje · telefon · w klasie',en:'all countries, phone, classroom phrases',m:/^(kr:.*:g$|qa:tel:(en|ans)$|cl:|ile:|w:)/},
+ {n:'pan / pani',en:'the formal questions',m:/^(pf:.*|qa:.*:(form|inf))$/},
+ {n:'on / ona · oni / one',en:'talking about others, full sentences',m:/^(qa:.*:(3|a3)$|oni:|vs:|kr:s:on$)/},
+ {n:'Bonus',en:'czytać, pytać, przepraszać',m:/./}
+];
+/* duplicates of other terms (same exercise, same answer) are left out */
+const DUPES=/^(qa:milo|qa:[a-z]+:inf|kr:s:ja|kr:s:on|cl:23)$/;
+for(let i=ITEMS.length-1;i>=0;i--)if(DUPES.test(ITEMS[i].id))ITEMS.splice(i,1);
+ITEMS.forEach((it,i)=>{it.stage=STAGES.findIndex(s=>s.m.test(it.id));it.pos=i});
+const ORDER=ITEMS.slice().sort((a,b)=>a.stage-b.stage||a.pos-b.pos);
+
+/* ---------- progress (stored on this phone only) ---------- */
+let S={};try{S=JSON.parse(localStorage.getItem('pl-test1')||'{}')||{}}catch(e){S={}}
+const saveLocal=()=>{try{localStorage.setItem('pl-test1',JSON.stringify(S))}catch(e){}};
+const save=()=>{saveLocal();scheduleSync();if(window.onProgressSaved)window.onProgressSaved()};
+
+/* ---------- account sync: one private progress document per person ---------- */
+let cloud=null,cloudBusy=false,cloudDirty=false,cloudTimer=null,cloudRetried=false,syncState='local',view='home';
+function scheduleSync(){if(!cloud)return;cloudDirty=true;clearTimeout(cloudTimer);cloudTimer=setTimeout(pushCloud,1500)}
+async function pushCloud(){
+ if(!cloud||cloudBusy||!cloudDirty)return;cloudBusy=true;cloudDirty=false;
+ try{await cloud.set({s:S,at:Date.now()});syncState='cloud';cloudRetried=false}
+ catch(e){const c=e&&e.code;
+  if(c==='unavailable'&&!cloudRetried){cloudRetried=true;cloudDirty=true;cloudBusy=false;setTimeout(pushCloud,1500+Math.random()*1500);return}
+  syncState='local';if(c&&c!=='unavailable'&&c!=='resource_exhausted')cloud=null}
+ cloudBusy=false;updSync();if(cloudDirty)scheduleSync()}
+function mergeS(a,b){const out={};
+ new Set([...Object.keys(a),...Object.keys(b)]).forEach(k=>{if(k[0]==='_')return;const x=a[k],y=b[k];
+  out[k]=!x?{...y}:!y?{...x}:(y.n>x.n||(y.n===x.n&&y.b>x.b))?{...y}:{...x}});
+ const t=dayKey(),da=a._d&&a._d.d===t?a._d.n:0,db_=b._d&&b._d.d===t?b._d.n:0;
+ if(da||db_)out._d={d:t,n:Math.max(da,db_)};
+ const r=Math.max(a._r||0,b._r||0);if(r)out._r=r;
+ const ta=a._t&&a._t.d===t?a._t:null,tb=b._t&&b._t.d===t?b._t:null;
+ if(tb||ta)out._t={...(tb||ta),r:Math.max(ta?ta.r:0,tb?tb.r:0)};const pc=a._p||b._p;if(pc)out._p=pc;const mx=a._mix||b._mix;if(mx)out._mix=mx;['_hide','_show'].forEach(k=>{if(a[k]||b[k])out[k]={...(b[k]||{}),...(a[k]||{})}});const ac=a._acc||b._acc;if(ac)out._acc=ac;
+ if(a._bk||b._bk)out._bk={...(a._bk||{}),...(b._bk||{})};const sd=a._seed||b._seed;if(sd)out._seed=sd;return out}
+function updSync(){const el=document.getElementById('sync');if(el)el.textContent=syncState==='cloud'?'Progress saved to your Claude account, so it follows you to any device.':'Progress saved on this device only.'}
+(async()=>{try{
+ if(!window.claude||!window.claude.use)return;
+ const [user,db]=await Promise.all([claude.use('user'),claude.use('db')]);if(!user||!db)return;
+ const uid=await user.id();if(!uid)return;
+ const ref=db.doc('data/users/'+uid+'/progress');
+ const snap=await ref.get();const remote=snap.exists?((snap.data()||{}).s||{}):{};
+ const merged=mergeS(S,remote);const changed=JSON.stringify(merged)!==JSON.stringify(remote);
+ S=merged;saveLocal();cloud=ref;syncState='cloud';
+ if(changed){cloudDirty=true;pushCloud()}
+ if(view==='home'&&!sess)home();else updSync();
+}catch(e){}})();
+const box=id=>S[id]?S[id].b:-1;
+const weight=id=>{const b=box(id);return b<0?2.5:[4,2.5,1,.5,.25][Math.min(b,4)]};
+/* a term counts as known at level 2+, and only fully while it has no fresh mistakes */
+const isKnown=id=>box(id)>=2&&!(S[id].ws>0);
+const mastery=its=>its.reduce((s,it)=>s+Math.min(Math.max(box(it.id),0),2)/2*(S[it.id]&&S[it.id].ws?0.5:1),0)/its.length;
+const GRADES=[[.9,6,'celujący'],[.75,5,'bardzo dobry'],[.6,4,'dobry'],[.45,3,'dostateczny'],[.3,2,'dopuszczający'],[0,1,'niedostateczny']];
+const gradeOf=m=>{const g=GRADES.find(g=>m>=g[0]);return{n:g[1],name:g[2]}};
+const weakItems=()=>ITEMS.filter(it=>S[it.id]&&S[it.id].w>0&&(S[it.id].b<2||S[it.id].ws>0));
+const dayKey=()=>{const d=new Date();return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`};
+const todayCount=()=>S._d&&S._d.d===dayKey()?S._d.n:0;
+/* spacing: a right answer sits out 1, 2, 4, 7… rounds; a mistake is due again right away */
+const round=()=>S._r||0;
+/* round mix: new / mistakes to fix / review of last-time-right; 20 written answers by default */
+const DEF_MIX={n:8,m:8,c:4};const mix=()=>({...DEF_MIX,...(S._mix||{})}),pace=()=>mix().n;
+const GAP=[0,1,2,4,7,12,20];
+/* right: up a level · wrong: back next round, and down one level only after 3 wrong in a row ·
+   minor slip (accent, hint): no change in level */
+/* written evidence is per word: writing “trzy” in a sum also shows you know 3 → trzy */
+let AIDX=null;
+function creditSame(id,given){if(typeof answerKey!=='function')return;if(!AIDX){AIDX=new Map();ITEMS.forEach(it=>{const k=answerKey(it);if(k)(AIDX.get(k)||AIDX.set(k,[]).get(k)).push(it.id)})}
+ const it=ITEMS.find(x=>x.id===id);const keys=new Set([it&&answerKey(it),given?strip(norm(given)):null].filter(Boolean));
+ keys.forEach(k=>(AIDX.get(k)||[]).forEach(o=>{if(o===id)return;const t=S[o];if(t&&t.lr)return;S[o]={...(t||{b:0,n:0,w:0,f:dayKey(),due:round()+1}),b:Math.max(t?t.b:0,1),cr:1,dr:0}}))}
+function record(id,res,given){const s=S[id]||{b:0,n:0,w:0,f:dayKey()};s.n++;
+ if(res==='right'){s.b=Math.min(s.b+1,6);s.ws=0;s.dr=0;s.due=round()+1+GAP[s.b];s.lr='r';S[id]=s;try{creditSame(id,given)}catch(e){}}
+ else if(res==='wrong'){s.w++;s.ws=(s.ws||0)+1;if(s.ws>=3){s.b=Math.max(0,s.b-1);s.ws=0;s.dr=1}s.due=round();s.lr='w'}
+ else{s.due=round()+1;s.lr='w'}
+ S[id]=s;S._d={d:dayKey(),n:todayCount()+1};save()}
+const dueNow=it=>S[it.id]&&(S[it.id].due??0)<=round();
+function wsample(items,n){const pool=items.map(it=>({it,w:weight(it.id)}));const out=[];
+ while(out.length<n&&pool.length){let t=pool.reduce((s,p)=>s+p.w,0),r=Math.random()*t,k=0;for(;k<pool.length-1;k++){r-=pool[k].w;if(r<=0)break}out.push(pool.splice(k,1)[0].it)}return out}
+const daysLeft=()=>{const n=new Date();return Math.round((new Date(2026,9,26)-new Date(n.getFullYear(),n.getMonth(),n.getDate()))/864e5)};
+function countdown(){const d=daysLeft();
+ return d>1?`<b>in ${d} days</b>`:d===1?'<b>tomorrow</b>':d===0?'<b>today</b>':'done'}
+
+/* ---------- speech (uses the phone's Polish voice when it has one) ---------- */
+const canSpeak='speechSynthesis' in window;let plVoice=null;
+function loadVoices(){try{const v=speechSynthesis.getVoices();plVoice=v.find(x=>/^pl/i.test(x.lang))||null}catch(e){}}
+if(canSpeak){loadVoices();try{speechSynthesis.onvoiceschanged=loadVoices}catch(e){}}
+function say(t){if(!canSpeak||!t)return;try{const u=new SpeechSynthesisUtterance(t);u.lang='pl-PL';if(plVoice)u.voice=plVoice;u.rate=.88;speechSynthesis.cancel();speechSynthesis.speak(u)}catch(e){}}
+const SPK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4z" fill="currentColor"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>';
+const spkBtn=t=>canSpeak&&t?`<button class="spk" data-say="${esc(t)}" aria-label="Play audio">${SPK}</button>`:'';
+let autoAudio=true;try{autoAudio=localStorage.getItem('pl-test1-audio')!=='0'}catch(e){}
+
+/* ---------- word glosses (tap or hover a Polish word on teaching screens) ----------
+   Each entry: "meaning | which form of which word | why this form here" (later parts optional). */
+const GL={
+/* pronouns */
+'ja':'I|personal pronoun, “I”','ty':'you (one person, informal)|personal pronoun|for friends, family, children; formal is pan / pani',
+'on':'he|personal pronoun','ona':'she|personal pronoun','ono':'it|personal pronoun|used for neuter nouns, e.g. dziecko (child)',
+'my':'we|personal pronoun','wy':'you (several people, informal)|personal pronoun, plural of ty',
+'oni':'they (men, or a mixed group)|pronoun, plural|used as soon as at least one man is in the group',
+'one':'they (no men in the group)|pronoun, plural|women, children, animals, things',
+'pan':'you (formal, to a man) · Mr|a noun, not a pronoun|that is why the verb takes the on / ona form: pan jest, pan ma',
+'pani':'you (formal, to a woman) · Mrs / Ms|a noun, not a pronoun|that is why the verb takes the on / ona form: pani jest, pani ma',
+'państwo':'you (formal, a mixed group) · Mr and Mrs …|a noun, used like oni|the verb takes the oni form: państwo są, państwo mają',
+'panowie':'gentlemen · you (formal, several men)|plural of pan|verb in the oni form','panie':'ladies · you (formal, several women)|plural of pani|verb in the oni form',
+/* być */
+'być':'to be|infinitive (dictionary form)|irregular verb: learn its six forms by heart',
+'jestem':'I am|być, ja-form','jesteś':'you are|być, ty-form','jest':'is (he / she / it is)|być, on / ona-form|also used with pan / pani: pan jest = you are',
+'jesteśmy':'we are|być, my-form','jesteście':'you (all) are|być, wy-form','są':'they are|być, oni / one-form|also used with państwo',
+/* mieć */
+'mieć':'to have|infinitive|forms follow the -am / -asz pattern: mam, masz, ma…',
+'mam':'I have|mieć, ja-form','masz':'you have|mieć, ty-form','ma':'has (he / she has)|mieć, on / ona-form|also with pan / pani: pan ma = you have',
+'mamy':'we have|mieć, my-form','macie':'you (all) have|mieć, wy-form','mają':'they have|mieć, oni / one-form',
+/* mieszkać, nazywać się */
+'mieszkać':'to live (reside)|infinitive|-am / -asz group: mieszkam, mieszkasz, mieszka…',
+'mieszkam':'I live|mieszkać, ja-form','mieszkasz':'you live|mieszkać, ty-form','mieszka':'lives (he / she lives)|mieszkać, on / ona-form|also with pan / pani',
+'mieszkamy':'we live|mieszkać, my-form','mieszkacie':'you (all) live|mieszkać, wy-form','mieszkają':'they live|mieszkać, oni / one-form',
+'nazywać':'to call|infinitive|nazywać się = to be called (literally “to call oneself”)',
+'nazywam':'I am called|nazywać się, ja-form|literally “I call myself”','nazywasz':'you are called|nazywać się, ty-form',
+'nazywa':'is called|nazywać się, on / ona-form|also with pan / pani','nazywamy':'we are called|nazywać się, my-form',
+'nazywacie':'you (all) are called|nazywać się, wy-form','nazywają':'they are called|nazywać się, oni / one-form',
+'się':'oneself (myself, yourself…)|reflexive pronoun, never changes form|makes a verb reflexive; it can stand before or after the verb',
+/* bonus verbs */
+'czytać':'to read|infinitive, -am / -asz group','czytam':'I read|czytać, ja-form','czytasz':'you read|czytać, ty-form','czyta':'reads|czytać, on / ona-form','czytamy':'we read|czytać, my-form','czytacie':'you (all) read|czytać, wy-form','czytają':'they read|czytać, oni / one-form',
+'pytać':'to ask|infinitive, -am / -asz group','pytam':'I ask|pytać, ja-form','pytasz':'you ask|pytać, ty-form','pyta':'asks|pytać, on / ona-form','pytamy':'we ask|pytać, my-form','pytacie':'you (all) ask|pytać, wy-form','pytają':'they ask|pytać, oni / one-form',
+'przepraszać':'to apologise|infinitive, -am / -asz group','przepraszam':'sorry · excuse me|przepraszać, ja-form|literally “I apologise”',
+'przepraszasz':'you apologise|przepraszać, ty-form','przeprasza':'apologises|przepraszać, on / ona-form','przepraszamy':'we apologise|przepraszać, my-form','przepraszacie':'you (all) apologise|przepraszać, wy-form','przepraszają':'they apologise|przepraszać, oni / one-form',
+/* question words */
+'jak':'how|question word',
+'jaki':'what · which (what kind of)|question word, masculine form|masculine because adres and numer are masculine nouns; with a feminine noun it is jaka',
+'skąd':'where from|question word|answer with z + genitive: z Belgii',
+'gdzie':'where|question word (location)|answer with w + locative: w Gandawie',
+'co':'what|question word','kto':'who|question word','ile':'how much · how many|question word',
+'czy':'(marks a yes / no question)|question particle, no English equivalent|like “est-ce que” in French: Czy macie auto? = Do you have a car?',
+/* name, address */
+'na':'on · onto|preposition|its basic meaning; in mam na imię it means “as” (see that phrase)',
+'imię':'first name|noun, neuter','nazwisko':'surname|noun, neuter (ends in -o)',
+'adres':'address|noun, masculine','numer':'number|noun, masculine',
+'telefonu':'of the phone|telefon (phone) in the genitive|genitive = “of”: numer telefonu is “number of the phone”',
+'telefon':'phone|noun, masculine (dictionary form)',
+/* prepositions */
+'z':'from (out of)|preposition, always followed by the genitive|that is why countries change: Polska → z Polski, Belgia → z Belgii',
+'ze':'from|z with an extra e|added before awkward consonant clusters: ze Stanów',
+'w':'in|preposition, followed by the locative for “where”|that is why places change: Gandawa → w Gandawie, Kraków → w Krakowie',
+'we':'in|w with an extra e|added before awkward clusters: we Wrocławiu (w + Wr is hard to say)',
+'do':'to · until|preposition, always followed by the genitive|do widzenia = until seeing (again)',
+'po':'after · (po polsku) in Polish|preposition|po + -sku form = “in [language]”: po polsku, po niderlandzku',
+'i':'and|conjunction','to':'this · it|pronoun|Co to znaczy? = What does this mean?','nie':'no · not|negation','tak':'yes',
+/* greetings and classroom */
+'dzień':'day|noun, masculine|Dzień dobry = good day = hello (formal, until evening)',
+'dobry':'good|adjective, masculine|masculine to agree with dzień',
+'widzenia':'seeing|widzenie (seeing) in the genitive|genitive because of do: do widzenia = until seeing (again) = goodbye',
+'cześć':'hi · bye (informal)|interjection|literally “honour”; only with people you say ty to',
+'dobranoc':'good night|dobra (good) + noc (night) written as one word|said when going to bed',
+'dziękuję':'thank you|dziękować, ja-form|literally “I thank”',
+'proszę':'please · here you are · you’re welcome|prosić, ja-form|literally “I ask”; proszę + infinitive is a polite request: Proszę powtórzyć = Please repeat',
+'rozumiem':'I understand|rozumieć, ja-form (-em group)','wiem':'I know|wiedzieć, ja-form (irregular)',
+'znaczy':'means|znaczyć, on / ona-form|Co to znaczy? = What does this mean?',
+'polsku':'Polish (po polsku = in Polish)|special form used only after po|po + -sku means “in [language]”',
+'niderlandzku':'Dutch (po niderlandzku = in Dutch)|special form used only after po',
+'mówić':'to speak|infinitive|after proszę the verb stays in the infinitive','wolniej':'more slowly|comparative of wolno (slowly)',
+'napisać':'to write (down)|infinitive|after proszę the verb stays in the infinitive','przeczytać':'to read (out)|infinitive|after proszę the verb stays in the infinitive',
+'powtórzyć':'to repeat|infinitive|after proszę the verb stays in the infinitive','przeliterować':'to spell|infinitive|after proszę the verb stays in the infinitive',
+'pytanie':'question|noun, neuter (from pytać, to ask)','toaleta':'toilet|noun, feminine','sekretariat':'(school) office|noun, masculine',
+'odpowiedź':'answer|noun, feminine','kontakt':'contact|noun, masculine','oficjalny':'formal · official|adjective','nieoficjalny':'informal|adjective, nie + oficjalny',
+'wszystko':'everything|pronoun','porządku':'order|porządek (order) in the locative|locative because of w: w porządku = “in order” = fine, OK',
+'słychać':'(it can be) heard|impersonal verb form|Co słychać? = “What is heard?” = How’s it going?',
+'miło':'nice · pleasant|adverb of miły (nice)|Miło mi = “(it is) pleasant to me” = nice to meet you',
+'mi':'(to) me|ja in the dative|dative = “to me”: miło mi = pleasant to me','bardzo':'very',
+'dobrze':'well · fine|adverb of dobry (good)','nieźle':'not bad|adverb: nie + źle (badly)','źle':'badly · bad|adverb, the opposite of dobrze','sobie':'(tak sobie) so-so|tak sobie = “so so”','super':'super · great|informal','świetnie':'great · excellently|adverb of świetny (great)',
+/* address words */
+'ulica':'street|noun, feminine','ul':'street|abbreviation of ulica','aleja':'avenue|noun, feminine','al':'avenue|abbreviation of aleja',
+'osiedle':'housing estate|noun, neuter','os':'housing estate|abbreviation of osiedle','plac':'square|noun, masculine','pl':'square|abbreviation of plac',
+'kraj':'country|noun, masculine','miasto':'city · town|noun, neuter',
+'prosta':'straight|adjective, feminine|a street name: ulica Prosta = Straight Street; feminine to agree with ulica',
+'mickiewicza':'of Mickiewicz|Mickiewicz (Poland’s national poet) in the genitive|streets named after people use the genitive: “street of Mickiewicz”',
+/* countries: dictionary form */
+'belgia':'Belgium','niemcy':'Germany|plural-only noun|literally “the Germans”',
+'anglia':'England','francja':'France','włochy':'Italy|plural-only noun','japonia':'Japan','holandia':'the Netherlands','polska':'Poland',
+'rosja':'Russia','hiszpania':'Spain','ameryka':'America','stany':'states|plural of stan|Stany Zjednoczone = the United States','zjednoczone':'united|adjective, plural','flandria':'Flanders',
+/* countries after z: genitive */
+'belgii':'Belgium|Belgia in the genitive|genitive because of z (from): -ia → -ii',
+'niemiec':'Germany|Niemcy in the genitive (plural)|genitive because of z (from); Niemcy is plural, so this is genitive plural',
+'anglii':'England|Anglia in the genitive|genitive because of z (from): -ia → -ii','francji':'France|Francja in the genitive|genitive because of z (from): -ja → -ji',
+'włoch':'Italy|Włochy in the genitive (plural)|genitive because of z (from); Włochy is plural','japonii':'Japan|Japonia in the genitive|genitive because of z (from): -ia → -ii',
+'holandii':'the Netherlands|Holandia in the genitive|genitive because of z (from): -ia → -ii',
+'polski':'Poland · Polish|Polska in the genitive|genitive because of z (from): -ka → -ki. Also the adjective “Polish”',
+'rosji':'Russia|Rosja in the genitive|genitive because of z (from): -ja → -ji','hiszpanii':'Spain|Hiszpania in the genitive|genitive because of z (from): -ia → -ii',
+'ameryki':'America|Ameryka in the genitive|genitive because of z (from): -ka → -ki',
+'stanów':'states|Stany in the genitive plural|genitive because of ze (from): ze Stanów Zjednoczonych = from the USA',
+'zjednoczonych':'united|zjednoczone in the genitive plural|agrees with Stanów',
+'flandrii':'Flanders|Flandria in the genitive|genitive because of z (from): -ia → -ii',
+/* cities: dictionary form */
+'gandawa':'Ghent','bruksela':'Brussels','antwerpia':'Antwerp','warszawa':'Warsaw','kraków':'Kraków','gdańsk':'Gdańsk','poznań':'Poznań','łódź':'Łódź','wrocław':'Wrocław','tokio':'Tokyo|does not change form',
+/* cities after w: locative */
+'gandawie':'Ghent|Gandawa in the locative|locative because w (in) says where: -wa → -wie',
+'brukseli':'Brussels|Bruksela in the locative|locative because w (in) says where: -la → -li',
+'antwerpii':'Antwerp|Antwerpia in the locative|locative because w (in) says where: -ia → -ii',
+'warszawie':'Warsaw|Warszawa in the locative|locative because w (in) says where: -wa → -wie',
+'krakowie':'Kraków|Kraków in the locative|locative because w (in) says where: ó → o, + -ie',
+'gdańsku':'Gdańsk|Gdańsk in the locative|locative because w (in) says where: + -u after k',
+'poznaniu':'Poznań|Poznań in the locative|locative because w (in) says where: -ń → -niu',
+'łodzi':'Łódź|Łódź in the locative|locative because w (in) says where: ó → o, dź → dzi',
+'wrocławiu':'Wrocław|Wrocław in the locative|locative because we (in) says where: + -iu',
+'barcelonie':'Barcelona|Barcelona in the locative|locative because w (in) says where: -na → -nie','berlinie':'Berlin|Berlin in the locative|locative because w (in) says where',
+'nowym':'New|nowy (new) in the locative|agrees with Jorku: w Nowym Jorku = in New York','jorku':'York|Jork in the locative|locative because w (in) says where',
+'rzymie':'Rome|Rzym in the locative|locative because w (in) says where','moskwie':'Moscow|Moskwa in the locative|locative because w (in) says where',
+'paryżu':'Paris|Paryż in the locative|locative because w (in) says where','londynie':'London|Londyn in the locative|locative because w (in) says where',
+/* numbers */
+'zero':'zero · 0','jeden':'one · 1','dwa':'two · 2','trzy':'three · 3','cztery':'four · 4','pięć':'five · 5','sześć':'six · 6','siedem':'seven · 7','osiem':'eight · 8','dziewięć':'nine · 9','dziesięć':'ten · 10','plus':'plus','minus':'minus',
+/* sentence words */
+'teraz':'now','problem':'problem|noun, masculine','dom':'house · home|noun, masculine','nowe':'new|adjective, neuter|neuter to agree with auto',
+'auto':'car|noun, neuter','dzisiaj':'today','dziecko':'child|noun, neuter|neuter, so a group of women and children is one',
+'kowalski':'Kowalski|a common Polish surname','nowak':'Nowak|the most common Polish surname'
+};
+/* meanings that depend on the neighbouring words */
+const NAZ=/^nazyw/,MIEC=/^(mam|masz|ma|mamy|macie|mają)$/;
+function glCtx(w,p,n,p2,n2){
+ if(w==='na'&&(n==='imię'||n==='nazwisko'))return `as (here)|preposition, basic meaning “on”|fixed expression: mam na ${n} = “I have as ${n==='imię'?'first name':'surname'}” = my ${n==='imię'?'first name':'surname'} is. The noun after it is accusative, which for ${n} looks the same as the dictionary form`;
+ if((w==='imię'||w==='nazwisko')&&p==='na')return `${w==='imię'?'first name':'surname'}|${w} in the accusative (same as the dictionary form)|accusative because of na in the fixed expression mam na ${w}`;
+ if(MIEC.test(w)&&(n==='na'||(n2==='na'&&/^(pan|pani|on|ona)$/.test(n))))return GL[w].split('|')[0]+`|mieć, ${GL[w].split('|')[1].split(', ')[1]}|mieć … na imię is how Polish asks and gives names: “have as first name”`;
+ if(w==='się'&&[p,n,p2,n2].some(x=>x&&NAZ.test(x)))return 'oneself|reflexive pronoun, never changes form|nazywać się = “to call oneself” = to be called';
+ if(w==='się'&&[p,n,p2,n2].some(x=>x&&MIEC.test(x)))return 'oneself|reflexive pronoun, never changes form|mieć się = “to have oneself” = to be doing: Jak się masz? = How are you?';
+ if(MIEC.test(w)&&(p==='się'||p2==='się'))return GL[w].split('|')[0]+`|mieć, ${GL[w].split('|')[1].split(', ')[1]}|with się it means “to be doing”: Jak się masz? = How are you?`;
+ if(w==='jak'&&n2==='na')return 'how|question word|Jak masz na imię? is literally “How do you have as a first name?”';
+ if(w==='jak'&&n==='się'&&MIEC.test(n2||''))return 'how|question word|Jak się masz? = How are you? (literally “How do you have yourself?”)';
+ if(w==='jaki'&&(n==='numer'||n==='adres'||n2==='numer'||n2==='adres'))return GL.jaki;
+ if(w==='mi'&&p==='miło')return GL.mi;
+ return null}
+const PL_LETTER=/([A-Za-zÀ-ÿĄąĆćĘęŁłŃńÓóŚśŹźŻż]+)/;
+function gl(t){const parts=String(t).split(PL_LETTER);const words=[];parts.forEach((p,i)=>{if(i%2)words.push(i)});
+ return parts.map((p,i)=>{if(i%2===0)return esc(p);const k=words.indexOf(i),lw=j=>words[j]!=null?parts[words[j]].toLowerCase():null;
+  const w=p.toLowerCase(),g=glCtx(w,lw(k-1),lw(k+1),lw(k-2),lw(k+2))||GL[w];
+  return g?`<span class="gw" tabindex="0" data-g="${esc(g)}">${esc(p)}</span>`:esc(p)}).join('')}
+const tip=document.createElement('div');tip.id='tip';tip.setAttribute('role','tooltip');tip.hidden=true;document.body.appendChild(tip);let tipOn=null;
+let tipAt=0;
+function showTip(el){tipAt=Date.now();if(tipOn)tipOn.classList.remove('on');tipOn=el;el.classList.add('on');
+ const [m,f,y]=el.dataset.g.split('|');tip.innerHTML=`<b>${esc(m)}</b>${f?`<span class="tf">${esc(f)}</span>`:''}${y?`<span class="ty">${esc(y)}</span>`:''}`;tip.hidden=false;
+ const r=el.getBoundingClientRect(),w=tip.offsetWidth,h=tip.offsetHeight;let x=Math.max(8,Math.min(r.left+r.width/2-w/2,innerWidth-w-8)),yy=r.top-h-8;if(yy<8)yy=r.bottom+8;
+ tip.style.left=x+'px';tip.style.top=yy+'px'}
+function hideTip(){tip.hidden=true;if(tipOn)tipOn.classList.remove('on');tipOn=null}
+let lastPtr='touch';document.addEventListener('pointerdown',e=>{lastPtr=e.pointerType||'touch'},true);
+document.addEventListener('click',e=>{const g=e.target.closest&&e.target.closest('.gw');if(g&&g.classList.contains('gx')&&g.closest('button'))return;if(g){if(tipOn===g&&lastPtr!=='mouse'&&Date.now()-tipAt>400)hideTip();else showTip(g)}else hideTip()});
+document.addEventListener('pointerover',e=>{if(e.pointerType!=='mouse')return;const g=e.target.closest&&e.target.closest('.gw');if(g&&g!==tipOn)showTip(g)});
+document.addEventListener('pointerout',e=>{if(e.pointerType!=='mouse'||!tipOn)return;if(!(e.relatedTarget&&tipOn.contains(e.relatedTarget)))hideTip()});
+document.addEventListener('focusin',e=>{if(e.target.classList&&e.target.classList.contains('gw'))showTip(e.target)});
+document.addEventListener('focusout',e=>{if(e.target===tipOn)hideTip()});
+addEventListener('scroll',hideTip,{passive:true});
+
+/* icons: Phosphor Icons (MIT) */
+const ICON={"play": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M128,32a96,96,0,1,0,96,96A96,96,0,0,0,128,32ZM108,168V88l64,40Z\" opacity=\"0.2\"/><path d=\"M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm48.24-94.78-64-40A8,8,0,0,0,100,88v80a8,8,0,0,0,12.24,6.78l64-40a8,8,0,0,0,0-13.56ZM116,153.57V102.43L156.91,128Z\"/></svg>", "resume": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M132.37,134.59,44.18,190.74A7.91,7.91,0,0,1,32,184.15V71.85a7.91,7.91,0,0,1,12.18-6.59l88.19,56.15A7.8,7.8,0,0,1,132.37,134.59Z\" opacity=\"0.2\"/><path d=\"M184,64V192a8,8,0,0,1-16,0V64a8,8,0,0,1,16,0Zm40-8a8,8,0,0,0-8,8V192a8,8,0,0,0,16,0V64A8,8,0,0,0,224,56Zm-80,72a15.76,15.76,0,0,1-7.33,13.34L48.48,197.49A15.91,15.91,0,0,1,24,184.15V71.85A15.91,15.91,0,0,1,48.48,58.51l88.19,56.15A15.76,15.76,0,0,1,144,128Zm-16.18,0L40,72.08V183.93Z\"/></svg>", "nut": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M216,112v16c0,53-88,88-88,112,0-24-88-59-88-112V112Z\" opacity=\"0.2\"/><path d=\"M232,104a56.06,56.06,0,0,0-56-56H136a24,24,0,0,1,24-24,8,8,0,0,0,0-16,40,40,0,0,0-40,40H80a56.06,56.06,0,0,0-56,56,16,16,0,0,0,8,13.83V128c0,35.53,33.12,62.12,59.74,83.49C103.66,221.07,120,234.18,120,240a8,8,0,0,0,16,0c0-5.82,16.34-18.93,28.26-28.51C190.88,190.12,224,163.53,224,128V117.83A16,16,0,0,0,232,104ZM80,64h96a40.06,40.06,0,0,1,40,40H40A40,40,0,0,1,80,64Zm74.25,135c-10.62,8.52-20,16-26.25,23.37-6.25-7.32-15.63-14.85-26.25-23.37C77.8,179.79,48,155.86,48,128v-8H208v8C208,155.86,178.2,179.79,154.25,199Z\"/></svg>", "fix": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M221.66,90.34,192,120,136,64l29.66-29.66a8,8,0,0,1,11.31,0L221.66,79A8,8,0,0,1,221.66,90.34Z\" opacity=\"0.2\"/><path d=\"M227.32,73.37,182.63,28.69a16,16,0,0,0-22.63,0L36.69,152A15.86,15.86,0,0,0,32,163.31V208a16,16,0,0,0,16,16H216a8,8,0,0,0,0-16H115.32l112-112A16,16,0,0,0,227.32,73.37ZM79.32,188,164,103.31,180.69,120,96,204.69ZM68,176.69,51.31,160,136,75.31,152.69,92Zm-20,2.62L76.69,208H48Zm144-70.62L147.32,64l24-24L216,84.69Z\"/></svg>", "test": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M224,56V216l-32-16-32,16-32-16L96,216,64,200,32,216V56a8,8,0,0,1,8-8H216A8,8,0,0,1,224,56Z\" opacity=\"0.2\"/><path d=\"M216,40H40A16,16,0,0,0,24,56V216a8,8,0,0,0,11.58,7.16L64,208.94l28.42,14.22a8,8,0,0,0,7.16,0L128,208.94l28.42,14.22a8,8,0,0,0,7.16,0L192,208.94l28.42,14.22A8,8,0,0,0,232,216V56A16,16,0,0,0,216,40Zm0,163.06-20.42-10.22a8,8,0,0,0-7.16,0L160,207.06l-28.42-14.22a8,8,0,0,0-7.16,0L96,207.06,67.58,192.84a8,8,0,0,0-7.16,0L40,203.06V56H216ZM60.42,167.16a8,8,0,0,0,10.74-3.58L76.94,152h38.12l5.78,11.58a8,8,0,1,0,14.32-7.16l-32-64a8,8,0,0,0-14.32,0l-32,64A8,8,0,0,0,60.42,167.16ZM96,113.89,107.06,136H84.94ZM136,128a8,8,0,0,1,8-8h16V104a8,8,0,0,1,16,0v16h16a8,8,0,0,1,0,16H176v16a8,8,0,0,1-16,0V136H144A8,8,0,0,1,136,128Z\"/></svg>", "qa": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M224,128A96,96,0,0,1,79.93,211.11h0L42.54,223.58a8,8,0,0,1-10.12-10.12l12.47-37.39h0A96,96,0,1,1,224,128Z\" opacity=\"0.2\"/><path d=\"M128,24A104,104,0,0,0,36.18,176.88L24.83,210.93a16,16,0,0,0,20.24,20.24l34.05-11.35A104,104,0,1,0,128,24Zm0,192a87.87,87.87,0,0,1-44.06-11.81,8,8,0,0,0-4-1.08,7.85,7.85,0,0,0-2.53.42L40,216,52.47,178.6a8,8,0,0,0-.66-6.54A88,88,0,1,1,128,216Zm12-88a12,12,0,1,1-12-12A12,12,0,0,1,140,128Zm-44,0a12,12,0,1,1-12-12A12,12,0,0,1,96,128Zm88,0a12,12,0,1,1-12-12A12,12,0,0,1,184,128Z\"/></svg>", "verbs": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M176,56a24,24,0,1,1-24-24A24,24,0,0,1,176,56Z\" opacity=\"0.2\"/><path d=\"M152,88a32,32,0,1,0-32-32A32,32,0,0,0,152,88Zm0-48a16,16,0,1,1-16,16A16,16,0,0,1,152,40Zm67.31,100.68c-.61.28-7.49,3.28-19.67,3.28-13.85,0-34.55-3.88-60.69-20a169.31,169.31,0,0,1-15.41,32.34,104.29,104.29,0,0,1,31.31,15.81C173.92,186.65,184,207.35,184,232a8,8,0,0,1-16,0c0-41.7-34.69-56.71-54.14-61.85-.55.7-1.12,1.41-1.69,2.1-19.64,23.8-44.25,36.18-71.63,36.18A92.29,92.29,0,0,1,31.2,208,8,8,0,0,1,32.8,192c25.92,2.59,48.47-7.49,67-30,12.49-15.14,21-33.61,25.25-47C86.13,92.34,61.27,111.63,61,111.84A8,8,0,1,1,51,99.36c1.5-1.2,37.22-29,89.51,6.57,45.47,30.91,71.93,20.31,72.18,20.19a8,8,0,1,1,6.63,14.56Z\"/></svg>", "kraje": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M213.09,172.48a96,96,0,0,1-80.41,51.41l3.17-16.44a8,8,0,0,0-2-6.95l-19.74-20.33a8,8,0,0,1-1.44-8.69l13.7-30.74a8,8,0,0,1,8.38-4.67l22.82,3.08a8.11,8.11,0,0,1,3.12,1.11ZM116.71,95,129,88.24a7.46,7.46,0,0,0,1.5-1.07l26.91-24.33A8,8,0,0,0,159,53l-10.5-18.81A96.62,96.62,0,0,0,128,32,95.61,95.61,0,0,0,67.78,53.23L56,81.08A8,8,0,0,0,55.88,87l11.5,30.67a8,8,0,0,0,5.81,5l2.69.58L89.2,100a8,8,0,0,1,6.94-4h16.71A7.9,7.9,0,0,0,116.71,95Z\" opacity=\"0.2\"/><path d=\"M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm88,104a87.62,87.62,0,0,1-6.4,32.94l-44.7-27.49a15.92,15.92,0,0,0-6.24-2.23l-22.82-3.08a16.11,16.11,0,0,0-16,7.86h-8.72l-3.8-7.86a15.91,15.91,0,0,0-11-8.67l-8-1.73L96.14,104h16.71a16.06,16.06,0,0,0,7.73-2l12.25-6.76a16.62,16.62,0,0,0,3-2.14l26.91-24.34A15.93,15.93,0,0,0,166,49.1l-.36-.65A88.11,88.11,0,0,1,216,128ZM143.31,41.34,152,56.9,125.09,81.24,112.85,88H96.14a16,16,0,0,0-13.88,8l-8.73,15.23L63.38,84.19,74.32,58.32a87.87,87.87,0,0,1,69-17ZM40,128a87.53,87.53,0,0,1,8.54-37.8l11.34,30.27a16,16,0,0,0,11.62,10l21.43,4.61L96.74,143a16.09,16.09,0,0,0,14.4,9h1.48l-7.23,16.23a16,16,0,0,0,2.86,17.37l.14.14L128,205.94l-1.94,10A88.11,88.11,0,0,1,40,128Zm102.58,86.78,1.13-5.81a16.09,16.09,0,0,0-4-13.9,1.85,1.85,0,0,1-.14-.14L120,174.74,133.7,144l22.82,3.08,45.72,28.12A88.18,88.18,0,0,1,142.58,214.78Z\"/></svg>", "num": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M216,64V192H104V64Z\" opacity=\"0.2\"/><path d=\"M224,128a8,8,0,0,1-8,8H104a8,8,0,0,1,0-16H216A8,8,0,0,1,224,128ZM104,72H216a8,8,0,0,0,0-16H104a8,8,0,0,0,0,16ZM216,184H104a8,8,0,0,0,0,16H216a8,8,0,0,0,0-16ZM43.58,55.16,48,52.94V104a8,8,0,0,0,16,0V40a8,8,0,0,0-11.58-7.16l-16,8a8,8,0,0,0,7.16,14.32ZM79.77,156.72a23.73,23.73,0,0,0-9.6-15.95,24.86,24.86,0,0,0-34.11,4.7,23.63,23.63,0,0,0-3.57,6.46,8,8,0,1,0,15,5.47,7.84,7.84,0,0,1,1.18-2.13,8.76,8.76,0,0,1,12-1.59A7.91,7.91,0,0,1,63.93,159a7.64,7.64,0,0,1-1.57,5.78,1,1,0,0,0-.08.11L33.59,203.21A8,8,0,0,0,40,216H72a8,8,0,0,0,0-16H56l19.08-25.53A23.47,23.47,0,0,0,79.77,156.72Z\"/></svg>", "klasa": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M192,80v96H104a32,32,0,1,0-32-32H64V80Z\" opacity=\"0.2\"/><path d=\"M216,40H40A16,16,0,0,0,24,56V200a16,16,0,0,0,16,16H53.39a8,8,0,0,0,7.23-4.57,48,48,0,0,1,86.76,0,8,8,0,0,0,7.23,4.57H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40ZM80,144a24,24,0,1,1,24,24A24,24,0,0,1,80,144Zm136,56H159.43a64.39,64.39,0,0,0-28.83-26.16,40,40,0,1,0-53.2,0A64.39,64.39,0,0,0,48.57,200H40V56H216ZM56,96V80a8,8,0,0,1,8-8H192a8,8,0,0,1,8,8v96a8,8,0,0,1-8,8H176a8,8,0,0,1,0-16h8V88H72v8a8,8,0,0,1-16,0Z\"/></svg>", "words": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M232,164c0,15.46-14.33,28-32,28s-32-12.54-32-28,14.33-28,32-28S232,148.54,232,164ZM34.82,152h90.36L80,56Z\" opacity=\"0.2\"/><path d=\"M87.24,52.59a8,8,0,0,0-14.48,0l-64,136a8,8,0,1,0,14.48,6.81L39.9,160h80.2l16.66,35.4a8,8,0,1,0,14.48-6.81ZM47.43,144,80,74.79,112.57,144ZM200,96c-12.76,0-22.73,3.47-29.63,10.32a8,8,0,0,0,11.26,11.36c3.8-3.77,10-5.68,18.37-5.68,13.23,0,24,9,24,20v3.22A42.76,42.76,0,0,0,200,128c-22.06,0-40,16.15-40,36s17.94,36,40,36a42.73,42.73,0,0,0,24-7.25,8,8,0,0,0,16-.75V132C240,112.15,222.06,96,200,96Zm0,88c-13.23,0-24-9-24-20s10.77-20,24-20,24,9,24,20S213.23,184,200,184Z\"/></svg>", "learn": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M216,113.07v53.22a8,8,0,0,1-2,5.31c-11.3,12.59-38.9,36.4-86,36.4s-74.68-23.81-86-36.4a8,8,0,0,1-2-5.31V113.07L128,160Z\" opacity=\"0.2\"/><path d=\"M251.76,88.94l-120-64a8,8,0,0,0-7.52,0l-120,64a8,8,0,0,0,0,14.12L32,117.87v48.42a15.91,15.91,0,0,0,4.06,10.65C49.16,191.53,78.51,216,128,216a130,130,0,0,0,48-8.76V240a8,8,0,0,0,16,0V199.51a115.63,115.63,0,0,0,27.94-22.57A15.91,15.91,0,0,0,224,166.29V117.87l27.76-14.81a8,8,0,0,0,0-14.12ZM128,200c-43.27,0-68.72-21.14-80-33.71V126.4l76.24,40.66a8,8,0,0,0,7.52,0L176,143.47v46.34C163.4,195.69,147.52,200,128,200Zm80-33.75a97.83,97.83,0,0,1-16,14.25V134.93l16-8.53ZM188,118.94l-.22-.13-56-29.87a8,8,0,0,0-7.52,14.12L171,128l-43,22.93L25,96,128,41.07,231,96Z\"/></svg>", "sheet": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M232,56V200H160a32,32,0,0,0-32,32,32,32,0,0,0-32-32H24V56H96a32,32,0,0,1,32,32,32,32,0,0,1,32-32Z\" opacity=\"0.2\"/><path d=\"M232,48H160a40,40,0,0,0-32,16A40,40,0,0,0,96,48H24a8,8,0,0,0-8,8V200a8,8,0,0,0,8,8H96a24,24,0,0,1,24,24,8,8,0,0,0,16,0,24,24,0,0,1,24-24h72a8,8,0,0,0,8-8V56A8,8,0,0,0,232,48ZM96,192H32V64H96a24,24,0,0,1,24,24V200A39.81,39.81,0,0,0,96,192Zm128,0H160a39.81,39.81,0,0,0-24,8V88a24,24,0,0,1,24-24h64Z\"/></svg>", "set": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M230.1,108.76,198.25,90.62c-.64-1.16-1.31-2.29-2-3.41l-.12-36A104.61,104.61,0,0,0,162,32L130,49.89c-1.34,0-2.69,0-4,0L94,32A104.58,104.58,0,0,0,59.89,51.25l-.16,36c-.7,1.12-1.37,2.26-2,3.41l-31.84,18.1a99.15,99.15,0,0,0,0,38.46l31.85,18.14c.64,1.16,1.31,2.29,2,3.41l.12,36A104.61,104.61,0,0,0,94,224l32-17.87c1.34,0,2.69,0,4,0L162,224a104.58,104.58,0,0,0,34.08-19.25l.16-36c.7-1.12,1.37-2.26,2-3.41l31.84-18.1A99.15,99.15,0,0,0,230.1,108.76ZM128,168a40,40,0,1,1,40-40A40,40,0,0,1,128,168Z\" opacity=\"0.2\"/><path d=\"M128,80a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Zm109.94-52.79a8,8,0,0,0-3.89-5.4l-29.83-17-.12-33.62a8,8,0,0,0-2.83-6.08,111.91,111.91,0,0,0-36.72-20.67,8,8,0,0,0-6.46.59L128,41.85,97.88,25a8,8,0,0,0-6.47-.6A111.92,111.92,0,0,0,54.73,45.15a8,8,0,0,0-2.83,6.07l-.15,33.65-29.83,17a8,8,0,0,0-3.89,5.4,106.47,106.47,0,0,0,0,41.56,8,8,0,0,0,3.89,5.4l29.83,17,.12,33.63a8,8,0,0,0,2.83,6.08,111.91,111.91,0,0,0,36.72,20.67,8,8,0,0,0,6.46-.59L128,214.15,158.12,231a7.91,7.91,0,0,0,3.9,1,8.09,8.09,0,0,0,2.57-.42,112.1,112.1,0,0,0,36.68-20.73,8,8,0,0,0,2.83-6.07l.15-33.65,29.83-17a8,8,0,0,0,3.89-5.4A106.47,106.47,0,0,0,237.94,107.21Zm-15,34.91-28.57,16.25a8,8,0,0,0-3,3c-.58,1-1.19,2.06-1.81,3.06a7.94,7.94,0,0,0-1.22,4.21l-.15,32.25a95.89,95.89,0,0,1-25.37,14.3L134,199.13a8,8,0,0,0-3.91-1h-.19c-1.21,0-2.43,0-3.64,0a8.1,8.1,0,0,0-4.1,1l-28.84,16.1A96,96,0,0,1,67.88,201l-.11-32.2a8,8,0,0,0-1.22-4.22c-.62-1-1.23-2-1.8-3.06a8.09,8.09,0,0,0-3-3.06l-28.6-16.29a90.49,90.49,0,0,1,0-28.26L61.67,97.63a8,8,0,0,0,3-3c.58-1,1.19-2.06,1.81-3.06a7.94,7.94,0,0,0,1.22-4.21l.15-32.25a95.89,95.89,0,0,1,25.37-14.3L122,56.87a8,8,0,0,0,4.1,1c1.21,0,2.43,0,3.64,0a8,8,0,0,0,4.1-1l28.84-16.1A96,96,0,0,1,188.12,55l.11,32.2a8,8,0,0,0,1.22,4.22c.62,1,1.23,2,1.8,3.06a8.09,8.09,0,0,0,3,3.06l28.6,16.29A90.49,90.49,0,0,1,222.9,142.12Z\"/></svg>", "nosync": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M240,128a80,80,0,0,1-80,80H72A56,56,0,1,1,85.92,97.74l0,.1A80,80,0,0,1,240,128Z\" opacity=\"0.2\"/><path d=\"M53.92,34.62A8,8,0,1,0,42.08,45.38L81.32,88.55l-.06.12A65,65,0,0,0,72,88a64,64,0,0,0,0,128h88a87.34,87.34,0,0,0,31.8-5.93l10.28,11.31a8,8,0,1,0,11.84-10.76ZM160,200H72a48,48,0,0,1,0-96c1.1,0,2.2,0,3.3.12A88.4,88.4,0,0,0,72,128a8,8,0,0,0,16,0,72.25,72.25,0,0,1,5.06-26.54l87,95.7A71.66,71.66,0,0,1,160,200Zm88-72a87.89,87.89,0,0,1-22.35,58.61A8,8,0,0,1,213.71,176,72,72,0,0,0,117.37,70a8,8,0,0,1-9.48-12.89A88,88,0,0,1,248,128Z\"/></svg>", "caret": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 256 256\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z\"/></svg>"};
+const ic=(k,cls)=>`<span class="ico${cls?" "+cls:""}">${ICON[k]}</span>`;
+/* exercise labels: each part shown in Polish, English on tap */
+const EYE={'Say it in Polish':['Powiedz po polsku','say it in Polish','powiedzieć, imperative · po polsku = in Polish'],
+ 'What does it mean?':['Co to znaczy?','what does it mean?'],'say it in Polish':['powiedz po polsku','say it in Polish','powiedzieć, imperative'],
+ 'Make it informal':['Zapytaj nieformalnie','ask informally (ty)','zapytać, imperative'],'ty':['ty','you (informal)'],'Make it formal':['Zapytaj formalnie','ask formally (pan / pani)','zapytać, imperative'],
+ 'Ask a friend (ty)':['Zapytaj kolegę (ty)','ask a friend','zapytać, imperative · kolegę = kolega in the accusative'],
+ 'Ask about someone':['Zapytaj o kogoś','ask about someone','o + accusative'],'on / ona':['on / ona','he / she'],
+ 'Answer about someone':['Odpowiedz o kimś','answer about someone','odpowiedzieć, imperative · o + locative'],'translate':['przetłumacz','translate','przetłumaczyć, imperative'],
+ 'Answer as yourself':['Odpowiedz o sobie','answer as yourself','o + locative of siebie'],'any true answer counts':['każda prawdziwa odpowiedź jest dobra','any true answer counts'],
+ 'Answer naturally':['Odpowiedz naturalnie','answer naturally'],'any fitting answer counts':['każda pasująca odpowiedź jest dobra','any fitting answer counts'],
+ 'from which country?':['z jakiego kraju?','from which country?','z + genitive · kraju = kraj in the genitive'],
+ 'write the word':['napisz słowo','write the word','napisać, imperative'],'which number?':['która liczba?','which number?'],
+ 'write the result as a word':['napisz wynik słowem','write the result as a word','słowem = słowo in the instrumental (“with a word”)'],
+ 'fill the gap':['uzupełnij lukę','fill the gap','uzupełnić, imperative · lukę = luka in the accusative'],
+ '-am / -asz family':['grupa -am / -asz','-am / -asz family'],'irregular':['nieregularny','irregular'],
+ 'On an address, write out…':['Adres · napisz w całości','on an address, write it out','w całości = in full'],
+ 'Formal “you”':['Forma grzecznościowa','formal “you”','grzecznościowy = polite'],'singular':['liczba pojedyncza','singular'],'plural':['liczba mnoga','plural'],
+ 'the pattern':['wzór','the pattern'],'the structure':['budowa','the structure'],'Pattern':['Wzór','pattern'],'one rule':['jedna reguła','one rule'],'one idea':['jedna myśl','one idea'],
+ 'verbs in sentences':['czasowniki w zdaniach','verbs in sentences','w + locative plural'],'formal questions':['pytania formalne','formal questions'],'about someone else':['o kimś innym','about someone else'],
+ 'model verb of the -am / -asz family':['wzór grupy -am / -asz','model verb of the -am / -asz family'],'irregular verb':['czasownik nieregularny','irregular verb'],'-ka → -ki and plurals':['-ka → -ki i liczba mnoga','-ka → -ki and plurals']};
+function eyeb(e){return String(e||'').split(' · ').map(part=>{const m=EYE[part]||EYE[part.replace(/ \(ty\)$/,'')];return m?L(...m):esc(part)}).join(' · ')}
+/* every Polish label carries its English: tap plain text, hold (or hover) on buttons */
+const L=(pl,en,gr,why)=>`<span class="gw gw-plain gx" data-g="${esc([en,gr,why].filter(Boolean).join('|'))}">${esc(pl)}</span>`;
+const plN=(n,one,few,many)=>n===1?one:(n%10>=2&&n%10<=4&&!(n%100>=12&&n%100<=14))?few:many;
+let lpT=null,lpFired=false;
+document.addEventListener('pointerdown',e=>{const g=e.target.closest&&e.target.closest('.gx');if(!g||!g.closest('button'))return;lpFired=false;clearTimeout(lpT);lpT=setTimeout(()=>{lpFired=true;showTip(g)},450)});
+['pointerup','pointercancel','pointerleave'].forEach(t=>document.addEventListener(t,()=>clearTimeout(lpT)));
+document.addEventListener('click',e=>{if(lpFired){lpFired=false;e.preventDefault();e.stopPropagation()}},true);
+document.addEventListener('contextmenu',e=>{if(e.target.closest&&e.target.closest('.gx'))e.preventDefault()});
+/* ---------- views ---------- */
+const app=$('#app'),nav=$('#nav');
+function setTab(t){[['home','t-home'],['sheet','t-sheet'],['set','t-set']].forEach(([k,id])=>$('#'+id).setAttribute('aria-current',t===k?'page':'false'))}
+function drawNav(){$('#t-home').innerHTML=ic('learn')+L('Ćwicz','practise','ćwiczyć, imperative (ty)');$('#t-sheet').innerHTML=ic('sheet')+L('Ściąga','cheat sheet','informal school word');$('#t-set').innerHTML=ic('set')+L('Ustawienia','settings','plural of ustawienie')}
+let sess=null;
+
+/* new terms arrive only while few items are still shaky */
+/* today: snapshot of terms still to meet at the start of the day, spread over the days before the test */
+/* terms you chose to hide (and city-by-city locatives, hidden by default) stay out of rounds and counts */
+const DEFAULT_HIDE=/^city:/;
+const hidden=it=>{const id=it.id||it;return !!((S._hide&&S._hide[id])||(DEFAULT_HIDE.test(id)&&!(S._show&&S._show[id])))};
+const vis=()=>ITEMS.filter(it=>!hidden(it));
+function hideTerm(id){S._hide={...(S._hide||{}),[id]:1};if(S._show)delete S._show[id];save()}
+function showTerm(id){if(S._hide)delete S._hide[id];S._show={...(S._show||{}),[id]:1};save()}
+function today(){if(!S._t||S._t.d!==dayKey()){S._t={d:dayKey(),u0:ORDER.filter(it=>!S[it.id]&&!hidden(it)).length,r:0};save()}return S._t}
+const GROUP_COST=k=>Math.ceil(k*0.6);
+function slotsFor(list){const gs=new Set();let n=0;list.forEach(it=>{if(it.group)gs.add(it.group);else n++});gs.forEach(g=>n+=GROUP_COST(list.filter(x=>x.group===g).length));return n}
+/* which pile a term is in: new, fix (last written answer wrong, or never written yet), rev (last written answer right) */
+function pile(id){const t=S[id];if(!t)return 'new';if(t.lr)return t.lr==='r'?'rev':'fix';if(t.cr)return 'rev';return t.w>0&&t.b<2?'fix':t.b>=2?'rev':'fix'}
+function piles(pool){const ord=ORDER.filter(it=>pool.includes(it)&&!hidden(it));
+ return{unseen:ord.filter(it=>!S[it.id]),fix:ord.filter(it=>S[it.id]&&pile(it.id)==='fix'),rev:ord.filter(it=>S[it.id]&&pile(it.id)==='rev')}}
+/* new terms are cut first when things go badly: a weak last round, or a pile of mistakes */
+function newBudget(P){const M=mix(),acc=S._acc;let n=M.n,why=null;
+ if(acc&&acc.n>=8&&acc.ok/acc.n<0.5){n=Math.floor(M.n/2);why=`last round ${acc.ok}/${acc.n} right`}
+ if(acc&&acc.n>=8&&acc.ok/acc.n<0.3)n=Math.min(n,2);
+ if(P.fix.length>3*Math.max(M.m,4)){n=Math.min(n,Math.floor(M.n/2));why=why||`${P.fix.length} terms waiting to be fixed`}
+ return{n,why}}
+function pickNew(unseen,budget){const fresh=[],taken=new Set();let used=0,groups=0;const maxG=budget>=12?2:1;
+ for(const it of unseen){if(used>=budget)break;if(taken.has(it))continue;
+  if(it.group){if(groups>=maxG)continue;const mem=unseen.filter(x=>x.group===it.group),cost=GROUP_COST(mem.length);
+   if(used+cost>budget&&used>0)continue;mem.forEach(x=>{taken.add(x);fresh.push(x)});used+=cost;groups++}
+  else{taken.add(it);fresh.push(it);used++}}
+ return{fresh,used}}
+/* review only takes terms whose spacing has run out; spare slots go to fixing, then to extra new terms,
+   and only as a last resort to review terms that are not due yet */
+/* the hardest terms: many mistakes, recent mistakes, wrong streaks, dropped a level */
+function hardness(it){const t=S[it.id];if(!t||!(t.w>0))return 0;return t.w*2+(t.ws||0)*2+(t.lr==='w'?2:0)+(t.dr?3:0)+(t.n?t.w/t.n*4:0)-Math.min(t.b||0,4)*0.5}
+function hardest(max){const keys=new Set();return vis().filter(it=>hardness(it)>0).sort((a,b)=>hardness(b)-hardness(a)).filter(it=>{const k=answerKey(it);if(k&&keys.has(k))return false;if(k)keys.add(k);return true}).slice(0,max)}
+/* rapid fire: 5 cases of one pattern in a row, all written */
+const REV_INF=QA.map(q=>({id:'tmp:inf:'+q.k,tmp:1,deck:'qa',make:()=>{const g=Math.random()<.5?'pan':'pani',f=q.form.replace('pan / pani',g);return{eyebrow:'Make it informal · ty',prompt:f,say:f,sub:'Ask the same question to a friend',answer:q.inf,accept:[q.inf],sayAns:q.inf,note:'To a friend: drop pan / pani and use the ty-form: ma → masz, jest → jesteś, mieszka → mieszkasz.'}}}));
+const ONI_F=['Magda','Dominika','Agnieszka','Anna','Ewa','Grażyna','pani Nowak'],ONI_M=['Jacek','Piotrek','Mariusz','Tadeusz','Andrzej','Kamil','pan Kowalski'];
+const ONI_V=[['są z Polski','are from Poland'],['mieszkają w Krakowie','live in Kraków'],['mają problem','have a problem'],['są w domu','are at home']];
+const oniCases=()=>Array.from({length:8},(_,k)=>({id:'tmp:oni:'+k,tmp:1,deck:'words',make:()=>{const r=Math.random();
+ const [a,b2]=r<.3?[pick(ONI_F),pick(ONI_F)]:r<.5?[pick(ONI_M),pick(ONI_M)]:r<.8?[pick(ONI_F),pick(ONI_M)]:[pick(ONI_F),'dziecko'];
+ const pair=a===b2?[a,pick(ONI_F.filter(x=>x!==a))]:[a,b2],man=pair.some(x=>ONI_M.includes(x)),ans=man?'Oni':'One',[v,ve]=pick(ONI_V);
+ return{eyebrow:'Oni czy one?',prompt:`(${pair.join(' i ')}) ___ ${v}.`,sub:`They ${ve}.`,answer:ans,accept:[ans],sayAns:`${ans} ${v}.`,note:man?'At least one man in the group → oni.':'No man in the group → one.'}}}));
+const DRILLS=[['formal','Formal ↔ informal',()=>[...ITEMS.filter(i=>/^qa:[a-z]+:form$/.test(i.id)),...REV_INF]],['third','About someone · on / ona',()=>ITEMS.filter(i=>/^qa:[a-z]+:(3|a3)$/.test(i.id))],
+ ['sentence','Verbs in sentences',()=>ITEMS.filter(i=>/^vs:/.test(i.id))],['oni','oni or one',()=>oniCases()],
+ ['gen','z + genitive · countries',()=>ITEMS.filter(i=>/^kr:/.test(i.id))],['loc','w + locative · cities',()=>ITEMS.filter(i=>/^city:/.test(i.id))],['ile','Ile jest…? · sums',()=>ITEMS.filter(i=>/^ile:/.test(i.id))]];
+function startDrill(key){const d=DRILLS.find(x=>x[0]===key);const keys=new Set(),pick5=shuffle(d[2]()).filter(it=>{const k=it.tmp?it.id:answerKey(it);if(k&&keys.has(k))return false;keys.add(k);return true}).slice(0,5);
+ start(pick5.map(it=>({it,st:'write',slot:'fix'})),'Rapid fire · '+d[1],false,{drill:1})}
+const AKEY=new Map();
+function answerKey(it){if(AKEY.has(it.id))return AKEY.get(it.id);let k=null;
+ if(!/^(ile:|qa:[a-z]+:ans$|qa:slychac$)/.test(it.id)){const q=it.make('write');const a=(q.accept&&q.accept[0])||(q.valid&&q.valid[0])||q.mcAnswer||q.answer;if(a&&!/^For example/.test(a))k=strip(norm(a))}
+ AKEY.set(it.id,k);return k}
+function planRound(pool){const P=piles(pool),M=mix(),B=newBudget(P);let {fresh,used}=pickNew(P.unseen,B.n);
+ const byDue=(a,b)=>((S[a.id].due??0)-(S[b.id].due??0))||Math.random()-.5;
+ const dueRev=P.rev.filter(it=>(S[it.id].due??0)<=round()).sort(byDue),laterRev=P.rev.filter(it=>(S[it.id].due??0)>round()).sort(byDue);
+ let nFix=Math.min(P.fix.length,M.m+(M.n-used)),nRev=Math.min(dueRev.length,M.c);
+ let spare=(M.m+(M.n-used)-nFix)+(M.c-nRev);
+ const addFix=Math.min(P.fix.length-nFix,spare);nFix+=addFix;spare-=addFix;
+ if(spare>0&&!(B.n<M.n)&&P.unseen.length>fresh.length){const more=pickNew(P.unseen,B.n+spare);spare-=Math.max(0,more.used-used);fresh=more.fresh;used=more.used}
+ const addDue=Math.min(dueRev.length-nRev,Math.max(0,spare));nRev+=addDue;spare-=addDue;
+ let fix=shuffle(P.fix).slice(0,nFix);
+ let rev=[...dueRev.slice(0,nRev),...laterRev.slice(0,Math.max(0,spare))];
+ /* never two terms with the same answer in one round (osiedle / os., Przepraszam / przepraszam…): the second waits */
+ const keys=new Set(),keep=it=>{const k=answerKey(it);if(!k)return true;if(keys.has(k))return false;keys.add(k);return true};
+ fresh=fresh.filter(it=>keep(it)||!!it.group);fix=fix.filter(keep);rev=rev.filter(keep);
+ return{...P,fresh,fixSel:fix,revSel:rev,due:dueRev,why:used<M.n&&B.why?B.why:null,cut:B.n<M.n}}
+const written=it=>{const t=S[it.id];return !!(t&&(t.lr||t.cr||t.n>0))};
+const warm=it=>{const t=S[it.id];if(t&&t.cr&&!t.dr)return false;if(it.pattern||(it.group&&BLOCKS[it.group]&&BLOCKS[it.group].concept))return false;return !!t&&((t.b===0&&!t.lr&&!(t.n>0))||!!t.dr)};
+/* pattern cases in a round come as one rapid-fire block of 5: your real cases count, extra varied cases are practice */
+const FAM=[['formal',/^qa:[a-z]+:form$/],['third',/^qa:[a-z]+:(3|a3)$/],['sentence',/^vs:/],['oni',/^oni:/],['gen',/^kr:/],['ile',/^ile:/]];
+const famOf=it=>{const f=FAM.find(([,re])=>re.test(it.id));return f?f[0]:null};
+const BURST=5;
+function makeBurst(fam,entries,usedKeys,R0){const d=DRILLS.find(x=>x[0]===fam),name=d?d[1]:fam;
+ const have=new Set(entries.map(e=>e.it.id)),fill=[],re=(FAM.find(f=>f[0]===fam)||[])[1];
+ const add=(it,slot,practice)=>{if(entries.length+fill.length>=BURST||have.has(it.id)||hidden(it))return;const k=it.tmp?null:answerKey(it);if(k&&usedKeys.has(k))return;if(k)usedKeys.add(k);have.add(it.id);fill.push({it,st:'write',slot,...(practice?{practice:1}:{})})};
+ if(re){shuffle(R0.fix.filter(it=>re.test(it.id))).forEach(it=>add(it,'fix'));R0.rev.filter(it=>re.test(it.id)&&(S[it.id].due??0)<=round()).forEach(it=>add(it,'rev'))}
+ if(d)shuffle(d[2]()).filter(it=>it.tmp||S[it.id]).forEach(it=>add(it,'fix',1));
+ const all=[...entries.filter(e=>e.st==='intro'),...shuffle([...entries.filter(e=>e.st!=='intro'),...fill])];
+ all.forEach((e,k)=>{e.burst={name,k:k+1,n:all.length}});return all}
+function buildRound(pool){const R0=planRound(pool);
+ let rest=shuffle([...R0.fixSel.map(it=>({it,st:warm(it)?'pick':'write',slot:'fix'})),...R0.revSel.map(it=>({it,st:'write',slot:'rev'}))]);
+ const firsts=R0.fresh.filter((it,k)=>!it.group||R0.fresh.findIndex(x=>x.group===it.group)===k);
+ const fresh=firsts.map(it=>({it,st:'intro',slot:'new'}));
+ const usedKeys=new Set([...R0.fresh,...R0.fixSel,...R0.revSel].map(answerKey).filter(Boolean));
+ const byFam={},plain=[];
+ [...fresh,...rest].forEach(e=>{const f=famOf(e.it);if(f&&!(e.it.group&&e.st==='intro'))(byFam[f]=byFam[f]||[]).push(e);else plain.push(e)});
+ const blocks=Object.entries(byFam).map(([f,es])=>makeBurst(f,es,usedKeys,R0));
+ const pFresh=plain.filter(e=>e.st==='intro'),pRest=shuffle(plain.filter(e=>e.st!=='intro'));
+ pFresh.forEach((e,k)=>pRest.splice(Math.min(pRest.length,k*2),0,e));
+ blocks.forEach(bl=>{const at=Math.floor(Math.random()*(pRest.length+1));pRest.splice(at,0,...bl)});
+ return{queue:pRest,info:R0}}
+const GROUP_COST_NOTE='a card of k terms counts as 60% of k';
+function currentStage(){const it=ORDER.find(it=>!hidden(it)&&(!S[it.id]||S[it.id].b<2));return it?it.stage:STAGES.length-1}
+const hintOf=q=>{const a=q.accept?q.accept[0]:(q.mcAnswer||q.answer);const w=a.replace(/[.!?]$/,'').split(' ');
+ return w.length>2?w.slice(0,Math.ceil(w.length/2)).join(' ')+' …':w.length===2?w[0]+' …':a.slice(0,Math.max(1,Math.ceil(a.length/2)))+'…'};
+
+const GRADE_EN={'niedostateczny':'insufficient (fail)','dopuszczający':'passing','dostateczny':'satisfactory','dobry':'good','bardzo dobry':'very good','celujący':'excellent'};
+const DECK_IC={qa:'qa',verbs:'verbs',kraje:'kraje',num:'num',klasa:'klasa',words:'words'};
+function home(){
+ hideTip();closeReview();view='home';sess=null;nav.hidden=false;app.className='app';setTab('home');
+ const m=mastery(vis()),g=gradeOf(m),known=vis().filter(it=>isKnown(it.id)).length;
+ const P=planRound(vis()),M=mix(),total=M.n+M.m+M.c,rl=Math.ceil(slotsFor(P.unseen)/pace()),dl=daysLeft();
+ const T=today(),met=vis().filter(it=>S[it.id]&&(S[it.id].f||'2026-10-22')===dayKey()).length,u0=P.unseen.length+met;
+ const goal=dl>0?Math.ceil(u0/dl):u0,left=Math.max(0,goal-met),onTrack=met>=goal,rToGo=Math.max(1,Math.ceil(left/pace()));
+ const frac=goal?Math.min(1,met/goal):1,C=2*Math.PI*15;
+ const when=dl>1?L(`za ${dl} dni`,`in ${dl} days`,'za + accusative · dni = plural of dzień (day)'):dl===1?L('jutro','tomorrow'):dl===0?L('dziś','today'):L('po teście','after the test');
+ const o=savedSess(),h=hardest(10),fixN=P.fix.length;
+ const chips=[L(`${P.fresh.length} ${plN(P.fresh.length,'nowe','nowe','nowych')}`,`${P.fresh.length} new`,'nowy (new): plural, genitive plural after 5+',P.why?'Fewer new terms this round: '+P.why:''),
+  L(`${P.fixSel.length} do poprawy`,`${P.fixSel.length} to fix`,'do + genitive of poprawa (correction)'),
+  L(`${P.revSel.length} ${plN(P.revSel.length,'powtórka','powtórki','powtórek')}`,`${P.revSel.length} review${P.revSel.length===1?'':'s'}`,'powtórka (review): 2–4 powtórki, 5+ powtórek')];
+ app.innerHTML=`
+ <header class="hd2"><div class="t">
+   <p class="eyebrow">${L('Test 1 · lekcja 0 i 1','test 1 · lesson 0 and 1','lekcja (lesson)')}</p>
+   <h1>${L('pon. 26.10','Monday 26 October','pon. = poniedziałek (Monday)')}</h1>
+   <p class="when2">${when}</p></div>
+  <button class="grade-wrap" id="gradeb"><span class="grade">${g.n}</span><span class="grade-lbl">${L(g.name,`${GRADE_EN[g.name]} · grade ${g.n} of 6`,'Polish school grades run 1 (fail) to 6 (excellent)','Forecast from how many terms you know: known = right twice in a row, the last time written without a hint; a recent mistake counts half.')}</span></button></header>
+ ${(()=>{let ok=false;try{ok=localStorage.getItem('pl-hint1')==='1'}catch(e){}return ok?'':'<p class="hint1" id="hint1">Tap a Polish word, or hold a button, to see what it means. <button class="sy-link" id="hint1x">OK</button></p>'})()}
+ <section class="today2">
+  <svg class="ring" viewBox="0 0 36 36" aria-hidden="true"><circle cx="18" cy="18" r="15" class="r0"/><circle cx="18" cy="18" r="15" class="r1" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${(C*(1-frac)).toFixed(1)}" transform="rotate(-90 18 18)"/></svg>
+  <div class="tx"><b>${met} / ${goal}</b>${L('nowych słów dziś','new words today','nowe słowa (new words) in the genitive plural, after a number',`${T.r} ${T.r===1?'round':'rounds'} done today · about ${rl} ${rl===1?'round':'rounds'} left in total · ${fixN} terms to fix`)}</div>
+  <span class="pill2 ${onTrack?'ok':'behind'}">${onTrack?L('na dobrej drodze','on track','lit. “on a good road”: na + locative'):L(`jeszcze ${rToGo} ${plN(rToGo,'runda','rundy','rund')}`,`${rToGo} more ${rToGo===1?'round':'rounds'} today`,'runda (round): 2–4 rundy, 5+ rund')}</span>
+ </section>
+ <button class="go2" id="${o?'go-resume':'go-learn'}">${ic(o?'resume':'play','gi')}<span class="l">
+   ${o?`<b>${L('Dokończ rundę','finish the round','dokończyć, imperative · rundę = runda in the accusative')}</b><span class="sub">${L(`${o.queue.length-o.i} ${plN(o.queue.length-o.i,'ćwiczenie','ćwiczenia','ćwiczeń')} do końca`,`${o.queue.length-o.i} exercises to go`,'do końca = until the end (do + genitive)')}</span>`
+      :`<b>${L('Ucz się','learn','uczyć się, imperative (ty)')}</b><span class="sub">${L(`Runda ${round()+1} · ${total} ${plN(total,'odpowiedź','odpowiedzi','odpowiedzi')}`,`round ${round()+1} · ${total} answers`,'odpowiedź (answer): 2–4 and 5+ odpowiedzi','Only written answers count; new terms get a card and a warm-up first.')}</span>
+   <span class="mixrow2">${chips.map(c=>`<i>${c}</i>`).join('')}</span>`}</span></button>
+ ${o?`<button class="sy-link newr" id="go-learn">${L('albo zacznij nową rundę','or start a new round','zacząć, imperative · nową rundę = nowa runda in the accusative')}</button>`:''}
+ <div class="tiles2">
+  <button class="tile2 t-nut${h.length>=3?'':' off'}" id="go-nut">${ic('nut','ti')}${L('Twardy orzech','tough nut: a hard problem','twardy (hard) + orzech (nut)',h.length>=3?`Drill your ${h.length} hardest terms; a miss comes back up to 3 times. Does not use up a round.`:'Available once you have 3 terms with mistakes.')}</button>
+  <button class="tile2 t-fix${fixN?'':' off'}" id="go-weak">${ic('fix','ti')}${L('Popraw błędy','fix the mistakes','poprawić (to correct), imperative · błędy = błąd (mistake), accusative plural',fixN?`A round with only the ${fixN} terms to fix.`:'Nothing to fix right now.')}</button>
+  <button class="tile2 t-test" id="go-test">${ic('test','ti')}${L('Próbny test','practice test','próbny = trial, practice','20 written questions from everything you have met, no warm-ups or hints.')}</button>
+ </div>
+ <div class="sec2"><h2>${L('Tematy','topics','plural of temat')}</h2><span>${L(`${known} z ${vis().length} znanych`,`${known} of ${vis().length} known`,'z + genitive · znanych = genitive plural of znany (known)')}</span></div>
+ <div class="pills">${Object.entries(DECKS).map(([k,d])=>{const its=vis().filter(i=>i.deck===k),dm=Math.round(mastery(its)*100);
+   return `<button class="pill3" data-deck="${k}">${ic(DECK_IC[k],'pi')}${L(d.pl,d.en)}<span class="pc">${dm}%</span><span class="pb"><i style="width:${dm}%"></i></span></button>`}).join('')}</div>`;
+ const hx=$('#hint1x');if(hx)hx.onclick=()=>{try{localStorage.setItem('pl-hint1','1')}catch(e){}const h1=$('#hint1');if(h1)h1.remove()};
+ $('#gradeb').onclick=()=>showTip(app.querySelector('#gradeb .gx'));
+ $('#go-learn').onclick=()=>{const r=buildRound(vis());start(r.queue,'Nauka',false)};
+ const rs=$('#go-resume');if(rs)rs.onclick=()=>{if(!resumeSess())home()};
+ $('#go-nut').onclick=()=>{const hh=hardest(10);if(hh.length<3)return showTip(app.querySelector('#go-nut .gx'));start(shuffle(hh).map(it=>({it,st:'write',slot:'fix'})),'Twardy orzech',false,{nut:1})};
+ $('#go-test').onclick=()=>start(wsample(vis().filter(it=>S[it.id]).length>=20?vis().filter(it=>S[it.id]):vis(),20).map(it=>({it,st:'write'})),'Próbny test',true);
+ $('#go-weak').onclick=()=>{if(!P.fix.length)return showTip(app.querySelector('#go-weak .gx'));start(shuffle(P.fix).slice(0,total).map(it=>({it,st:warm(it)?'pick':'write',slot:'fix'})),'Popraw błędy',false)};
+ app.querySelectorAll('.pill3').forEach(b=>b.onclick=()=>{const r=buildRound(ITEMS.filter(i=>i.deck===b.dataset.deck));start(r.queue,DECKS[b.dataset.deck].pl,false)});
+}
+
+function settingsView(){
+ hideTip();closeReview();view='set';sess=null;nav.hidden=false;app.className='app';setTab('set');
+ const M=mix(),hid=ITEMS.filter(hidden);
+ app.innerHTML=`
+ <header class="row"><h1>${L('Ustawienia','settings')}</h1></header>
+ <section class="setc"><h2>${L('Mieszanka rundy','round mix','mieszanka = mixture · rundy = genitive of runda','Only written answers count. New terms are cut first when a round goes badly or mistakes pile up; a group card of k terms counts as 60% of k.')}</h2>
+  <div class="mix">${[['n','nowe','new'],['m','do poprawy','to fix'],['c','powtórki','reviews']].map(([k,pl,en])=>`<span class="stp"><button data-k="${k}" data-d="-1" aria-label="fewer ${en}">−</button><b>${M[k]}</b><button data-k="${k}" data-d="1" aria-label="more ${en}">+</button><small>${L(pl,en)}</small></span>`).join('')}</div></section>
+ ${canSpeak?`<section class="setc"><label class="toggle"><input type="checkbox" id="aud" ${autoAudio?'checked':''}> ${L('Czytaj odpowiedź na głos','read the answer aloud','czytać, imperative · na głos = aloud')}</label></section>`:''}
+ <section class="setc"><h2>${L('Synchronizacja','sync between devices')}</h2><p class="note" id="sync"></p></section>
+ ${hid.length?`<section class="setc"><details class="hidl"><summary>${L(`Ukryte słowa (${hid.length})`,`hidden terms (${hid.length})`,'ukryty = hidden','They stay out of your rounds and counts. Tap one to bring it back.')}</summary><div class="hidrow">${hid.map(it=>{const q=it.make();return `<button class="ghost" data-show="${esc(it.id)}">${esc((q.mcAnswer||q.answer||'').replace(/^For example: /,''))} <span class="muted">· ${esc(q.prompt.replace('___','…'))}</span></button>`}).join('')}</div></details></section>`:''}
+ <section class="setc"><button class="ghost" id="reset">${L('Wyzeruj postęp','reset progress','wyzerować (to set to zero), imperative · postęp = progress')}</button></section>`;
+ updSync();
+ const a=$('#aud');if(a)a.onchange=()=>{autoAudio=a.checked;try{localStorage.setItem('pl-test1-audio',a.checked?'1':'0')}catch(e){}};
+ app.querySelectorAll('.stp button').forEach(b=>b.onclick=()=>{const M=mix(),k=b.dataset.k;M[k]=Math.max(0,Math.min(20,M[k]+ +b.dataset.d));if(M.n+M.m+M.c>0){S._mix=M;save()}settingsView()});
+ app.querySelectorAll('[data-show]').forEach(b=>b.onclick=()=>{showTerm(b.dataset.show);settingsView()});
+ const r=$('#reset');r.onclick=()=>{if(r.classList.contains('armed')){S={};save();home()}else{r.classList.add('armed');r.innerHTML=L('Dotknij jeszcze raz, aby wszystko usunąć','tap again to erase all progress','dotknąć, imperative · usunąć = to delete')}};
+}
+
+/* an unfinished round is kept on this device, so stopping (✕, closing the app) resumes at the same exercise */
+const SK='pl-test1-round';
+function saveSess(){if(!sess)return;try{localStorage.setItem(SK,JSON.stringify({title:sess.title,test:!!sess.test,nut:!!sess.nut,drill:!!sess.drill,i:sess.i,answeredAt:sess.answeredAt,fresh:sess.fresh,stage0:sess.stage0,
+ queue:sess.queue.map(e=>({id:e.it.id,st:e.st,slot:e.slot,retry:!!e.retry,again:!!e.again,tries:e.tries||0,practice:!!e.practice,burst:e.burst||null})),
+ log:sess.log.map(l=>({id:l.it.id,res:l.res,given:l.given,retry:!!l.retry,counts:!!l.counts,firstTry:!!l.firstTry,slot:l.slot})),done:[...(sess.done||[])],at:Date.now()}))}catch(e){}}
+function savedSess(){try{const o=JSON.parse(localStorage.getItem(SK)||'null');if(!o||!o.queue||o.i>=o.queue.length)return null;
+ if(Date.now()-(o.at||0)>3*864e5)return null;return o}catch(e){return null}}
+function clearSess(){try{localStorage.removeItem(SK)}catch(e){}}
+function resumeSess(){const o=savedSess();if(!o)return false;const byId=id=>ITEMS.find(x=>x.id===id)||REV_INF.find(x=>x.id===id);
+ const queue=o.queue.map(e=>({...e,it:byId(e.id)})).filter(e=>e.it);
+ const log=o.log.map(l=>{const it=byId(l.id);return it?{...l,it,q:it.make()}:null}).filter(Boolean);
+ let i=Math.min(o.i,queue.length);if(o.answeredAt===o.i)i++;if(i>=queue.length){clearSess();return false}
+ start(queue,o.title,o.test,{i,log,fresh:o.fresh||0,done:new Set(o.done||[]),stage0:o.stage0,nut:!!o.nut,drill:!!o.drill});return true}
+function start(queue,title,test,restore){clearSess();sess={title,test,queue,i:0,log:[],fresh:0,stage0:currentStage(),...(restore||{})};
+ const put=(e,off)=>sess.queue.splice(Math.min(sess.queue.length,sess.i+off),0,e);sess.put=put;nav.hidden=true;app.className='app quiz';saveSess();ask()}
+
+function promptHTML(q,fill,g){const f=g?gl:esc;let p=f(q.prompt);p=fill!=null?p.replace('___',`<b class="fill">${f(fill)}</b>`):p.replace('___','<span class="blank"></span>');return `<h2 class="prompt${q.big?' big':''}">${p}</h2>`}
+const topBar=(cur)=>`<div class="qtop"><button class="qx" id="qx" aria-label="Stop and go home">✕</button>${sess.hist&&sess.hist.length?'<button class="qx" id="qb" aria-label="Look at the previous exercise">←</button>':''}<div class="bar"><i style="width:${Math.round(sess.i/sess.queue.length*100)}%"></i></div><span class="count">${sess.i+1}/${sess.queue.length}</span></div>`;
+
+/* ---------- blocks: taught as one unit ---------- */
+const AM_FAM=Object.keys(VERBS).filter(v=>VERBS[v].fam==='am'&&v!=='mieć');
+const ROWSAY=(say,a,b)=>`<tr class="sayrow" data-say="${esc(say)}"><td>${a}</td><td>${b}</td></tr>`;
+function verbBlock(name){const [inf,half]=name.split(':'),v=VERBS[inf],idx=half==='sg'?[0,1,2]:[3,4,5];
+ const form=f=>{if(!v.stem)return `<b class="end">${esc(f)}</b>`;const sie=f.endsWith(' się'),core=sie?f.slice(0,-4):f;return esc(v.stem)+`<b class="end">${esc(core.slice(v.stem.length))}</b>`+(sie?' się':'')};
+ return{eyebrow:`Czasownik · ${v.fam==='am'?(v.model?'model verb of the -am / -asz family':'-am / -asz family'):'irregular verb'}`,title:`${inf} · ${v.en} · ${half==='sg'?'singular':'plural'}`,
+  html:`<div class="tw"><table class="btab"><tbody>${idx.map(i=>ROWSAY(PERS[i][0]+' '+v.f[i],esc(PERS_LBL[i]),form(v.f[i]))).join('')}</tbody></table></div>
+  <div class="fam">${v.fam==='am'?`<p><b>Family: -am / -asz.</b> Endings ${AM_END}${v.stem?` on the stem <b>${esc(v.stem)}-</b>`:''}.</p><p>Same pattern: ${AM_FAM.filter(x=>x!==inf).map(x=>`<b>${esc(x)}</b>`).join(', ')}${inf==='mieć'?'':', and mieć (mam, masz…)'}.</p>`:`<p><b>Irregular.</b> No family to copy from, so learn the six forms together.</p>`}
+  <p>${half==='sg'?'pan / pani take the on / ona form. The plural (my, wy, oni) comes in a later round.':'państwo takes the oni form. Singular: '+v.f.slice(0,3).join(', ')+'.'}</p></div>`}}
+const BLOCKS={
+ 'pron:sg':{eyebrow:'Zaimki · singular',title:'I, you, he, she, it',html:()=>`<div class="tw"><table class="btab"><tbody>${PRON_CORE.slice(0,5).map(([en,pl])=>ROWSAY(pl,esc(en),`<b class="end">${esc(pl)}</b>`)).join('')}</tbody></table></div><div class="fam"><p><b>ono</b> is for neuter nouns, like dziecko (child).</p></div>`},
+ 'pron:pl':{eyebrow:'Zaimki · plural',title:'we, you, they',html:()=>`<div class="tw"><table class="btab"><tbody>${PRON_CORE.slice(5).map(([en,pl])=>ROWSAY(pl,esc(en),`<b class="end">${esc(pl)}</b>`)).join('')}</tbody></table></div><div class="fam"><p><b>oni</b> as soon as at least one man is in the group; <b>one</b> for groups with no men.</p></div>`},
+ formal:{eyebrow:'Formal “you”',title:'pan, pani, państwo…',html:()=>`<div class="tw"><table class="btab"><tbody>${FORMAL.map(([en,pl])=>ROWSAY(pl,esc(en),`<b class="end">${esc(pl)}</b>`)).join('')}</tbody></table></div><div class="fam"><p>Nouns, not pronouns: the verb takes the <b>on / ona</b> form with pan and pani (pan jest), and the <b>oni</b> form with państwo, panowie, panie (państwo są).</p></div>`},
+ 'num:1-5':{eyebrow:'Liczby',title:'1 to 5',html:()=>`<div class="tw"><table class="btab"><tbody>${[1,2,3,4,5].map(i=>ROWSAY(NUMS[i],String(i),`<b class="end">${NUMS[i]}</b>`)).join('')}</tbody></table></div>`},
+ 'num:6-10':{eyebrow:'Liczby',title:'6 to 10',html:()=>`<div class="tw"><table class="btab"><tbody>${[6,7,8,9,10].map(i=>ROWSAY(NUMS[i],String(i),`<b class="end">${NUMS[i]}</b>`)).join('')}</tbody></table></div>`},
+'cf:formal':{eyebrow:'Pattern · formal questions',title:'pan / pani + the on / ona form',concept:1,html:()=>`<div class="tw"><table class="btab"><thead><tr><th>to a friend</th><th>formal</th></tr></thead><tbody>${[['Jak masz na imię?','Jak ma pan na imię?'],['Skąd jesteś?','Skąd pani jest?'],['Gdzie mieszkasz?','Gdzie pan mieszka?']].map(([a,b2])=>ROWSAY(b2,esc(a),`<b class="end">${esc(b2)}</b>`)).join('')}</tbody></table></div><div class="fam"><p>Replace <b>ty</b> by <b>pan</b> (a man) or <b>pani</b> (a woman), and put the verb in the <b>on / ona</b> form: masz → ma, jesteś → jest, mieszkasz → mieszka, nazywasz się → nazywa się.</p><p>From here every question is written straight away.</p></div>`},
+ 'cf:third':{eyebrow:'Pattern · about someone else',title:'on / ona + the on-form',concept:1,html:()=>`<div class="tw"><table class="btab"><thead><tr><th>to you</th><th>about him / her</th></tr></thead><tbody>${[['Jak masz na imię?','Jak ona ma na imię?'],['Skąd jesteś?','Skąd on jest?'],['Mieszkam w Gandawie.','Ona mieszka w Warszawie.']].map(([a,b2])=>ROWSAY(b2,esc(a),`<b class="end">${esc(b2)}</b>`)).join('')}</tbody></table></div><div class="fam"><p>Use <b>on</b> (he) or <b>ona</b> (she) and the same verb form as for pan / pani: ma, jest, mieszka, nazywa się. Answers about someone use that form too.</p><p>From here every question is written straight away.</p></div>`},
+ 'cf:sentence':{eyebrow:'Pattern · verbs in sentences',title:'Who does it? Use that form.',concept:1,html:()=>`<div class="tw"><table class="btab"><tbody>${[['(my) ___ z Francji.','jesteśmy','my → my-form'],['Oni ___ problem.','mają','oni → oni-form'],['Michael ___ w Krakowie.','mieszka','one person (a name) → on-form']].map(([q,a,m])=>ROWSAY(q.replace('___',a).replace(/^\(my\) /,''),`${esc(q)} <span class="muted">· ${m}</span>`,`<b class="end">${a}</b>`)).join('')}</tbody></table></div><div class="fam"><p>Find who does it: the pronoun in brackets, or the name. A name or pan / pani takes the on-form; two or more people take the oni-form.</p><p>You already know the forms; these are written straight away.</p></div>`},
+ ile:{eyebrow:'Ile jest…? · one idea',title:'How much is…?',concept:1,html:()=>`<div class="tw"><table class="btab"><tbody>${[['Ile jest dwa plus trzy?','pięć','2 + 3 = 5'],['Ile jest siedem minus cztery?','trzy','7 − 4 = 3']].map(([q,a,m])=>ROWSAY(q+' '+a,`${esc(q)} <span class="muted">· ${m}</span>`,`<b class="end">${a}</b>`)).join('')}</tbody></table></div><div class="fam"><p><b>Ile jest</b> = how much is. <b>plus</b> and <b>minus</b> as in English. Answer with the number word (0–10).</p><p>You go straight to writing the answers: no warm-ups for sums.</p></div>`},
+ oni:{eyebrow:'Oni czy one? · one rule',title:'they = oni or one',concept:1,html:()=>`<div class="tw"><table class="btab"><tbody>${ONI_KEEP.map(i=>ROWSAY(`${ONI[i][1]} są z Polski`,`${esc(ONI[i][0])} <span class="muted">· ${ONI_WHY[i]}</span>`,`<b class="end">${ONI[i][1]}</b>`)).join('')}</tbody></table></div><div class="fam"><p><b>oni</b> as soon as there is at least one man in the group. <b>one</b> only when there is no man: women, children, animals, things.</p></div>`},
+ 'kraje:ii':{eyebrow:'Kraje · -ia → -ii',concept:1,title:'z Belgii, z Anglii…',html:()=>krRows('kraje:ii','After z the country goes into the genitive. Countries ending in -ia change to -ii.')},
+ 'kraje:ji':{eyebrow:'Kraje · -ia → -ii, -ja → -ji',concept:1,title:'z Hiszpanii, z Francji…',html:()=>krRows('kraje:ji','-ia → -ii as before; countries ending in -ja change to -ji.')},
+ 'kraje:ki':{eyebrow:'Kraje · -ka → -ki and plurals',concept:1,title:'z Polski, z Niemiec…',html:()=>krRows('kraje:ki','-ka → -ki. Niemcy and Włochy are plural (“the Germans”, “the Italians”), so they take the plural genitive: z Niemiec, z Włoch. USA: ze Stanów Zjednoczonych, or simply z Ameryki.')},
+ kraje:{eyebrow:'Skąd? · the pattern',title:'z + genitive',html:()=>`<p class="note">“From” is <b>z</b>, and z always changes the country into the <b>genitive</b>. Most follow one of these patterns:</p><div class="tw"><table class="btab"><thead><tr><th>country</th><th>from…</th><th>pattern</th></tr></thead><tbody>
+  ${[['Belgia','z Belgii','-ia → -ii'],['Francja','z Francji','-ja → -ji'],['Polska','z Polski','-ka → -ki'],['Niemcy','z Niemiec','plural country'],['Włochy','z Włoch','plural country'],['Stany Zjednoczone','ze Stanów Zjednoczonych','plural; ze before st']].map(r=>`<tr class="sayrow" data-say="${esc(r[1])}"><td>${esc(r[0])}</td><td><b class="end">${esc(r[1])}</b></td><td>${esc(r[2])}</td></tr>`).join('')}</tbody></table></div>`},
+ miasta:{eyebrow:'Gdzie? · the pattern',title:'w + locative',html:()=>`<p class="note">“In” a place is <b>w</b>, and w changes the city into the <b>locative</b>:</p><div class="tw"><table class="btab"><thead><tr><th>city</th><th>in…</th><th>pattern</th></tr></thead><tbody>
+  ${[['Gandawa','w Gandawie','-a → -ie'],['Warszawa','w Warszawie','-a → -ie'],['Bruksela','w Brukseli','-la → -li'],['Kraków','w Krakowie','+ -ie, ó → o'],['Gdańsk','w Gdańsku','+ -u after k'],['Poznań','w Poznaniu','-ń → -niu'],['Wrocław','we Wrocławiu','we before w-, f- clusters']].map(r=>`<tr class="sayrow" data-say="${esc(r[1])}"><td>${esc(r[0])}</td><td><b class="end">${esc(r[1])}</b></td><td>${esc(r[2])}</td></tr>`).join('')}</tbody></table></div>`}
+};
+const krRows=(g,note)=>`<div class="tw"><table class="btab"><thead><tr><th>country</th><th>from…</th></tr></thead><tbody>${KR_GROUPS[g].map(n=>{const c=COUNTRIES.find(c=>c[1].split(' · ')[0]===n);return `<tr class="sayrow" data-say="${esc(c[2])}"><td>${esc(n)} <span class="muted">· ${esc(c[0])}</span></td><td>z <b class="end">${esc(c[2].replace(/^ze? /,''))}</b></td></tr>`}).join('')}</tbody></table></div><div class="fam"><p>${esc(note)}</p></div>`;
+const clRows=ix=>`<div class="tw"><table class="btab"><tbody>${ix.map(i=>ROWSAY(sp(CLASS[i][0]),esc(CLASS[i][1]),`<b class="end">${esc(CLASS[i][0])}</b>`)).join('')}</tbody></table></div>${ix.includes(5)?'<div class="fam"><p><b>Proszę + infinitive</b> is a polite request; the verb stays in its dictionary form.</p></div>':''}`;
+const blockDef=n=>n.startsWith('verb:')?verbBlock(n.slice(5)):{...BLOCKS[n],html:BLOCKS[n].html()};
+const blockSeen=n=>!!(S._bk&&S._bk[n]);
+function showBlock(cur,name){
+ const B=blockDef(name),mem=ITEMS.filter(it=>it.block===name&&it.member),isMem=cur.it.member;
+ app.innerHTML=`${topBar(cur)}
+ <article class="card intro"><p class="eyebrow">${eyeb(B.eyebrow)}<span class="tag">nowe</span></p><h2 class="prompt">${esc(B.title)}</h2>${B.html}
+  <p class="note">${canSpeak?'Tap a row to hear it. ':''}${mem.length?`${mem.length} new terms, practised one at a time.`:'The words below use this pattern one by one.'}</p></article>
+ <div class="two"><button class="check" id="got">${L('Mam!','got it','lit. “I have (it)” · mieć, ja-form')}</button>${mem.length?'<button class="next" id="knowit" style="background:var(--blue-soft);color:var(--blue)">'+L('Znam to · sprawdź później','I know this · test me later','znać = to know · sprawdzić = to check, imperative')+'</button>':''}</div>`;
+ $('#qx').onclick=home;
+ const mark=(bx,due)=>{S._bk={...(S._bk||{}),[name]:1};let n=0;mem.forEach(it=>{if(!S[it.id]){S[it.id]={b:bx,n:0,w:0,due,f:dayKey()};(sess.introduced=sess.introduced||new Set()).add(it.id);n++}});sess.fresh+=n;save()};
+ const concept=!!(BLOCKS[name]&&BLOCKS[name].concept);
+ $('#got').onclick=()=>{mark(concept?1:0,round());
+  if(isMem){const fresh=shuffle(mem.filter(it=>S[it.id]&&S[it.id].n===0));
+   if(concept)fresh.forEach((it,k)=>sess.put({it,st:'write',slot:'new',burst:{name:B.title,k:k+1,n:fresh.length}},1+k));
+   else fresh.forEach((it,k)=>sess.put({it,st:'pick',slot:'new'},2+k*2));next()}
+  else ask()};
+ const kb=$('#knowit');if(kb)kb.onclick=()=>{mark(1,round()+2);if(isMem){mem.filter(it=>S[it.id].n===0).forEach((it,k)=>sess.put({it,st:'write',slot:'new'},2+k*2));next()}else ask()};
+ $('#got').focus({preventScroll:true});
+}
+function showTable(cur,q,level){
+ const scaffold=!sess.test&&box(cur.it.id)<1;
+ app.innerHTML=`${topBar(cur)}
+ <article class="card"><p class="eyebrow">${eyeb(q.eyebrow)}${level}${cur.retry?' · second try':''}</p>
+  <h2 class="prompt">${esc(q.prompt)}</h2><p class="sub">${esc(q.sub)}${scaffold?' · half is filled in for you':''}</p></article>
+ <form class="typed" id="tf"><div class="tw"><table class="ttab"><tbody>${q.rows.map((r,i)=>`<tr><td class="tl">${esc(r.label)}</td><td>${scaffold&&i%2===0
+   ?`<span class="given">${esc(r.answer)}</span>`
+   :`<input data-r="${i}" type="text" lang="pl" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="${esc(r.label)}">`}<span class="corr" hidden></span></td></tr>`).join('')}</tbody></table></div>
+  <div class="keys">${'ąćęłńóśźż'.split('').map(c=>`<button type="button" data-k="${c}">${c}</button>`).join('')}</div>
+  <button class="check" type="submit">${L('Sprawdź','check','sprawdzić, imperative')}</button></form>
+ <div id="fb"></div>`;
+ $('#qx').onclick=home;
+ const ins=[...app.querySelectorAll('#tf input')];let last=ins[0];ins.forEach(x=>x.addEventListener('focus',()=>last=x));if(last)last.focus();
+ ins.forEach((x,k)=>x.addEventListener('keydown',e=>{if(e.key==='Enter'&&k<ins.length-1){e.preventDefault();ins[k+1].focus()}}));
+ app.querySelectorAll('.keys button').forEach(k=>k.onclick=()=>{const t=last;if(!t)return;const s0=t.selectionStart??t.value.length,e0=t.selectionEnd??s0;t.value=t.value.slice(0,s0)+k.dataset.k+t.value.slice(e0);t.focus();t.setSelectionRange(s0+1,s0+1)});
+ $('#tf').onsubmit=e=>{e.preventDefault();if(app.querySelector('#tf').dataset.done)return;
+  if(ins.some(x=>!x.value.trim())&&!app.querySelector('#tf').dataset.warned){app.querySelector('#tf').dataset.warned=1;app.querySelector('#tf .check').textContent='Some boxes are empty · check anyway';return}
+  let worst='right';const wrongRows=[];
+  ins.forEach(x=>{const r=q.rows[+x.dataset.r],g=norm(x.value),acc=r.accept.map(norm);let st=acc.includes(g)?'right':acc.map(strip).includes(strip(g))&&g?'accent':'wrong';
+   x.readOnly=true;x.classList.add(st==='right'?'ok':st==='accent'?'almost':'bad');
+   if(st!=='right'){const c=x.parentNode.querySelector('.corr');c.innerHTML=gl(r.answer);c.hidden=false;wrongRows.push(r.label)}
+   if(st==='wrong')worst='wrong';else if(st==='accent'&&worst==='right')worst='accent'});
+  app.querySelector('#tf').dataset.done=1;app.querySelector('#tf .keys').hidden=true;app.querySelector('#tf .check').hidden=true;
+  finish(worst,ins.map(x=>x.value).join(', '),worst==='right'?null:`${wrongRows.length} of ${ins.length} to fix: the correct form is next to each one.`)};
+}
+
+function ask(){hideTip();
+ if(sess.i>=sess.queue.length)return results();
+ const cur=sess.queue[sess.i],b0=box(cur.it.id),stage=sess.test?'write':cur.st||(b0<1?'pick':'write'),q=cur.it.make(stage==='write'?'write':'pick');cur.q=q;const b=b0;
+ if(!cur.st)cur.st=sess.test?'write':b<0?'intro':b<1&&q.options?'pick':'write';
+ if(sess.test)cur.st='write';
+ if(cur.st==='intro'&&b>=0)cur.st=b<1&&q.options?'pick':'write';
+ if(cur.st==='pick'&&!q.options)cur.st='write';
+ if(cur.it.pattern&&cur.st==='pick')cur.st='write';
+ if(!sess.test&&cur.st==='pick'&&!cur.again&&written(cur.it)&&!(S[cur.it.id]&&S[cur.it.id].dr)&&!(sess.introduced&&sess.introduced.has(cur.it.id)))cur.st='write';
+ if(!sess.test&&cur.it.block&&!blockSeen(cur.it.block)&&(cur.st==='intro'||!cur.it.member))return showBlock(cur,cur.it.block);
+ if(cur.st==='intro'&&cur.it.pattern){if(!S[cur.it.id]){S[cur.it.id]={b:1,n:0,w:0,due:round(),f:dayKey()};sess.fresh++;save()}cur.st='write'}
+ q.kind=cur.st==='intro'?'intro':cur.st==='pick'?'mc':q.reveal?'reveal':'type';
+ const canHint=!sess.test&&q.kind==='type';let usedHint=false;
+ const burstTag=cur.burst?`<span class="tag burst">${L('Seria','rapid fire','seria = series')} ${cur.burst.k}/${cur.burst.n} · ${esc(cur.burst.name)}${cur.practice?' · '+L('dodatkowe','extra, does not count'):''}</span>`:'';
+ const level0=sess.test?'':q.kind==='intro'?`<span class="tag">${L('nowe','new')}</span>`:q.kind==='mc'?`<span class="tag">${L('rozgrzewka','warm-up','not counted')}${cur.slot==='fix'&&S[cur.it.id]&&S[cur.it.id].dr?' · '+L('spadek poziomu','dropped a level','after 3 wrong in a row'):cur.slot==='new'?' · '+L('nowe','new'):''}</span>`:q.kind==='type'?`<span class="tag">${L('pisz · liczy się','write · counts','pisać, imperative · liczyć się = to count')}${cur.slot==='fix'?' · '+L('do poprawy','to fix'):cur.slot==='rev'?' · '+L('powtórka','review'):cur.slot==='new'?' · '+L('nowe','new'):''}</span>`:'';
+ const level=cur.burst?burstTag:level0;
+
+ if(q.kind==='intro'){
+  const inBlank=q.prompt.includes('___');
+  app.innerHTML=`${topBar(cur)}
+  <article class="card intro"><p class="eyebrow">${eyeb(q.eyebrow)}${level}</p>
+   ${inBlank?`<div class="prow">${promptHTML(q,q.answer,1)}${spkBtn(q.sayAns)}</div>`
+     :q.reveal?`<div class="prow"><h2 class="prompt">${gl(q.prompt)}</h2>${spkBtn(q.say)}</div><p class="meaning">${esc(q.answer)}</p>`
+     :`<p class="meaning">${q.say?gl(q.prompt):esc(q.prompt)}${q.sub?' · '+esc(q.sub):''}</p><div class="prow"><h2 class="prompt">${gl(q.mcAnswer||q.answer)}</h2>${spkBtn(q.sayAns)}</div>`}
+   ${q.note?`<p class="note">${esc(q.note)}</p>`:''}
+   ${q.also?`<p class="note"><b>${L('Każda z tych odpowiedzi jest dobra:','any of these works:','każda = each (feminine, agrees with odpowiedź)')}</b> ${gl(q.also)}</p>`:''}
+  </article>
+  <div class="two"><button class="check" id="got">${L('Mam!','got it','lit. “I have (it)” · mieć, ja-form')}</button><button class="next" id="knowit" style="background:var(--blue-soft);color:var(--blue)">${L('Znam to · sprawdź później','I know this · test me later','znać = to know · sprawdzić = to check, imperative')}</button></div>
+  <button class="ghost ov" id="hideit">${L('Ukryj · nie teraz','hide · not now','ukryć (to hide), imperative')}</button>`;
+  $('#qx').onclick=home;
+  if(autoAudio)say(q.sayAns);
+  $('#knowit').onclick=()=>{S[cur.it.id]={b:1,n:0,w:0,due:round()+2,f:dayKey()};save();sess.fresh++;sess.put({it:cur.it,st:'write',slot:'new'},3);next()};
+  $('#hideit').onclick=()=>hideAndSkip(cur.it.id);
+  $('#got').onclick=()=>{(sess.introduced=sess.introduced||new Set()).add(cur.it.id);S[cur.it.id]={b:0,n:0,w:0,due:round(),f:dayKey()};save();sess.fresh++;sess.put({it:cur.it,st:'pick',slot:'new'},3);next()};
+  $('#got').focus({preventScroll:true});
+  return;
+ }
+
+ app.innerHTML=`${topBar(cur)}
+ <article class="card"><p class="eyebrow">${eyeb(q.eyebrow)}${level}${cur.retry?' · second try':''}</p>
+  <div class="prow">${promptHTML(q)}${spkBtn(q.say)}</div>${q.sub?`<p class="sub">${esc(q.sub)}</p>`:''}
+  <p class="hint" id="hintx" hidden>${esc(hintOf(q))}</p></article>
+ ${q.kind==='mc'
+  ?`<div class="opts">${q.options.map((o,i)=>`<button class="opt" data-i="${i}"><kbd class="kn">${i+1}</kbd><span class="ot">${esc(o)}</span></button>`).join('')}</div><p class="ktyped" id="ktyped" hidden></p>`
+  :q.kind==='reveal'?`<button class="check" id="rv">${L('Pokaż znaczenie','show the meaning','pokazać, imperative · znaczenie = meaning')}</button>`
+  :`<form class="typed" id="tf"><input id="ti" type="text" lang="pl" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Your answer" placeholder="Napisz po polsku…">
+     <div class="keys">${'ąćęłńóśźż'.split('').map(c=>`<button type="button" data-k="${c}">${c}</button>`).join('')}</div>
+     <div class="two"><button class="check" type="submit">${L('Sprawdź','check','sprawdzić, imperative')}</button>${canHint?'<button class="next alt" type="button" id="hb">'+L('Podpowiedź','hint')+'</button>':''}</div></form>`}
+ <div id="fb"></div>`;
+ $('#qx').onclick=home;
+ if(q.kind==='mc'){const right=q.mcAnswer||q.answer;app.querySelectorAll('.opt').forEach(btn=>btn.onclick=()=>{if(btn.classList.contains('done'))return;
+   const isOk=o=>q.valid?q.valid.includes(o):o===right;const given=q.options[+btn.dataset.i],res=isOk(given)?'right':'wrong';
+   app.querySelectorAll('.opt').forEach(x=>{x.classList.add('done');x.setAttribute('aria-disabled','true');const o=q.options[+x.dataset.i];if(isOk(o))x.classList.add('right');else if(x===btn)x.classList.add('wrong');
+    const mn=meaningOf(o,q);if(mn){x.classList.add('gw','gw-plain');x.dataset.g=mn;if(x===btn&&!isOk(o))x.insertAdjacentHTML('beforeend',`<span class="omean">${esc(mn)}</span>`)}});
+   finish(res,given)})}
+ else if(q.kind==='reveal'){$('#rv').onclick=()=>{$('#rv').hidden=true;const pe=app.querySelector('.card .prompt');if(pe)pe.outerHTML=promptHTML(q,null,1);
+   $('#fb').innerHTML=`<div class="fb"><div class="ansline"><p>${esc(q.answer)}</p>${spkBtn(q.sayAns)}</div><p class="note">${L('Wiedziałeś?','did you know it?','wiedzieć (to know), past tense, masculine')}</p><div class="two"><button class="next" id="kn">${L('Tak','yes')}</button><button class="next alt" id="dk">${L('Jeszcze nie','not yet')}</button></div></div>`;
+   if(autoAudio)say(q.sayAns);
+   $('#kn').onclick=()=>finish('right','',null,true);$('#dk').onclick=()=>finish('wrong','',null,true)}}
+ else{const ti=$('#ti');ti.focus();
+   app.querySelectorAll('.keys button').forEach(k=>k.onclick=()=>{const s=ti.selectionStart??ti.value.length,e=ti.selectionEnd??s;ti.value=ti.value.slice(0,s)+k.dataset.k+ti.value.slice(e);ti.focus();ti.setSelectionRange(s+1,s+1)});
+   const hb=$('#hb');if(hb)hb.onclick=()=>{usedHint=true;$('#hintx').hidden=false;hb.disabled=true;ti.focus()};
+   $('#tf').onsubmit=e=>{e.preventDefault();if(ti.readOnly){next();return}if(!ti.value.trim())return;
+     const g=norm(ti.value);let r;
+     if(q.check)r=q.check(g);else{const acc=q.accept.map(norm);r={res:acc.includes(g)?'right':acc.map(strip).includes(strip(g))?'accent':'wrong'}}
+     if(usedHint&&r.res==='right')r.res='hint';
+     ti.readOnly=true;app.querySelector('.keys').hidden=true;app.querySelector('#tf .two').hidden=true;finish(r.res,ti.value,r.msg)}}
+}
+
+const MARKS={hint:['Dobrze, z podpowiedzią.'],right:['Dobrze!','Bardzo dobrze!','Świetnie!','Brawo!'],accent:['Prawie! Uwaga na ogonki.'],wrong:['Niestety…','Jeszcze nie.']};
+function finish(res,given,msg,quick){
+ const cur=sess.queue[sess.i],q=cur.q,id=cur.it.id;
+ const prev=S[id]?{...S[id]}:null,prevDay=S._d?{...S._d}:null;
+ sess.done=sess.done||new Set();
+ const warmup=q.kind==='mc'&&!sess.test,counts=!warmup&&!cur.retry&&!sess.done.has(id)&&!cur.it.tmp&&!cur.practice;if(counts)sess.done.add(id);
+ if(counts)record(id,res,given);else{S._d={d:dayKey(),n:todayCount()+1};save()}
+ const entry={it:cur.it,q,res,given,retry:cur.retry,counts,firstTry:!warmup&&!cur.retry,slot:cur.slot};sess.log.push(entry);
+ let requeued=false;
+ /* warm-up: a miss gets one more warm-up; after that (right or not) the written answer follows, exactly once */
+ if(warmup){if(res!=='right'&&!cur.again)sess.put({it:cur.it,st:'pick',slot:cur.slot,again:1},2);else sess.put({it:cur.it,st:'write',slot:cur.slot},3)}
+ else if(res!=='right'&&sess.nut&&(cur.tries||1)<3){sess.put({it:cur.it,st:'write',retry:true,tries:(cur.tries||1)+1,slot:cur.slot},3);requeued=true}
+ else if(res!=='right'&&!cur.retry&&!sess.nut&&!cur.practice){sess.queue.push({it:cur.it,st:'write',retry:true,slot:cur.slot});requeued=true}
+ sess.answeredAt=sess.i;saveSess();
+ if(quick)return next();
+ let shown=q.kind==='mc'?(q.mcAnswer||q.answer):q.answer;
+ if(q.open&&res==='right')shown=given;else if(q.open&&q.kind==='mc'){const vo=q.options.find(o=>q.valid.includes(o));if(vo)shown=vo}
+ let tgt=q.table||(q.reveal&&q.kind!=='type')?null:(q.kind==='type'&&q.accept?q.accept[0]:(q.mcAnswer||q.answer));
+ if(tgt){if(/[.!?…] \/ /.test(tgt))tgt=tgt.split(' / ')[0];tgt=tgt.replace(/pan \/ pani/g,'pani');if(/^\d+$/.test(tgt)||/^For example/.test(tgt))tgt=null}
+ const pe=app.querySelector('.card .prompt');
+ if(pe&&!q.table&&(q.say||q.prompt.includes('___')))pe.outerHTML=promptHTML(q,q.prompt.includes('___')?(q.mcAnswer||q.answer):null,1);
+ const cls=res==='right'||res==='hint'?'r':res==='accent'?'a':'w';
+ $('#fb').innerHTML=`<div class="fb ${cls}"><p class="mark">${pick(MARKS[res])}</p>
+  ${res!=='right'&&res!=='hint'&&tgt?'<button class="next alt" id="drill">'+L('Napisz 3 razy','write it 3 times','napisać, imperative · razy = plural of raz (time)')+'</button>':''}
+  ${res!=='right'&&q.kind==='type'?(()=>{const ns=diagnose(given,q);return ns.length?`<div class="why"><b>${L('Co poszło nie tak','what went wrong','pójść (to go), past tense')}</b>${ns.map(([k,t])=>`<p><span class="wk">${esc(k)}</span> ${t}</p>`).join('')}</div>`:''})():''}
+  ${res!=='right'&&q.kind==='type'?(()=>{const d=closeDiff(given,q.accept||q.valid||[q.answer]);
+    return d?`<p class="diff" aria-label="Your answer with corrections">${d.html}</p><p class="note">Close: ${d.n===1?'one letter':d.n+' letters'} to fix. <span class="dkey"><del>red</del> = wrong or extra, <ins>green</ins> = should be there.</span></p>`
+     :`<p class="note">${L('Napisałeś:','you wrote:','napisać, past tense, ty (masculine)')} <b>${esc(given)}</b></p>`})():''}
+  ${q.table?'':`<div class="ansline"><p>${res==='accent'?'Spelled: ':''}${q.reveal?esc(shown):gl(shown)}</p>${spkBtn(q.sayAns)}</div>`}
+  ${msg?`<p class="note">${esc(msg)}</p>`:''}
+  ${res!=='right'&&q.kind==='type'?(()=>{const c=confusedWith(given,{...q,id:id});return c?`<p class="note conf">You wrote <b>${gl(c.text)}</b> = ${esc(c.mean)}. That is another term you are learning, so you mixed the two up.</p>`:''})():''}
+  ${q.note&&res!=='right'?`<p class="note">${esc(q.note)}</p>`:''}
+  ${q.also?`<p class="note"><b>${L('Też dobrze:','also correct:','też = also · dobrze = well, fine')}</b> ${gl(q.also)}</p>`:''}
+  ${res==='hint'?'<p class="note">Write it once without the hint and it counts as known.</p>':''}
+  ${res==='accent'?'<p class="note">The ogonki (ą ę ł ó ś ż…) count on the test, so this one stays on your list.</p>':''}
+  ${res==='wrong'&&q.kind==='type'&&counts?'<button class="ghost ov" id="ov">'+L('Moja odpowiedź też była dobra','my answer was correct too','była = past tense of być (feminine, agrees with odpowiedź)')+'</button>':''}
+  ${warmup?'<p class="note">Warm-up: you write it later this round, and that answer counts. Tap any option to see what it means.</p>':''}
+  ${res==='right'&&counts&&!sess.test?'<button class="ghost ov" id="easy">'+L('Za łatwe · później','too easy · later','za łatwe = too easy (za + adjective)','Pushes this term further back.')+'</button>':''}
+  <button class="next" id="nx">${L('Dalej','next','lit. “further”')} →</button>
+  ${sess.test||cur.it.tmp||cur.practice?'':'<button class="ghost ov hidebtn" id="hideit">'+L('Ukryj','hide this term','ukryć, imperative')+'</button>'}</div>`;
+ $('#nx').onclick=next;const hb2=$('#hideit');if(hb2)hb2.onclick=()=>hideAndSkip(id);
+ const dr=$('#drill');if(dr)dr.onclick=()=>drill(tgt,q);
+ const ez=$('#easy');if(ez)ez.onclick=()=>{
+  const t=S[id];t.b=Math.min(t.b+1,6);t.due=round()+1+GAP[t.b];save();next()};
+ const ov=$('#ov');if(ov)ov.onclick=()=>{if(prev)S[id]=prev;else delete S[id];if(prevDay)S._d=prevDay;record(id,'right');entry.res='right';if(requeued)sess.queue.pop();next()};
+ if(q.kind!=='type')$('#nx').focus({preventScroll:true});
+ $('#fb').scrollIntoView({block:'nearest',behavior:'smooth'});
+ if(autoAudio)say(q.sayAns);
+}
+function hideAndSkip(id){hideTerm(id);for(let k=sess.queue.length-1;k>sess.i;k--)if(sess.queue[k].it.id===id)sess.queue.splice(k,1);next()}
+function next(){kbuf='';if(sess){sess.answeredAt=null;app.querySelectorAll('input').forEach(x=>x.setAttribute('value',x.value));sess.hist=sess.hist||[];sess.hist.push(app.innerHTML);if(sess.hist.length>40)sess.hist.shift()}sess.i++;saveSess();ask()}
+function review(k){const H=sess.hist;closeReview();const ov=document.createElement('div');ov.id='review';
+ ov.innerHTML=`<div class="rv-bar"><button class="qx" id="rv-old" aria-label="Earlier exercise" ${k===0?'disabled':''}>←</button><span>${L('Wcześniejsze ćwiczenie','earlier exercise','wcześniejszy = earlier')} · −${H.length-k}</span><button class="rv-back" id="rv-cur">${L('Wróć do ćwiczenia','back to where I was','do + genitive of ćwiczenie')} →</button></div><div class="rv-body">${H[k]}</div>`;
+ document.body.appendChild(ov);
+ ov.querySelectorAll('.rv-body .qtop,.rv-body #fb .ov,.rv-body #drill,.rv-body #nx,.rv-body .keys,.rv-body .two').forEach(x=>x.remove());
+ ov.querySelectorAll('.rv-body button:not([data-say]),.rv-body input').forEach(x=>{x.disabled=true;x.removeAttribute('id')});
+ ov.querySelectorAll('.rv-body [id]').forEach(x=>x.removeAttribute('id'));
+ ov.querySelector('#rv-cur').onclick=closeReview;const o=ov.querySelector('#rv-old');if(o)o.onclick=()=>review(k-1);ov.scrollTop=0}
+function closeReview(){const r=document.getElementById('review');if(r)r.remove()}
+document.addEventListener('click',e=>{if(e.target&&e.target.id==='qb'&&sess&&sess.hist&&sess.hist.length)review(sess.hist.length-1)});
+
+/* optional copy drill after a miss: twice with the answer visible, the third time from memory */
+function drill(t,q){let n=0;const fb=$('#fb');
+ const draw=msg=>{
+  fb.innerHTML=`<div class="fb"><p class="eyebrow">${L('Napisz 3 razy','write it 3 times')} · ${n}/3</p>
+   ${n<2?`<div class="ansline"><p>${gl(t)}</p>${spkBtn(q.sayAns)}</div>`
+     :`<p class="note">Last one: from memory.</p><div class="ansline" id="pk" hidden><p>${gl(t)}</p></div><button type="button" class="ghost ov" id="peek">Show it</button>`}
+   <form class="typed" id="df"><input id="di" type="text" lang="pl" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Write the answer" placeholder="Write it…">
+    <div class="keys">${'ąćęłńóśźż'.split('').map(c=>`<button type="button" data-k="${c}">${c}</button>`).join('')}</div>
+    <button class="check" type="submit">${L('Sprawdź','check','sprawdzić, imperative')}</button></form>
+   ${msg?`<p class="note">${msg}</p>`:''}
+   <button class="ghost ov" id="dskip">${L('Przerwij','stop and continue','przerwać (to interrupt), imperative')} →</button></div>`;
+  const di=$('#di');di.focus();
+  fb.querySelectorAll('.keys button').forEach(k=>k.onclick=()=>{const s0=di.selectionStart??di.value.length,e0=di.selectionEnd??s0;di.value=di.value.slice(0,s0)+k.dataset.k+di.value.slice(e0);di.focus();di.setSelectionRange(s0+1,s0+1)});
+  const pk=$('#peek');if(pk)pk.onclick=()=>{$('#pk').hidden=false;pk.hidden=true;di.focus()};
+  $('#dskip').onclick=next;
+  $('#df').onsubmit=e=>{e.preventDefault();if(!di.value.trim())return;
+   if(norm(di.value)===norm(t)){n++;if(autoAudio&&n===3)say(q.sayAns);
+    if(n>=3){fb.innerHTML='<div class="fb r"><p class="mark">Gotowe!</p></div>';setTimeout(next,700)}else draw('✓ Dobrze.')}
+   else draw(norm(di.value)&&strip(norm(di.value))===strip(norm(t))?'Almost: check the ogonki (ą ę ł ó ś ż…).':'Not quite. Write it exactly as shown.')};
+  fb.scrollIntoView({block:'nearest',behavior:'smooth'});
+ };
+ draw('');
+}
+
+function results(){
+ hideTip();clearSess();
+ const first=sess.drill?sess.log.filter(l=>l.firstTry):sess.log.filter(l=>l.counts),ok=first.filter(l=>l.res==='right').length;
+ if(!sess.counted){sess.counted=1;if(!sess.nut&&!sess.drill){S._r=round()+1;today().r++;if(!sess.test&&first.length)S._acc={ok,n:first.length}}save()}
+ const missed=[];first.forEach(l=>{if(l.res!=='right'&&!missed.find(m=>m.it===l.it))missed.push(l)});
+ const cs=currentStage(),up=cs>sess.stage0;
+ app.innerHTML=`
+ <header class="row"><p class="eyebrow">${esc(sess.title)} · round ${round()} done</p>
+  <p class="score">${ok}<small> / ${first.length} ${L('dobrze napisanych','written right','dobrze = well · napisanych = genitive plural of napisany (written)')}</small></p>
+  <p class="lede">${sess.fresh?`${sess.fresh} new term${sess.fresh>1?'s':''} this round. `:''}${!sess.test&&first.length&&ok/first.length<0.5?'Next round brings fewer new terms, so you can fix these first. ':''}${up?`<b>Next stage unlocked: ${esc(STAGES[cs].n)}.</b> `:''}${missed.length?'Missed questions came back once at the end. Here they are again:':'Clean round.'}</p></header>
+ ${missed.length?`<div class="miss"><ul>${missed.map(l=>`<li><p class="q">${(l.q.say||l.q.prompt.includes('___')?gl:esc)(l.q.prompt.replace('___','…'))}${l.q.sub?' · '+esc(l.q.sub):''}</p><p class="a">${l.q.table?l.q.rows.map(r=>`${esc(r.label)}: ${gl(r.answer)}`).join(' · '):l.q.reveal?esc(l.q.answer):gl(l.q.answer)}</p></li>`).join('')}</ul></div>`:''}
+ <div class="row">
+  ${sess.drill?`<button class="cta2" id="again-drill">Another 5 · ${esc(sess.title.replace('Rapid fire · ',''))}</button>`:''}
+  <button class="cta" id="more"><span>${sess.test?'Ucz się dalej':'Następna runda'}</span><small>${sess.test?L('Wróć do nauki','back to learning','do + genitive of nauka'):L(`${mix().n+mix().m+mix().c} odpowiedzi`,`${mix().n+mix().m+mix().c} written answers`)}</small></button>
+  ${missed.length?'<button class="cta2" id="again">'+L('Jeszcze raz: tylko błędne','again: just the ones I missed','błędne = wrong ones (plural of błędny)')+'</button>':''}
+  <button class="ghost" id="hm">${L('Wróć','go back','wrócić, imperative')}</button></div>`;
+ if(missed.length)$('#again').onclick=()=>start(shuffle(missed.map(m=>({it:m.it,st:'write'}))),'Powtórka',sess.test);
+ const ad=$('#again-drill');if(ad){const key=(DRILLS.find(d=>'Rapid fire · '+d[1]===sess.title)||[])[0];ad.onclick=()=>startDrill(key)}
+ $('#more').onclick=()=>{const r=buildRound(vis());start(r.queue,'Nauka',false)};
+ $('#hm').onclick=home;
+}
+
+function sheet(){
+ hideTip();closeReview();view='sheet';sess=null;nav.hidden=false;app.className='app';setTab('sheet');
+ const t=(head,rows,plCols)=>`<div class="tw"><table><thead><tr>${head.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map((c,i)=>plCols.includes(i)?`<td class="say" data-say="${esc(sp(c))}">${gl(c)}</td>`:`<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
+ const vk=['być','mieć','mieszkać','nazywać się'];
+ app.innerHTML=`
+ <header class="row"><p class="eyebrow">Ściąga · cheat sheet</p><h1>${L('Wszystko na test 1','everything on test 1','na + accusative')}</h1>
+  <p class="lede">Built from the teacher's test overview. ${canSpeak?'Tap any blue Polish text to hear it.':''}</p></header>
+ <details open><summary>Ty ↔ pan / pani</summary>
+  ${t(['ty · friend','pan / pani · formal','answer'],QA.map(q=>[q.inf,q.form,q.ans]),[0,1,2])}
+  <p class="tip"><b>Formal = on / ona verb form.</b> masz → ma, jesteś → jest, mieszkasz → mieszka, nazywasz się → nazywa się.</p>
+  ${t(['about him / her','answer'],QA.map(q=>[q.third,q.ans3]),[0,1])}
+  ${t(['also on the test','meaning'],[['Co słychać? – Wszystko w porządku.',"How's it going? – All fine."],['Miło mi. / Bardzo mi miło.','Nice to meet you.'],['Ile jest…?','How much is…?']],[0])}
+ </details>
+ <details><summary>Czasowniki · verbs</summary>
+  ${t(['',...vk],PERS_LBL.map((p,i)=>[p,...vk.map(v=>VERBS[v].f[i])]),[1,2,3,4])}
+  <p class="tip"><b>AM/ASZ group:</b> ja -am · ty -asz · on -a · my -amy · wy -acie · oni -ają. Also czytać, pytać, przepraszać. <b>być</b> is irregular.</p>
+ </details>
+ <details><summary>Zaimki · oni czy one?</summary>
+  ${t(['pronoun','who'],[['ja','I'],['ty','you (friend)'],['on / ona','he / she'],['my','we'],...PRON],[0])}
+ </details>
+ <details><summary>Skąd jesteś? · Jestem z …</summary>
+  ${t(['kraj','skąd?','English'],COUNTRIES.map(c=>[c[1],c[2],c[0]]),[1])}
+  <p class="tip">USA: <b>ze Stanów Zjednoczonych</b> or <b>z Ameryki</b>.</p>
+ </details>
+ <details><summary>Gdzie mieszkasz? · Mieszkam w …</summary>
+  ${t(['miasto','mieszkam…'],CITIES.map(c=>[c[1],c[2]]),[1])}
+ </details>
+ <details><summary>Liczby 0–10</summary>
+  ${t(['',''],NUMS.map((w,i)=>[String(i),w]),[1])}
+ </details>
+ <details><summary>W klasie · classroom</summary>
+  ${t(['po polsku','meaning'],CLASS,[0])}
+ </details>
+ <details><summary>Adres i słowa</summary>
+  ${t(['skrót','słowo','meaning'],ABBR.map(a=>[a[0],a[1],WORDS.find(w=>w[0]===a[1])[1]]),[1])}
+  ${t(['słowo','meaning'],WORDS.slice(4),[0])}
+ </details>`;
+}
+
+/* what an option means (shown after answering a multiple-choice question) */
+let MEANS=null;
+function meanTable(){if(MEANS)return MEANS;const m=new Map(),put=(k,v)=>{if(k&&v&&!m.has(k))m.set(k,v)};
+ CLASS.forEach(([pl,en])=>{put(pl,en);put(en,'= '+pl)});WORDS.forEach(([pl,en])=>{put(pl,en);put(en,'= '+pl)});ABBR.forEach(([ab,f])=>put(f,GL[f]?GL[f].split('|')[0]:f));
+ QA.forEach(q=>{put(q.inf,q.en);put(q.form,q.en+' (formal)');put(q.third,q.en3.replace(/^Ask about (him|her): /,'').replace(/^./,c=>c.toUpperCase()));put(q.ans3,q.fact);put(q.trap,'✗ mixes the ty-form with pan / pani: use the on / ona form');put(q.en,'= '+q.inf)});
+ PRON_CORE.forEach(([en,pl])=>put(en,'= '+pl));FORMAL.forEach(([en,pl])=>put(`“you”, formal: ${en}`,'= '+pl));
+ return MEANS=m}
+/* index of every answer in the course, so a wrong answer that belongs to another term can be named */
+let ANS=null;
+function answerIndex(){if(ANS)return ANS;ANS=new Map();const isEn=t=>!/[ąćęłńóśźż]/i.test(t)&&/\b(the|is|you|my|your|what|how|where|i|he|she|it|we|they|please|thank|good|from|live|street|nice|sorry)\b/i.test(t);
+ ITEMS.forEach(it=>{for(let k=0;k<6;k++){const q=it.make();const cands=[...(q.accept||[]),...(q.valid||[]),q.mcAnswer||q.answer].filter(Boolean);
+  cands.forEach(a=>{a=String(a).replace(/^For example: /,'');if(isEn(a)||/^\d+$/.test(a))return;const key=strip(norm(a));if(!key||ANS.has(key))return;
+   let mn=meaningOf(a,q);if(!mn&&isEn(q.prompt))mn=q.prompt;if(mn)ANS.set(key,{text:a,mean:mn,id:it.id})})}});
+ return ANS}
+function confusedWith(given,q){const g=strip(norm(given));if(!g)return null;const own=new Set([...(q.accept||[]),...(q.valid||[]),q.mcAnswer||q.answer].filter(Boolean).map(a=>strip(norm(String(a).replace(/^For example: /,'')))));
+ const idx=answerIndex();let hit=idx.get(g);
+ if(!hit){let best=null;idx.forEach((v,k)=>{if(Math.abs(k.length-g.length)>2)return;const d=editOps(g,k).dist,lim=k.length>=8?2:1;if(d<=lim&&(!best||d<best.d))best={d,v}});hit=best&&best.v}
+ if(!hit||own.has(strip(norm(hit.text)))||hit.id===q.id)return null;return hit}
+function meaningOf(opt,q){if(q.mean&&q.mean[opt])return q.mean[opt];if(/^\d+$/.test(opt)&&NUMS[+opt])return '= '+NUMS[+opt];const t=meanTable().get(opt);if(t)return t;
+ const ws=String(opt).split(PL_LETTER).filter((x,i)=>i%2);if(!ws.length)return null;
+ const g=ws.map(w=>GL[w.toLowerCase()]).filter(Boolean);if(!g.length)return null;
+ if(ws.length===1){const [mm,f]=g[0].split('|');return f?`${mm} · ${f}`:mm}
+ return g.length===ws.length?g.map(x=>x.split('|')[0].split(' · ')[0]).join(' ')+' (word by word)':null}
+/* keyboard for multiple choice: 1–4 picks; typing letters highlights the matching option, Enter picks it */
+let kbuf='';
+document.addEventListener('keydown',e=>{
+ if(!sess||e.metaKey||e.ctrlKey||e.altKey||document.getElementById('review'))return;const opts=[...document.querySelectorAll('.opts .opt')];
+ if(opts.length&&opts[0].classList.contains('done')&&e.key==='Enter'){const nx=document.getElementById('nx');if(nx){e.preventDefault();nx.click()}return}
+ if(!opts.length||opts[0].classList.contains('done'))return;if(document.activeElement&&document.activeElement.tagName==='INPUT')return;
+ const show=()=>{const t=document.getElementById('ktyped');const k=strip(kbuf.toLowerCase());let hit=-1;
+  opts.forEach((o,i)=>{const txt=strip(o.textContent.replace(/^\d/,'').toLowerCase());const m=k&&txt.startsWith(k);o.classList.toggle('khit',m&&hit<0);if(m&&hit<0)hit=i});
+  if(t){t.hidden=!kbuf;t.textContent=kbuf?`Typed: ${kbuf}${hit<0?' · no match':' · Enter to pick'}`:''}return hit};
+ if(/^[1-9]$/.test(e.key)&&!kbuf){const o=opts[+e.key-1];if(o){e.preventDefault();o.click()}return}
+ if(e.key==='Enter'){const h=show();if(h>=0){e.preventDefault();kbuf='';opts[h].click()}return}
+ if(e.key==='Backspace'){if(kbuf){e.preventDefault();kbuf=kbuf.slice(0,-1);show()}return}
+ if(e.key==='Escape'){kbuf='';show();return}
+ if(e.key.length===1&&/[\p{L}\p{N} ,.!?'-]/u.test(e.key)){e.preventDefault();kbuf+=e.key;show()}
+});
+document.addEventListener('click',e=>{const b=e.target.closest('[data-say]');if(b&&!e.target.closest('.gw'))say(b.dataset.say)});
+drawNav();$('#t-home').onclick=()=>home();$('#t-sheet').onclick=sheet;$('#t-set').onclick=()=>settingsView();
+if(!resumeSess())home();
+</script>
