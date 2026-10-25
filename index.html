@@ -282,6 +282,8 @@ p.diff{font-size:21px;font-weight:600;letter-spacing:.01em;line-height:1.5;overf
 .setc{display:flex;flex-direction:column;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px}.setc h2{font-size:17px}
 .nav button{display:flex;flex-direction:column;align-items:center;gap:3px}.nav .ico{width:24px;height:24px}
 
+.rule{margin:10px 0 0;font-size:15px;line-height:1.45}.rule .muted{font-size:12.5px}
+details.later{margin-top:12px;background:var(--paper)}
 .why{display:flex;flex-direction:column;gap:6px;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:14.5px}
 .why p{margin:0;line-height:1.4}.why .wk{display:inline-block;font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--pen);background:var(--pen-soft);border-radius:99px;padding:1px 8px;margin-right:4px}
 
@@ -301,63 +303,6 @@ p.diff{font-size:21px;font-weight:600;letter-spacing:.01em;line-height:1.5;overf
 </nav>
 
 <script>
-/* ---------- content (from the Test 1 overview slide + lessons 0–1) ---------- */
-const QA=[
- {k:'imie',en:"What's your first name?",en3:"Ask about her: what's her first name?",inf:"Jak masz na imię?",form:"Jak ma pan / pani na imię?",formAlt:["Jak pan / pani ma na imię?"],trap:"Jak masz pani na imię?",third:"Jak ona ma na imię?",thirdAlt:["Jak ma ona na imię?"],fact:"Her first name is Anna.",ans:"Mam na imię Jan.",ans3:"Ona ma na imię Anna.",acc3:["Ma na imię Anna."],pat:/^mam na imię \S+/},
- {k:'nazwisko',en:"What's your surname?",en3:"Ask about him: what's his surname?",inf:"Jak masz na nazwisko?",form:"Jak ma pan / pani na nazwisko?",formAlt:["Jak pan / pani ma na nazwisko?"],trap:"Jak masz pan na nazwisko?",third:"Jak on ma na nazwisko?",thirdAlt:["Jak ma on na nazwisko?"],fact:"His surname is Kowalski.",ans:"Mam na nazwisko Kowalski.",ans3:"On ma na nazwisko Kowalski.",acc3:["Ma na nazwisko Kowalski."],pat:/^mam na nazwisko \S+/},
- {k:'nazywa',en:"What's your (full) name?",en3:"Ask about him: what's he called?",inf:"Jak się nazywasz?",form:"Jak się pan / pani nazywa?",formAlt:["Jak pan / pani się nazywa?"],trap:"Jak się pani nazywasz?",third:"Jak on się nazywa?",thirdAlt:["Jak się on nazywa?"],fact:"His name is Jan Kowalski.",ans:"Nazywam się Jan Kowalski.",ans3:"On nazywa się Jan Kowalski.",acc3:["Nazywa się Jan Kowalski.","On się nazywa Jan Kowalski."],pat:/^nazywam się \S+/},
- {k:'ma',en:"How are you?",en3:"Ask about her: how is she?",inf:"Jak się masz?",form:"Jak się pan / pani ma?",formAlt:["Jak pan / pani się ma?"],trap:"Jak się pani masz?",third:"Jak ona się ma?",thirdAlt:["Jak się ona ma?"],fact:"She is doing well.",ans:"Świetnie, dziękuję.",ans3:"Ona ma się dobrze.",acc3:["Ma się dobrze.","Ona się ma dobrze.","Dobrze.","Ona ma się bardzo dobrze."],pat:/(dobrze|świetnie|nieźle|w porządku|tak sobie|źle|super)/},
- {k:'skad',en:"Where are you from?",en3:"Ask about him: where is he from?",inf:"Skąd jesteś?",form:"Skąd pan / pani jest?",formAlt:["Skąd jest pan / pani?"],trap:"Skąd pani jesteś?",third:"Skąd on jest?",thirdAlt:["Skąd jest on?"],fact:"He is from Poland.",ans:"Jestem z Belgii.",ans3:"On jest z Polski.",acc3:["Jest z Polski.","Z Polski."],pat:/^jestem ze? \S+/},
- {k:'gdzie',en:"Where do you live?",en3:"Ask about her: where does she live?",inf:"Gdzie mieszkasz?",form:"Gdzie pan / pani mieszka?",formAlt:["Gdzie mieszka pan / pani?"],trap:"Gdzie pani mieszkasz?",third:"Gdzie ona mieszka?",thirdAlt:["Gdzie mieszka ona?"],fact:"She lives in Warsaw.",ans:"Mieszkam w Gandawie.",ans3:"Ona mieszka w Warszawie.",acc3:["Mieszka w Warszawie.","W Warszawie."],pat:/^mieszkam we? \S+/},
- {k:'adres',en:"What's your address?",en3:"Ask about him: what's his address?",inf:"Jaki masz adres?",form:"Jaki ma pan / pani adres?",formAlt:["Jaki pan / pani ma adres?"],trap:"Jaki masz pani adres?",third:"Jaki on ma adres?",thirdAlt:["Jaki ma on adres?"],fact:"His address is 7 Mickiewicz Street (write it the Polish way).",ans:"Ulica Prosta 69.",ans3:"Ulica Mickiewicza 7.",acc3:["ul. Mickiewicza 7","On ma adres ulica Mickiewicza 7","On ma adres ul. Mickiewicza 7"],pat:/^(ul|ulica|al|aleja|pl|plac|os|osiedle) \S+/},
- {k:'tel',en:"What's your phone number?",en3:"Ask about her: what's her phone number?",inf:"Jaki masz numer telefonu?",form:"Jaki ma pan / pani numer telefonu?",formAlt:["Jaki pan / pani ma numer telefonu?"],trap:"Jaki pani masz numer telefonu?",third:"Jaki ona ma numer telefonu?",thirdAlt:["Jaki ma ona numer telefonu?"],fact:"Her number is 0123 456 789 (digits are fine).",ans:"Zero, cztery, siedem, pięć…",ans3:"0123 456 789",acc3:[],pat3:/\d{3}/,pat:/(\d|zero|jeden|dwa|trzy|cztery|pięć|sześć|siedem|osiem|dziewięć)/}
-];
-const AM_END='-am, -asz, -a, -amy, -acie, -ają';
-const VERBS={
- 'być':{en:'to be',f:['jestem','jesteś','jest','jesteśmy','jesteście','są'],fam:'irr',note:'Irregular: no family to copy from. Learn the six forms as one block.'},
- 'mieć':{en:'to have',f:['mam','masz','ma','mamy','macie','mają'],fam:'am',stem:'m',note:`The infinitive is irregular, but the forms take the -am / -asz family endings: ${AM_END}.`},
- 'mieszkać':{en:'to live',f:['mieszkam','mieszkasz','mieszka','mieszkamy','mieszkacie','mieszkają'],fam:'am',stem:'mieszk',model:1,note:`Model verb of the -am / -asz family: drop -ać, add ${AM_END}. czytać, pytać, przepraszać and nazywać się work exactly the same way.`},
- 'nazywać się':{en:'to be called',f:['nazywam się','nazywasz się','nazywa się','nazywamy się','nazywacie się','nazywają się'],fam:'am',stem:'nazyw',note:'-am / -asz family, exactly like mieszkać, plus się.'},
- 'czytać':{en:'to read',f:['czytam','czytasz','czyta','czytamy','czytacie','czytają'],fam:'am',stem:'czyt',note:'-am / -asz family, exactly like mieszkać.',bonus:1},
- 'pytać':{en:'to ask',f:['pytam','pytasz','pyta','pytamy','pytacie','pytają'],fam:'am',stem:'pyt',note:'-am / -asz family, exactly like mieszkać.',bonus:1},
- 'przepraszać':{en:'to apologise',f:['przepraszam','przepraszasz','przeprasza','przepraszamy','przepraszacie','przepraszają'],fam:'am',stem:'przeprasz',note:'-am / -asz family, exactly like mieszkać.',bonus:1}
-};
-const PRON_CORE=[['I','ja'],['you (one person, informal)','ty'],['he','on'],['she','ona'],['it','ono'],['we','my'],['you (several people, informal)','wy'],['they (men, or a mixed group)','oni'],['they (no men in the group)','one']];
-const FORMAL=[['to one man','pan'],['to one woman','pani'],['to a mixed group','państwo'],['to several men','panowie'],['to several women','panie']];
-const PERS=[['ja'],['ty'],['on','ona','pan','pani'],['my'],['wy'],['oni','one','państwo']];
-const PERS_LBL=['ja','ty','on / ona / ono · pan / pani','my','wy','oni / one · państwo'];
-const SENT=[
- ['Skąd (ty) ___?','jesteś','być'],['(ja) ___ z Polski.','jestem','być'],['One ___ z Niemiec.','są','być'],['Skąd (wy) ___?','jesteście','być'],['Ona ___ z Włoch.','jest','być'],['(my) ___ z Francji.','jesteśmy','być'],
- ['Jak (ty) ___ na imię?','masz','mieć'],['Oni ___ problem.','mają','mieć'],['(my) ___ dom w Krakowie.','mamy','mieć'],['(ja) ___ na imię Andrzej.','mam','mieć'],['On ___ pytanie.','ma','mieć'],['Czy (wy) ___ nowe auto?','macie','mieć'],
- ['Gdzie on ___?','mieszka','mieszkać'],['Michael teraz ___ w Krakowie.','mieszka','mieszkać'],['(my) ___ w Poznaniu.','mieszkamy','mieszkać'],['Oni ___ w Gdańsku.','mieszkają','mieszkać'],['Czy (wy) teraz ___ w Łodzi?','mieszkacie','mieszkać'],['Teraz (ja) ___ w Gandawie.','mieszkam','mieszkać'],
- ['Jak się pani ___?','nazywa','nazywać się'],['(my) ___ się Nowak.','nazywamy','nazywać się']
-];
-const COUNTRIES=[['Belgium','Belgia','z Belgii'],['Germany','Niemcy','z Niemiec'],['England','Anglia','z Anglii'],['France','Francja','z Francji'],['Italy','Włochy','z Włoch'],['Japan','Japonia','z Japonii'],['the Netherlands','Holandia','z Holandii'],['Poland','Polska','z Polski'],['Russia','Rosja','z Rosji'],['Spain','Hiszpania','z Hiszpanii'],['America / USA','Ameryka · Stany Zjednoczone','z Ameryki',['ze stanów zjednoczonych']],['Flanders','Flandria','z Flandrii']];
-const PEOPLE=[['Ignatio','w Barcelonie','On','z Hiszpanii'],['Andreas','w Berlinie','On','z Niemiec'],['Pan Smith','w Nowym Jorku','On','z Ameryki'],['Pani Wysocka','w Poznaniu','Ona','z Polski'],['Roberto','w Rzymie','On','z Włoch'],['Paul','w Birmingham','On','z Anglii'],['Mami','w Tokio','Ona','z Japonii'],['Tatiana','w Moskwie','Ona','z Rosji'],['Nicole','w Paryżu','Ona','z Francji'],['Alexandra','w Londynie','Ona','z Anglii']];
-const CITIES=[['Ghent','Gandawa','w Gandawie'],['Brussels','Bruksela','w Brukseli'],['Antwerp','Antwerpia','w Antwerpii'],['Warsaw','Warszawa','w Warszawie'],['Kraków','Kraków','w Krakowie'],['Gdańsk','Gdańsk','w Gdańsku'],['Poznań','Poznań','w Poznaniu'],['Łódź','Łódź','w Łodzi'],['Wrocław','Wrocław','we Wrocławiu']];
-const NUMS=['zero','jeden','dwa','trzy','cztery','pięć','sześć','siedem','osiem','dziewięć','dziesięć'];
-const CLASS=[
- ['Co to znaczy…?','What does … mean?'],['Jak jest po polsku…?','How do you say … in Polish?'],['Jak jest po niderlandzku…?','How do you say … in Dutch?'],
- ['Nie rozumiem.',"I don't understand."],['Nie wiem.',"I don't know."],['Proszę mówić wolniej.','Please speak more slowly.'],['Proszę napisać.','Please write it down.'],
- ['Proszę przeczytać.','Please read it.'],['Proszę powtórzyć.','Please repeat.'],['Proszę przeliterować.','Please spell it.'],['Mam pytanie!','I have a question!'],
- ['Gdzie jest toaleta?','Where is the toilet?'],['Przepraszam, gdzie jest sekretariat?','Excuse me, where is the office?'],
- ['Dzień dobry.','Hello / good day (formal).'],['Do widzenia.','Goodbye (formal).'],['Cześć!','Hi! / Bye! (informal)'],['Dobranoc.','Good night.'],['Dziękuję.','Thank you.'],
- ['Proszę.','Please. / Here you are.'],['Przepraszam.','Sorry. / Excuse me.'],['Rozumiem.','I understand.'],['Miło mi. / Bardzo mi miło.','Nice to meet you.'],['Co słychać?',"How's it going? / What's new?"],['Wszystko w porządku.','Everything is fine.']
-];
-const WORDS=[['ulica','street'],['aleja','avenue'],['osiedle','housing estate'],['plac','square'],['imię','first name'],['nazwisko','surname'],['kraj','country'],['adres','address'],['numer telefonu','phone number'],['pytanie','question'],['odpowiedź','answer'],['kontakt oficjalny','formal contact (pan / pani)'],['kontakt nieoficjalny','informal contact (ty)']];
-const ABBR=[['ul.','ulica'],['al.','aleja'],['os.','osiedle'],['pl.','plac']];
-const ONI=[['Magda i Dominika','One'],['Agnieszka i Jacek','Oni'],['pani Kruszańska i pani Wojciechowska','One'],['Piotrek i Mariusz','Oni'],['pan Kamil i pani Grażyna','Oni'],['Tadeusz i Andrzej','Oni'],['Anna i dziecko','One'],['Jan i Anna','Oni']];
-const PRON=[['ono','it (e.g. a baby)'],['oni','they: men, or a mixed group'],['one','they: only women, children, animals or things'],['państwo','you, formal: a mixed group (ladies and gentlemen)'],['panowie','you, formal: several men'],['panie','you, formal: several women'],['pan','you, formal: one man'],['pani','you, formal: one woman'],['wy','you, informal plural']];
-
-const DECKS={
- qa:{pl:'Pytania i odpowiedzi',en:'Questions & answers · ty ↔ pan / pani · on / ona'},
- verbs:{pl:'Czasowniki',en:'verb forms in small groups, then in sentences'},
- kraje:{pl:'Skąd? Gdzie?',en:'Countries with z …, cities with w …'},
- num:{pl:'Liczby 0–10',en:'Numbers and “Ile jest…?”'},
- klasa:{pl:'W klasie',en:'Classroom phrases and greetings'},
- words:{pl:'Słowa i zaimki',en:'ulica, aleja, osiedle, plac · oni czy one?'}
-};
-
 /* ---------- helpers ---------- */
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -376,61 +321,761 @@ function editOps(a,b){const n=a.length,m=b.length,D=Array.from({length:n+1},(_,i
   else if(i>0&&D[i][j]===D[i-1][j]+1){ops.push(['-',a[i-1]]);i--}else{ops.push(['+',b[j-1]]);j--}}
  return{dist:D[n][m],ops:ops.reverse()}}
 
-/* ---------- what went wrong: compares your words with the right answer and names the kind of mistake ---------- */
-const JAKI=['jaki','jaka','jakie','jakiego'],NOUN_G={adres:'m',numer:'m',telefon:'m',kraj:'m',dom:'m',problem:'m',ulica:'f',aleja:'f',auto:'n',imię:'n',nazwisko:'n',pytanie:'n',miasto:'n',osiedle:'n'};
-const G_EN={m:'masculine',f:'feminine',n:'neuter'},JAKI_FOR={m:'jaki',f:'jaka',n:'jakie'};
-let VFORM=null;
-function vform(w){if(!VFORM){VFORM={};Object.entries(VERBS).forEach(([inf,v])=>v.f.forEach((f,i)=>{VFORM[f.split(' ')[0]]={inf,i}}))}return VFORM[w]}
-const PERSON=['ja','ty','on / ona / pan / pani','my','wy','oni / one / państwo'];
-const nomOf=(w,list,idx)=>list.find(c=>c[1].split(' · ').some(n=>strip(n.toLowerCase())===strip(w)));
-function explainSub(g,t,T){
- if(strip(g)===strip(t))return null;
- if((g==='jak'&&JAKI.includes(t))||(t==='jak'&&JAKI.includes(g)))return ['jak / jaki','<b>jak</b> = how, used with a verb (<i>Jak się masz?</i>, and the name questions <i>Jak masz na imię?</i>). <b>jaki / jaka / jakie</b> = what, which: it describes a noun and matches its gender (<i>Jaki masz adres?</i>).'];
- if(JAKI.includes(g)&&JAKI.includes(t)){const n=T.find(w=>NOUN_G[w]);return ['gender','<b>'+t+'</b>, not '+g+': it agrees with '+(n?'<b>'+n+'</b>, which is '+G_EN[NOUN_G[n]]:'the noun')+'. jaki + masculine, jaka + feminine, jakie + neuter.']}
- const vg=vform(g),vt=vform(t);
- if(vg&&vt&&vg.inf===vt.inf){const formal=T.some(w=>['pan','pani'].includes(w)),third=T.some(w=>['on','ona'].includes(w));
-  return ['verb person','You used the <b>'+PERSON[vg.i]+'</b> form <i>'+g+'</i>; here it has to be the <b>'+PERSON[vt.i]+'</b> form <i>'+t+'</i>.'+(formal&&vt.i===2?' With <b>pan / pani</b> the verb always takes the on / ona form.':third&&vt.i===2?' Talking about him or her takes the on / ona form.':'')]}
- if(vg&&vt)return ['different verb','<i>'+g+'</i> is '+vg.inf+' ('+((GL[g]||'').split('|')[0])+'); you need <i>'+t+'</i>, from '+vt.inf+' ('+((GL[t]||'').split('|')[0])+').'];
- const pair=(a,b)=>(g===a&&t===b)||(g===b&&t===a);
- if(pair('on','ona'))return ['he / she','<b>on</b> = he, <b>ona</b> = she: check who the sentence is about.'];
- if(pair('oni','one'))return ['oni / one','<b>oni</b> as soon as one man is in the group; <b>one</b> only when there is no man.'];
- if(pair('pan','pani'))return ['pan / pani','<b>pan</b> to a man, <b>pani</b> to a woman.'];
- if(pair('z','w')||pair('ze','w')||pair('z','we'))return ['z / w','<b>z</b> = from (+ genitive: <i>z Belgii</i>); <b>w</b> = in (+ locative: <i>w Gandawie</i>).'];
- if(pair('dobry','dobrze'))return ['dobry / dobrze','<b>dobry</b> = good (adjective, describes a noun); <b>dobrze</b> = well (adverb, describes how something is done or how you are).'];
- const c=nomOf(g,COUNTRIES);if(c&&strip(t)===strip(c[2].replace(/^ze? /,'').toLowerCase()))return ['case','After <b>z</b> (from) the country goes into the <b>genitive</b>: '+c[1].split(' · ')[0]+' → <i>'+c[2]+'</i>.'];
- const ct=nomOf(g,CITIES);if(ct&&strip(t)===strip(ct[2].replace(/^we? /,'').toLowerCase()))return ['case','After <b>w</b> (in) the city goes into the <b>locative</b>: '+ct[1]+' → <i>'+ct[2]+'</i>.'];
- if(g.length>3&&t.length>3&&g.slice(0,3)===t.slice(0,3)&&GL[t])return ['ending','Right word, wrong ending: <i>'+t+'</i> ('+GL[t].split('|').slice(0,2).join(' · ')+').'];
- if(GL[g]&&GL[t])return ['word','<i>'+g+'</i> means “'+GL[g].split('|')[0]+'”; you need <i>'+t+'</i> (“'+GL[t].split('|')[0]+'”).'];
- return null}
-function explainMissing(t){
- if(t==='się')return ['missing się','<b>się</b> is part of the verb here: <i>nazywać się</i> = to be called, <i>mieć się</i> = to be doing.'];
- if(t==='na')return ['missing na','<i>Mam <b>na</b> imię …</i>: the name expression needs <b>na</b> (“I have as first name”).'];
- if(t==='z'||t==='ze')return ['missing z','“From” needs <b>z</b>, and the country goes into the genitive.'];
- if(t==='w'||t==='we')return ['missing w','“In” needs <b>w</b>, and the place goes into the locative.'];
- if(vform(t))return ['missing verb','The verb <i>'+t+'</i> is missing.'];
- return GL[t]?['missing word','Missing: <i>'+t+'</i> (“'+GL[t].split('|')[0]+'”).']:null}
-function explainExtra(g){
- if(['jestem','jest','jesteś'].includes(g))return ['extra “to be”','Polish does not use <i>'+g+'</i> here.'];
- if(g==='się')return ['extra się','This verb does not take <b>się</b> here.'];
- return null}
-function diagnose(given,q){
- if(q.open||q.check)return [];
- const G=norm(given).split(' ').filter(Boolean);if(!G.length)return [];
- let best=null;(q.accept||[q.mcAnswer||q.answer]).forEach(a=>{const T=norm(String(a)).split(' ').filter(Boolean);const r=editOps(G,T);if(!best||r.dist<best.dist)best={...r,T}});
- if(!best||best.dist===0)return [];
- const T=best.T,notes=[];
- if(G.length===T.length&&[...G].sort().join(' ')===[...T].sort().join(' ')){
-  const sie=T.indexOf('się')>=0&&T.indexOf('się')!==G.indexOf('się');
-  notes.push(['word order',G[0]==='się'?'<b>się</b> never comes first in the sentence: <i>'+T.join(' ')+'</i>.':sie?'<b>się</b> sits early, right after the question word (or after the first word): <i>'+T.join(' ')+'</i>.':'Right words, wrong order: <i>'+T.join(' ')+'</i>. Polish questions start with the question word.']);return notes}
- if(best.dist>Math.max(3,T.length))return [];
- best.ops.forEach(([o,x,y])=>{const n=o==='~'?explainSub(x,y,T):o==='+'?explainMissing(x):o==='-'?explainExtra(x):null;if(n&&!notes.some(m=>m[0]===n[0]))notes.push(n)});
- return notes.slice(0,3)}
 function closeDiff(given,cands){const g=norm(given);if(!g)return null;let best=null;
  cands.forEach(c=>{const t=norm(c.replace(/^For example: /,''));if(!t)return;const r=editOps(g,t);if(!best||r.dist<best.dist)best={...r,t}});
  if(!best||best.dist===0||best.dist>Math.max(2,best.t.length*0.3))return null;
  const html=best.ops.map(([o,x,y])=>o==='='?esc(x):o==='~'?`<del>${esc(x)}</del><ins>${esc(y)}</ins>`:o==='-'?`<del>${esc(x)}</del>`:`<ins>${esc(x)}</ins>`).join('');
  const n=best.ops.filter(o=>o[0]!=='=').length;return{html,n}}
 
+
+
+/* ======================================================================
+   GRAMMAR LAYER · the app knows Polish grammar as data
+   LEX        the word list: every word the app uses (plus module vocabulary for later lessons), with its type,
+              gender (masculine personal / animate / inanimate, feminine, neuter), verb pattern and all its forms,
+              each form tagged with case, number, person and gender
+   RULES      the constructions from the grammar modules, each with a short explanation
+   analyse()  reads a sentence: every word's form, and what governs it (preposition, verb, number, subject, noun)
+   diagnose() compares a wrong word's tags with what the sentence needs and names every feature that differs
+   gloss()    the tap / hover explanation of a word in its sentence: meaning | form | why
+   ====================================================================== */
+const CASES=['nom','gen','dat','acc','ins','loc','voc'];
+const CASE_EN={nom:'nominative',gen:'genitive',dat:'dative',acc:'accusative',ins:'instrumental',loc:'locative',voc:'vocative'};
+const GEN_EN={m1:'masculine (a person)',m2:'masculine (an animal)',m3:'masculine',m:'masculine',f:'feminine',n:'neuter',vir:'plural, men or a mixed group',nonvir:'plural, no men in the group',pl:'plural'};
+const PERS_FORM=['ja-form','ty-form','on / ona-form','my-form','wy-form','oni / one-form'];
+const EN_SUBJ=['I','you','he / she','we','you (all)','they'];
+const VCLASS={am:'-am / -asz',em:'-em / -esz',esz:'-ę / -esz',isz:'-ę / -isz (-ysz)',irr:'irregular'};
+const AM_END='-am, -asz, -a, -amy, -acie, -ają';
+
+/* ---------- the word list ----------
+   noun   N(lemma, gender, English, 'sg: nom gen dat acc ins loc voc', 'pl: nom gen dat acc ins loc', extra)
+          gender: m1 masculine personal (people) · m2 masculine animate (animals) · m3 masculine inanimate · f · n
+          plural-only nouns: gender 'pl', vir:1 when the group counts as men
+   verb   V(infinitive, pattern, English infinitive, 'ja ty on my wy oni', extra)   pattern: am · em · esz · isz · irr
+   adj    ADJ(lemma, English, virile plural, extra): the endings are generated (-y / -a / -e …; -i after k and g)
+   L      lesson: 1 = lessons 0–1 (in the app now) · 'later' = from the grammar modules, ready for later lessons */
+const LEX=[];const lx=e=>(LEX.push({L:1,...e}),e);
+const N=(lemma,g,en,sg,pl,x)=>lx({pos:'noun',lemma,g,en,sg:sg?sg.split(' '):null,pl:pl?pl.split(' '):null,...(x||{})});
+const NM=(lemma,g,sg,x)=>lx({pos:'name',lemma,g,en:lemma,sg:sg?sg.split(' '):[lemma],pl:null,...(x||{})});
+const V=(lemma,cls,en,f,x)=>lx({pos:'verb',lemma,cls,en,f:f.split(' '),...(x||{})});
+const ADJ=(lemma,en,vir,x)=>lx({pos:'adj',lemma,en,vir,...(x||{})});
+const W=(lemma,pos,en,x)=>lx({pos,lemma,en,...(x||{})});
+const LATER={L:'later'};
+
+/* nouns · lessons 0–1 */
+N('imię','n','first name','imię imienia imieniu imię imieniem imieniu imię','imiona imion imionom imiona imionami imionach');
+N('nazwisko','n','surname','nazwisko nazwiska nazwisku nazwisko nazwiskiem nazwisku nazwisko','nazwiska nazwisk nazwiskom nazwiska nazwiskami nazwiskach');
+N('adres','m3','address','adres adresu adresowi adres adresem adresie adresie','adresy adresów adresom adresy adresami adresach');
+N('numer','m3','number','numer numeru numerowi numer numerem numerze numerze','numery numerów numerom numery numerami numerach');
+N('telefon','m3','phone','telefon telefonu telefonowi telefon telefonem telefonie telefonie','telefony telefonów telefonom telefony telefonami telefonach');
+N('ulica','f','street','ulica ulicy ulicy ulicę ulicą ulicy ulico','ulice ulic ulicom ulice ulicami ulicach');
+N('aleja','f','avenue','aleja alei alei aleję aleją alei alejo','aleje alei alejom aleje alejami alejach');
+N('osiedle','n','housing estate','osiedle osiedla osiedlu osiedle osiedlem osiedlu osiedle','osiedla osiedli osiedlom osiedla osiedlami osiedlach');
+N('plac','m3','square','plac placu placowi plac placem placu placu','place placów placom place placami placach');
+N('kraj','m3','country','kraj kraju krajowi kraj krajem kraju kraju','kraje krajów krajom kraje krajami krajach');
+N('pytanie','n','question','pytanie pytania pytaniu pytanie pytaniem pytaniu pytanie','pytania pytań pytaniom pytania pytaniami pytaniach',{note:'from pytać, to ask'});
+N('odpowiedź','f','answer','odpowiedź odpowiedzi odpowiedzi odpowiedź odpowiedzią odpowiedzi odpowiedzi','odpowiedzi odpowiedzi odpowiedziom odpowiedzi odpowiedziami odpowiedziach');
+N('kontakt','m3','contact','kontakt kontaktu kontaktowi kontakt kontaktem kontakcie kontakcie','kontakty kontaktów kontaktom kontakty kontaktami kontaktach');
+N('miasto','n','city · town','miasto miasta miastu miasto miastem mieście miasto','miasta miast miastom miasta miastami miastach');
+N('dom','m3','house · home','dom domu domowi dom domem domu domu','domy domów domom domy domami domach');
+N('problem','m3','problem','problem problemu problemowi problem problemem problemie problemie','problemy problemów problemom problemy problemami problemach');
+N('auto','n','car','auto auta autu auto autem aucie auto','auta aut autom auta autami autach');
+N('dziecko','n','child','dziecko dziecka dziecku dziecko dzieckiem dziecku dziecko','dzieci dzieci dzieciom dzieci dziećmi dzieciach',{note:'neuter, so a group of women and children is one'});
+N('toaleta','f','toilet','toaleta toalety toalecie toaletę toaletą toalecie toaleto','toalety toalet toaletom toalety toaletami toaletach');
+N('sekretariat','m3','(school) office','sekretariat sekretariatu sekretariatowi sekretariat sekretariatem sekretariacie sekretariacie','sekretariaty sekretariatów sekretariatom sekretariaty sekretariatami sekretariatach');
+N('dzień','m3','day','dzień dnia dniowi dzień dniem dniu dniu','dni dni dniom dni dniami dniach',{note:'Dzień dobry = good day = hello (formal, until evening)'});
+N('widzenie','n','seeing','widzenie widzenia widzeniu widzenie widzeniem widzeniu widzenie',null,{note:'do widzenia = until seeing (again) = goodbye'});
+N('porządek','m3','order','porządek porządku porządkowi porządek porządkiem porządku porządku',null,{note:'w porządku = “in order” = fine, OK'});
+N('noc','f','night','noc nocy nocy noc nocą nocy nocy','noce nocy nocom noce nocami nocach');
+N('wolność','f','freedom','wolność wolności wolności wolność wolnością wolności wolności',null);
+N('stan','m3','state','stan stanu stanowi stan stanem stanie stanie','stany stanów stanom stany stanami stanach',{enpl:'states',note:'Stany Zjednoczone = the United States'});
+/* countries */
+const KRAJ={kind:'country'};
+N('Belgia','f','Belgium','Belgia Belgii Belgii Belgię Belgią Belgii Belgio',null,KRAJ);
+N('Niemcy','pl','Germany',null,'Niemcy Niemiec Niemcom Niemcy Niemcami Niemczech',{...KRAJ,note:'plural-only noun, literally “the Germans”'});
+N('Anglia','f','England','Anglia Anglii Anglii Anglię Anglią Anglii Anglio',null,KRAJ);
+N('Francja','f','France','Francja Francji Francji Francję Francją Francji Francjo',null,KRAJ);
+N('Włochy','pl','Italy',null,'Włochy Włoch Włochom Włochy Włochami Włoszech',{...KRAJ,note:'plural-only noun'});
+N('Japonia','f','Japan','Japonia Japonii Japonii Japonię Japonią Japonii Japonio',null,KRAJ);
+N('Holandia','f','the Netherlands','Holandia Holandii Holandii Holandię Holandią Holandii Holandio',null,KRAJ);
+N('Polska','f','Poland','Polska Polski Polsce Polskę Polską Polsce Polsko',null,KRAJ);
+N('Rosja','f','Russia','Rosja Rosji Rosji Rosję Rosją Rosji Rosjo',null,KRAJ);
+N('Hiszpania','f','Spain','Hiszpania Hiszpanii Hiszpanii Hiszpanię Hiszpanią Hiszpanii Hiszpanio',null,KRAJ);
+N('Ameryka','f','America','Ameryka Ameryki Ameryce Amerykę Ameryką Ameryce Ameryko',null,KRAJ);
+N('Flandria','f','Flanders','Flandria Flandrii Flandrii Flandrię Flandrią Flandrii Flandrio',null,KRAJ);
+/* cities */
+const MIASTO={kind:'city'};
+N('Gandawa','f','Ghent','Gandawa Gandawy Gandawie Gandawę Gandawą Gandawie Gandawo',null,MIASTO);
+N('Bruksela','f','Brussels','Bruksela Brukseli Brukseli Brukselę Brukselą Brukseli Brukselo',null,MIASTO);
+N('Antwerpia','f','Antwerp','Antwerpia Antwerpii Antwerpii Antwerpię Antwerpią Antwerpii Antwerpio',null,MIASTO);
+N('Warszawa','f','Warsaw','Warszawa Warszawy Warszawie Warszawę Warszawą Warszawie Warszawo',null,MIASTO);
+N('Kraków','m3','Kraków','Kraków Krakowa Krakowowi Kraków Krakowem Krakowie Krakowie',null,MIASTO);
+N('Gdańsk','m3','Gdańsk','Gdańsk Gdańska Gdańskowi Gdańsk Gdańskiem Gdańsku Gdańsku',null,MIASTO);
+N('Poznań','m3','Poznań','Poznań Poznania Poznaniowi Poznań Poznaniem Poznaniu Poznaniu',null,MIASTO);
+N('Łódź','f','Łódź','Łódź Łodzi Łodzi Łódź Łodzią Łodzi Łodzi',null,MIASTO);
+N('Wrocław','m3','Wrocław','Wrocław Wrocławia Wrocławiowi Wrocław Wrocławiem Wrocławiu Wrocławiu',null,MIASTO);
+N('Barcelona','f','Barcelona','Barcelona Barcelony Barcelonie Barcelonę Barceloną Barcelonie Barcelono',null,MIASTO);
+N('Berlin','m3','Berlin','Berlin Berlina Berlinowi Berlin Berlinem Berlinie Berlinie',null,MIASTO);
+N('Jork','m3','York','Jork Jorku Jorkowi Jork Jorkiem Jorku Jorku',null,{...MIASTO,note:'Nowy Jork = New York'});
+N('Rzym','m3','Rome','Rzym Rzymu Rzymowi Rzym Rzymem Rzymie Rzymie',null,MIASTO);
+N('Moskwa','f','Moscow','Moskwa Moskwy Moskwie Moskwę Moskwą Moskwie Moskwo',null,MIASTO);
+N('Paryż','m3','Paris','Paryż Paryża Paryżowi Paryż Paryżem Paryżu Paryżu',null,MIASTO);
+N('Londyn','m3','London','Londyn Londynu Londynowi Londyn Londynem Londynie Londynie',null,MIASTO);
+N('Tokio','n','Tokyo','Tokio',null,{...MIASTO,indecl:1,note:'does not change form'});
+N('Birmingham','n','Birmingham','Birmingham',null,{...MIASTO,indecl:1,note:'does not change form'});
+/* formal “you”: nouns, not pronouns */
+N('pan','m1','you (formal, to a man) · Mr','pan pana panu pana panem panu panie','panowie panów panom panów panami panach',{para:'pan',enpl:'gentlemen · you (formal, several men)',notepl:'plural of pan: the verb takes the oni form',note:'a noun, not a pronoun: that is why the verb takes the on / ona form: pan jest, pan ma'});
+N('pani','f','you (formal, to a woman) · Mrs / Ms','pani pani pani panią panią pani pani','panie pań paniom panie paniami paniach',{para:'pan',enpl:'ladies · you (formal, several women)',notepl:'plural of pani: the verb takes the oni form',note:'a noun, not a pronoun: that is why the verb takes the on / ona form: pani jest, pani ma'});
+N('państwo','pl','you (formal, a mixed group) · Mr and Mrs …',null,'państwo państwa państwu państwa państwem państwu',{para:'pan',vir:1,note:'used like oni: the verb takes the oni form: państwo są, państwo mają'});
+/* nouns from the grammar modules (later lessons) */
+N('kawa','f','coffee','kawa kawy kawie kawę kawą kawie kawo','kawy kaw kawom kawy kawami kawach',LATER);
+N('herbata','f','tea','herbata herbaty herbacie herbatę herbatą herbacie herbato','herbaty herbat herbatom herbaty herbatami herbatach',LATER);
+N('woda','f','water','woda wody wodzie wodę wodą wodzie wodo','wody wód wodom wody wodami wodach',LATER);
+N('zupa','f','soup','zupa zupy zupie zupę zupą zupie zupo','zupy zup zupom zupy zupami zupach',LATER);
+N('mama','f','mum','mama mamy mamie mamę mamą mamie mamo','mamy mam mamom mamy mamami mamach',LATER);
+N('siostra','f','sister','siostra siostry siostrze siostrę siostrą siostrze siostro','siostry sióstr siostrom siostry siostrami siostrach',LATER);
+N('babcia','f','grandma','babcia babci babci babcię babcią babci babciu','babcie babć babciom babcie babciami babciach',LATER);
+N('córka','f','daughter','córka córki córce córkę córką córce córko','córki córek córkom córki córkami córkach',LATER);
+N('kuchnia','f','kitchen','kuchnia kuchni kuchni kuchnię kuchnią kuchni kuchnio','kuchnie kuchni kuchniom kuchnie kuchniami kuchniach',LATER);
+N('tata','m1','dad','tata taty tacie tatę tatą tacie tato','tatowie tatów tatom tatów tatami tatach',LATER);
+N('brat','m1','brother','brat brata bratu brata bratem bracie bracie','bracia braci braciom braci braćmi braciach',LATER);
+N('dziadek','m1','grandpa','dziadek dziadka dziadkowi dziadka dziadkiem dziadku dziadku','dziadkowie dziadków dziadkom dziadków dziadkami dziadkach',LATER);
+N('syn','m1','son','syn syna synowi syna synem synu synu','synowie synów synom synów synami synach',LATER);
+N('kot','m2','cat','kot kota kotu kota kotem kocie kocie','koty kotów kotom koty kotami kotach',LATER);
+N('pies','m2','dog','pies psa psu psa psem psie psie','psy psów psom psy psami psach',LATER);
+N('chleb','m3','bread','chleb chleba chlebowi chleb chlebem chlebie chlebie','chleby chlebów chlebom chleby chlebami chlebach',LATER);
+N('ser','m3','cheese','ser sera serowi ser serem serze serze','sery serów serom sery serami serach',LATER);
+N('sklep','m3','shop','sklep sklepu sklepowi sklep sklepem sklepie sklepie','sklepy sklepów sklepom sklepy sklepami sklepach',LATER);
+N('stół','m3','table','stół stołu stołowi stół stołem stole stole','stoły stołów stołom stoły stołami stołach',LATER);
+N('cukier','m3','sugar','cukier cukru cukrowi cukier cukrem cukrze cukrze',null,LATER);
+N('obiad','m3','lunch · dinner','obiad obiadu obiadowi obiad obiadem obiedzie obiedzie','obiady obiadów obiadom obiady obiadami obiadach',LATER);
+N('mleko','n','milk','mleko mleka mleku mleko mlekiem mleku mleko',null,LATER);
+N('jabłko','n','apple','jabłko jabłka jabłku jabłko jabłkiem jabłku jabłko','jabłka jabłek jabłkom jabłka jabłkami jabłkach',LATER);
+N('jajko','n','egg','jajko jajka jajku jajko jajkiem jajku jajko','jajka jajek jajkom jajka jajkami jajkach',LATER);
+
+/* names: gender decides on / ona and oni / one */
+['Jan:Jan Jana Janowi Jana Janem Janie Janie','Ian','Andrzej','Michael','Jacek','Piotrek','Mariusz','Tadeusz','Kamil','Ignatio','Andreas','Smith','Roberto','Paul']
+ .forEach(s=>{const [l,f]=s.split(':');NM(l,'m1',f)});
+['Anna:Anna Anny Annie Annę Anną Annie Anno','Magda','Dominika','Agnieszka','Ewa','Grażyna','Mami','Tatiana','Nicole','Alexandra','Kruszańska','Wojciechowska','Wysocka']
+ .forEach(s=>{const [l,f]=s.split(':');NM(l,'f',f)});
+NM('Nowak','m1','Nowak Nowaka Nowakowi Nowaka Nowakiem Nowaku Nowaku',{note:'the most common Polish surname'});
+NM('Mickiewicz','m1','Mickiewicz Mickiewicza Mickiewiczowi Mickiewicza Mickiewiczem Mickiewiczu Mickiewiczu',{note:'Poland’s national poet; streets named after people use the genitive: ulica Mickiewicza = “street of Mickiewicz”'});
+NM('Kowalski','m1','Kowalski Kowalskiego Kowalskiemu Kowalskiego Kowalskim Kowalskim Kowalski',{note:'a common Polish surname; it declines like an adjective'});
+
+/* verbs */
+V('być','irr','to be','jestem jesteś jest jesteśmy jesteście są',{en6:['I am','you are','he / she is','we are','you (all) are','they are'],gov:'nom',note:'irregular verb: learn its six forms by heart',vnote:'Irregular: no family to copy from. Learn the six forms as one block.'});
+V('mieć','am','to have','mam masz ma mamy macie mają',{s3:'has',gov:'acc',note:'forms follow the -am / -asz pattern: mam, masz, ma…',vnote:`The infinitive is irregular, but the forms take the -am / -asz family endings: ${AM_END}.`});
+V('mieć się','am','to be doing','mam masz ma mamy macie mają',{refl:1,en6:['I am doing','you are doing','he / she is doing','we are doing','you (all) are doing','they are doing'],note:'with się, mieć means “to be doing”: Jak się masz? = How are you? (literally “How do you have yourself?”)'});
+V('mieszkać','am','to live','mieszkam mieszkasz mieszka mieszkamy mieszkacie mieszkają',{note:'to live (reside)',model:1,vnote:`Model verb of the -am / -asz family: drop -ać, add ${AM_END}. czytać, pytać, przepraszać and nazywać się work exactly the same way.`});
+V('nazywać się','am','to be called','nazywam nazywasz nazywa nazywamy nazywacie nazywają',{refl:1,gov:'nom',en6:['I am called','you are called','he / she is called','we are called','you (all) are called','they are called'],note:'nazywać się = “to call oneself” = to be called',vnote:'-am / -asz family, exactly like mieszkać, plus się.'});
+V('nazywać','am','to call','nazywam nazywasz nazywa nazywamy nazywacie nazywają',{gov:'acc',note:'nazywać się = to be called (literally “to call oneself”)'});
+V('czytać','am','to read','czytam czytasz czyta czytamy czytacie czytają',{gov:'acc',bonus:1,vnote:'-am / -asz family, exactly like mieszkać.'});
+V('pytać','am','to ask','pytam pytasz pyta pytamy pytacie pytają',{bonus:1,vnote:'-am / -asz family, exactly like mieszkać.'});
+V('przepraszać','am','to apologise','przepraszam przepraszasz przeprasza przepraszamy przepraszacie przepraszają',{bonus:1,fm:{przepraszam:'sorry · excuse me'},vnote:'-am / -asz family, exactly like mieszkać.',note1:'literally “I apologise”'});
+V('rozumieć','em','to understand','rozumiem rozumiesz rozumie rozumiemy rozumiecie rozumieją',{gov:'acc'});
+V('wiedzieć','irr','to know (a fact)','wiem wiesz wie wiemy wiecie wiedzą',{});
+V('dziękować','esz','to thank','dziękuję dziękujesz dziękuje dziękujemy dziękujecie dziękują',{gov:'dat',fm:{dziękuję:'thank you'},note1:'literally “I thank”'});
+V('prosić','isz','to ask (for)','proszę prosisz prosi prosimy prosicie proszą',{fm:{proszę:'please · here you are · you’re welcome'},note1:'literally “I ask”; proszę + infinitive is a polite request: Proszę powtórzyć = Please repeat'});
+V('mówić','isz','to speak','mówię mówisz mówi mówimy mówicie mówią',{});
+V('znaczyć','isz','to mean','znaczę znaczysz znaczy znaczymy znaczycie znaczą',{note:'Co to znaczy? = What does this mean?'});
+V('napisać','esz','to write (down)','napiszę napiszesz napisze napiszemy napiszecie napiszą',{s3:'writes (down)',pf:1});
+V('przeczytać','am','to read (out)','przeczytam przeczytasz przeczyta przeczytamy przeczytacie przeczytają',{s3:'reads (out)',pf:1});
+V('powtórzyć','isz','to repeat','powtórzę powtórzysz powtórzy powtórzymy powtórzycie powtórzą',{pf:1});
+V('przeliterować','esz','to spell','przeliteruję przeliterujesz przeliteruje przeliterujemy przeliterujecie przeliterują',{pf:1});
+W('słychać','impers','(it can be) heard',{note:'Co słychać? = “What is heard?” = How’s it going?'});
+/* verbs from the grammar modules */
+V('lubić','isz','to like','lubię lubisz lubi lubimy lubicie lubią',{gov:'acc',...LATER});
+V('kochać','am','to love','kocham kochasz kocha kochamy kochacie kochają',{gov:'acc',...LATER});
+V('znać','am','to know (someone, something)','znam znasz zna znamy znacie znają',{gov:'acc',...LATER});
+V('jeść','irr','to eat','jem jesz je jemy jecie jedzą',{gov:'acc',...LATER});
+V('pić','esz','to drink','piję pijesz pije pijemy pijecie piją',{gov:'acc',...LATER});
+V('gotować','esz','to cook','gotuję gotujesz gotuje gotujemy gotujecie gotują',{gov:'acc',...LATER});
+V('widzieć','isz','to see','widzę widzisz widzi widzimy widzicie widzą',{gov:'acc',...LATER});
+V('szukać','am','to look for','szukam szukasz szuka szukamy szukacie szukają',{gov:'gen',s3:'looks for',...LATER});
+V('pomagać','am','to help','pomagam pomagasz pomaga pomagamy pomagacie pomagają',{gov:'dat',...LATER});
+V('uczyć się','isz','to learn','uczę uczysz uczy uczymy uczycie uczą',{refl:1,gov:'gen',...LATER});
+
+/* adjectives (forms generated: -y / -a / -e …, -i after k and g) */
+ADJ('dobry','good','dobrzy');
+ADJ('nowy','new','nowi');
+ADJ('oficjalny','formal · official','oficjalni');
+ADJ('nieoficjalny','informal','nieoficjalni',{note:'nie + oficjalny'});
+ADJ('prosty','straight','prości',{note:'ulica Prosta = Straight Street'});
+ADJ('zamkowy','castle (as in castle square)','zamkowi',{note:'Plac Zamkowy = Castle Square'});
+ADJ('zjednoczony','united','zjednoczeni');
+ADJ('polski','Polish','polscy');
+ADJ('miły','nice · pleasant','mili');
+ADJ('zły','bad','źli');
+ADJ('niezły','not bad','nieźli');
+ADJ('świetny','great','świetni');
+ADJ('wolny','slow · free','wolni');
+ADJ('jaki','what · which (what kind of)','jacy',{wh:1,role:'what kind of, which: it describes a noun and agrees with its gender (jaki adres, jaka ulica, jakie imię)'});
+ADJ('który','which','którzy',{wh:1,role:'which (of several): agrees with its noun',...LATER});
+lx({pos:'adj',lemma:'mój',en:'my',L:'later',forms:[['mój','nom','m'],['mojego','gen','m'],['mojemu','dat','m'],['mój','acc','m','inan'],['mojego','acc','m','anim'],['moim','ins','m'],['moim','loc','m'],
+ ['moja','nom','f'],['mojej','gen','f'],['mojej','dat','f'],['moją','acc','f'],['moją','ins','f'],['mojej','loc','f'],['moje','nom','n'],['mojego','gen','n'],['mojemu','dat','n'],['moje','acc','n'],['moim','ins','n'],['moim','loc','n'],
+ ['moi','nom','vir'],['moje','nom','nonvir'],['moich','gen','pl'],['moim','dat','pl'],['moich','acc','vir'],['moje','acc','nonvir'],['moimi','ins','pl'],['moich','loc','pl']]});
+
+/* pronouns: every case form; para 'pers' groups the personal pronouns so ja / ty / on … compare by person, number and gender */
+const PRN=(lemma,person,num,en,forms,x)=>lx({pos:'pron',lemma,person,num,en,para:'pers',forms,...(x||{})});
+PRN('ja',1,'sg','I',[['ja','nom','','I'],['mnie','gen','','me'],['mi','dat','','(to) me'],['mnie','dat','','(to) me'],['mnie','acc','','me'],['mną','ins','','(with) me'],['mnie','loc','','me']]);
+PRN('ty',2,'sg','you (one person, informal)',[['ty','nom'],['ciebie','gen','','you'],['cię','gen','','you'],['ci','dat','','(to) you'],['tobie','dat','','(to) you'],['ciebie','acc','','you'],['cię','acc','','you'],['tobą','ins','','(with) you'],['tobie','loc','','you']],{note:'for friends, family, children; formal is pan / pani'});
+PRN('on',3,'sg','he',[['on','nom','m','he'],['ona','nom','f','she'],['ono','nom','n','it','used for neuter nouns, e.g. dziecko (child)'],['jego','gen','m','him'],['go','gen','m','him'],['niego','gen','m','him'],['jemu','dat','m','(to) him'],['mu','dat','m','(to) him'],['jego','acc','m','him'],['go','acc','m','him'],['nim','ins','m','(with) him'],['nim','loc','m','him'],
+ ['jej','gen','f','her'],['niej','gen','f','her'],['jej','dat','f','(to) her'],['ją','acc','f','her'],['nią','acc','f','her'],['nią','ins','f','(with) her'],['niej','loc','f','her'],['je','acc','n','it'],
+ ['oni','nom','vir','they (men, or a mixed group)','used as soon as at least one man is in the group'],['one','nom','nonvir','they (no men in the group)','women, children, animals, things'],['ich','gen','pl','them'],['nich','gen','pl','them'],['im','dat','pl','(to) them'],['ich','acc','vir','them'],['je','acc','nonvir','them'],['nimi','ins','pl','(with) them'],['nich','loc','pl','them']],
+ {});
+PRN('my',1,'pl','we',[['my','nom'],['nas','gen','','us'],['nam','dat','','(to) us'],['nas','acc','','us'],['nami','ins','','(with) us'],['nas','loc','','us']]);
+PRN('wy',2,'pl','you (several people, informal)',[['wy','nom'],['was','gen','','you'],['wam','dat','','(to) you'],['was','acc','','you'],['wami','ins','','(with) you'],['was','loc','','you']],{note:'plural of ty'});
+lx({pos:'pron',lemma:'się',en:'oneself (myself, yourself…)',forms:[['się','acc'],['się','gen']],refl:1,note:'reflexive pronoun, the same for every person (myself, yourself, himself…); it makes a verb reflexive'});
+lx({pos:'pron',lemma:'sobie',en:'(to) oneself',forms:[['sobie','dat'],['sobie','loc']],note:'tak sobie = “so so”'});
+lx({pos:'pron',lemma:'to',en:'this · it',forms:[['to','nom','n'],['tego','gen','n'],['temu','dat','n'],['to','acc','n'],['tym','ins','n'],['tym','loc','n']],note:'Co to znaczy? = What does this mean?'});
+lx({pos:'pron',lemma:'wszystko',en:'everything',forms:[['wszystko','nom','n'],['wszystkiego','gen','n'],['wszystkiemu','dat','n'],['wszystko','acc','n'],['wszystkim','ins','n'],['wszystkim','loc','n']]});
+/* question words: role = what each one asks, used to tell jak / jaki / co … apart */
+lx({pos:'wh',lemma:'co',en:'what',forms:[['co','nom'],['czego','gen'],['czemu','dat'],['co','acc'],['czym','ins'],['czym','loc']],role:'what (a thing): stands on its own, like a noun (Co to znaczy?)'});
+lx({pos:'wh',lemma:'kto',en:'who',forms:[['kto','nom'],['kogo','gen'],['komu','dat'],['kogo','acc'],['kim','ins'],['kim','loc']],role:'who (a person)'});
+W('jak','wh','how',{role:'how: goes with a verb (Jak się masz?, Jak masz na imię?)'});
+W('gdzie','wh','where',{role:'where (location): answer with w + locative (w Gandawie)',note:'answer with w + locative: w Gandawie'});
+W('skąd','wh','where from',{role:'where from: answer with z + genitive (z Belgii)',note:'answer with z + genitive: z Belgii'});
+W('dokąd','wh','where to',{role:'where to: answer with do + genitive',...LATER});
+W('kiedy','wh','when',{role:'when',...LATER});
+W('ile','wh','how much · how many',{role:'how much, how many'});
+W('czy','part','(marks a yes / no question)',{note:'question particle with no English equivalent, like “est-ce que” in French: Czy macie auto? = Do you have a car?'});
+/* prepositions: the case each one takes, and the rule that explains it */
+const PREP=(lemma,en,cases,x)=>lx({pos:'prep',lemma,en,cases,...(x||{})});
+PREP('z','from (out of)',{gen:'z_gen',ins:'z_ins'},{mean:{gen:'from (out of)',ins:'with'},variant:'ze',note:'always followed by the genitive when it means “from”: that is why countries change: Polska → z Polski, Belgia → z Belgii',vnote:'added before awkward consonant clusters: ze Stanów'});
+PREP('w','in',{loc:'w_loc',acc:'w_acc'},{mean:{loc:'in',acc:'into, on (a day)'},variant:'we',note:'followed by the locative for “where”: that is why places change: Gandawa → w Gandawie, Kraków → w Krakowie',vnote:'added before awkward clusters: we Wrocławiu (w + Wr is hard to say)'});
+PREP('na','on · onto',{loc:'na_loc',acc:'na_acc'},{mean:{loc:'on, at',acc:'onto, to'},note:'na + locative = on, at (where); na + accusative = onto (where to)'});
+PREP('do','to · until',{gen:'do_gen'},{note:'do widzenia = until seeing (again)'});
+PREP('po','after · (po polsku) in Polish',{loc:'po_loc'},{note:'po + -sku form = “in [language]”: po polsku, po niderlandzku'});
+PREP('od','from (a person)',{gen:'od_gen'},LATER);
+PREP('u','at (someone’s place)',{gen:'u_gen'},LATER);
+PREP('bez','without',{gen:'bez_gen'},LATER);
+PREP('dla','for',{gen:'dla_gen'},LATER);
+PREP('o','about',{loc:'o_loc'},LATER);
+PREP('przy','at · by',{loc:'przy_loc'},LATER);
+/* numbers: cnt says what the counted noun does (1 agrees, 2–4 nominative plural, 5+ genitive plural) */
+const NUMW=(lemma,n,forms,x)=>lx({pos:'num',lemma,n,en:`${['zero','one','two','three','four','five','six','seven','eight','nine','ten'][n]} · ${n}`,forms:(forms||lemma).split(' '),...(x||{})});
+NUMW('zero',0);NUMW('jeden',1,'jeden jedna jedno');NUMW('dwa',2,'dwa dwie dwaj');NUMW('trzy',3);NUMW('cztery',4);NUMW('pięć',5);NUMW('sześć',6);NUMW('siedem',7);NUMW('osiem',8);NUMW('dziewięć',9);NUMW('dziesięć',10);
+/* other words */
+W('dobrze','adv','well · fine',{adj:'dobry'});W('źle','adv','badly · bad',{adj:'zły',note:'the opposite of dobrze'});W('nieźle','adv','not bad',{adj:'niezły',note:'nie + źle (badly)'});
+W('świetnie','adv','great · excellently',{adj:'świetny'});W('miło','adv','nice · pleasant',{adj:'miły',gov:'dat',note:'Miło mi = “(it is) pleasant to me” = nice to meet you'});
+W('wolniej','adv','more slowly',{adj:'wolny',note:'comparative of wolno (slowly)'});
+W('bardzo','adv','very');W('teraz','adv','now');W('dzisiaj','adv','today');W('tak','adv','yes · so');W('też','adv','also');W('super','adv','super · great',{note:'informal'});
+W('nie','part','no · not',{note:'nie goes right before the verb; it turns the accusative object of the verb into the genitive'});
+W('i','conj','and');W('a','conj','and · whereas');W('ale','conj','but');W('albo','conj','or');
+W('cześć','interj','hi · bye (informal)',{note:'literally “honour”; only with people you say ty to'});
+W('dobranoc','interj','good night',{note:'dobra (good) + noc (night) written as one word; said when going to bed'});
+W('plus','conj','plus');W('minus','conj','minus');
+W('polsku','lang','Polish (po polsku = in Polish)',{adj:'polski',note:'special form used only after po: po + -sku means “in [language]”'});
+W('niderlandzku','lang','Dutch (po niderlandzku = in Dutch)',{adj:'niderlandzki',note:'special form used only after po'});
+W('ul','abbr','street',{full:'ulica'});W('al','abbr','avenue',{full:'aleja'});W('os','abbr','housing estate',{full:'osiedle'});W('pl','abbr','square',{full:'plac'});
+/* ---------- construction rules (from the grammar modules) ----------
+   t: name · x: the explanation you read (cheat sheet) · why: the reason given when a word breaks the rule ({v} = the verb, {w} = the word)
+   gl: the reason shown when you tap a word · m: module · L: 1 = lessons 0–1, 'later' = later lessons
+   pair: words that are easily confused; when you write one for the other, this rule explains the difference */
+const RULES={
+ /* cases after prepositions */
+ z_gen:{t:'z / ze + genitive (from)',m:8,L:1,x:'z (from, out of) puts the next word in the genitive: Polska → z Polski, Belgia → z Belgii, Niemcy → z Niemiec.',why:'after <b>{w}</b> (from) you need the <b>genitive</b>',gl:'genitive because of {w} (from)'},
+ w_loc:{t:'w / we + locative (where)',m:10,L:1,x:'w (in) + the locative says where something is: Gandawa → w Gandawie, Kraków → w Krakowie, Wrocław → we Wrocławiu.',why:'after <b>{w}</b> (in), saying where, you need the <b>locative</b>',gl:'locative because {w} (in) says where'},
+ do_gen:{t:'do + genitive',m:8,L:1,x:'do (to, until) always takes the genitive: do widzenia (until seeing again = goodbye), do sklepu (to the shop).',why:'after <b>do</b> you need the <b>genitive</b>',gl:'genitive because of do (to, until)'},
+ na_imie:{t:'mieć na imię / na nazwisko',m:2,L:1,x:'Polish says “I have as first name”: Mam na imię Jan. Jak masz na imię? The noun after na is in the accusative, which for imię and nazwisko looks the same as the dictionary form.',why:'in <b>mam na imię</b> the noun after na is in the <b>accusative</b>',gl:'accusative because of na in the fixed expression mam na {self}'},
+ gen_of:{t:'noun + genitive (“of”)',m:8,L:1,x:'A noun that says “of …” after another noun goes into the genitive: numer telefonu (number of the phone), ulica Mickiewicza (street of Mickiewicz).',why:'a noun that says “of …” after another noun is in the <b>genitive</b>',gl:'genitive = “of …” after another noun'},
+ /* cases after verbs, negation, numbers */
+ miec_acc:{t:'mieć + accusative',m:4,L:1,x:'What you have is the object of mieć, so it goes into the accusative: Mam pytanie. Mamy dom. Mam siostrę (siostra → siostrę). Masculine things and neuter nouns look the same as the dictionary form.',why:'what you have (after <b>mieć</b>) is the object, in the <b>accusative</b>',gl:'accusative: the object of mieć'},
+ neg_gen:{t:'nie + genitive',m:6,L:1,x:'When the verb is negated with nie, its accusative object goes into the genitive: Mam pytanie → Nie mam pytania. Mam problem → Nie mam problemu.',why:'after <b>nie</b>, the object goes into the <b>genitive</b>',gl:'genitive because the verb is negated (nie)'},
+ num:{t:'2–4 / 5+ with nouns',m:8,L:1,x:'After 2, 3, 4 the noun is in the nominative plural: dwa domy, trzy pytania. From 5 up it is in the genitive plural: pięć domów, pięć pytań. After 1 it is singular: jeden dom.'},
+ num24:{sub:'num',why:'after <b>{w}</b> (2, 3, 4) the noun is in the <b>nominative plural</b>',gl:'nominative plural after 2, 3, 4'},
+ num5:{sub:'num',why:'after <b>{w}</b> (5 and up) the noun is in the <b>genitive plural</b>',gl:'genitive plural after 5 and up'},
+ byc_nom:{t:'być + nominative',m:2,L:1,x:'After być, a name or a noun you point at stays in the nominative: To jest Anna. To jest mój dom. (A job or role after być takes the instrumental: Jestem nauczycielem, in a later lesson.)',why:'after <b>być</b> the noun stays in the <b>nominative</b>',gl:'nominative after być'},
+ name_nom:{t:'nazywać się + nominative',m:7,L:1,x:'Nazywam się + your name in the nominative: Nazywam się Jan Kowalski.',why:'after <b>nazywać się</b> the name stays in the <b>nominative</b>',gl:'nominative after nazywać się'},
+ dat_exp:{t:'mi, ci… (the person who feels it)',m:11,L:1,x:'The person who feels something goes into the dative: Miło mi (pleasant to me = nice to meet you), Jest mi zimno (I am cold).',why:'with <b>{w}</b> the person who feels it goes into the <b>dative</b>',gl:'dative = “to me”: miło mi = pleasant to me'},
+ /* verbs */
+ subj:{t:'the verb matches who does it',m:3,L:1,x:'The ending of the verb shows who does it: ja mam, ty masz, on / ona ma, my mamy, wy macie, oni / one mają. The pronoun itself is often left out: Mam pytanie.'},
+ formal:{t:'pan / pani take the 3rd-person verb',m:2,L:1,x:'pan and pani are nouns, not pronouns, so the verb takes the on / ona form: Jak ma pan na imię? Skąd pani jest? państwo, panowie and panie take the oni form: Skąd państwo są?'},
+ sie:{t:'verbs with się',m:7,L:1,x:'Some verbs come with się: nazywać się (to be called), mieć się (to be doing), uczyć się (to learn). Without się the verb means something else: nazywam = I call, mam = I have.'},
+ clitic:{t:'się and mi never come first',m:7,L:1,x:'Short words like się and mi lean on the word before them, so they never start a sentence. Jak się masz? Nazywam się Jan. Miło mi. Safe default: put się right after the verb, or right after the question word as in Jak się masz?'},
+ byc_miec:{t:'być or mieć?',m:2,L:1,pair:['być','mieć'],x:'być = to be, mieć = to have. Polish uses mieć where English says “to be” for names and age: Mam na imię Jan (literally “I have as first name”), Mam 30 lat (“I have 30 years”).'},
+ prosze_inf:{t:'proszę + infinitive',m:3,L:1,x:'Proszę + the infinitive (dictionary form) is a polite request: Proszę powtórzyć (please repeat), Proszę mówić wolniej (please speak more slowly).',why:'after <b>proszę</b> (please) the verb stays in the <b>infinitive</b>',gl:'after proszę the verb stays in the infinitive'},
+ /* agreement */
+ jaki:{t:'jaki / jaka / jakie agree with the noun',m:5,L:1,x:'jaki goes with a masculine noun (jaki adres, jaki numer), jaka with a feminine noun (jaka ulica), jakie with a neuter noun (jakie imię, jakie auto).'},
+ adj:{t:'adjectives agree with their noun',m:5,L:1,x:'An adjective takes the gender, number and case of its noun: dobry dzień (masculine), nowa ulica (feminine), nowe auto (neuter), w Nowym Jorku (locative).'},
+ pron_g:{t:'on / ona / ono',m:2,L:1,x:'on = he (or a masculine noun), ona = she (or a feminine noun), ono = it (a neuter noun, e.g. dziecko).'},
+ oni:{t:'oni / one',m:5,L:1,x:'oni as soon as at least one man is in the group, also a mixed group; one only when there is no man: women, children, animals, things.'},
+ pan_pani:{t:'pan / pani',m:2,L:1,x:'pan to a man, pani to a woman; państwo to a mixed group, panowie to several men, panie to several women.'},
+ /* words that are easily confused */
+ wh:{t:'jak / jaki / co',m:6,L:1,pair:['jak','jaki','co','kto','gdzie','skąd','ile','który'],x:'jak = how, with a verb (Jak się masz? Jak masz na imię?). jaki / jaka / jakie = what (kind of), with a noun it agrees with (Jaki masz adres?). co = what, a thing on its own (Co to znaczy?).'},
+ skad_gdzie:{t:'skąd → z, gdzie → w',m:12,L:1,pair:['z','w'],x:'Skąd? (where from) → z + genitive: Jestem z Belgii. Gdzie? (where) → w + locative: Mieszkam w Gandawie.'},
+ adv:{t:'adjective or adverb (dobry / dobrze)',m:5,L:1,x:'dobry (good) is an adjective: it describes a noun (dobry dzień). dobrze (well) is an adverb: it says how something is or is done (Mam się dobrze. Mówisz dobrze po polsku). Same for zły / źle, świetny / świetnie, miły / miło.'},
+ ze_we:{t:'z → ze, w → we',m:12,L:1,x:'Before a word that starts with a hard cluster of consonants, z becomes ze and w becomes we, to make it pronounceable: ze Stanów Zjednoczonych, ze szkoły, we Wrocławiu.'},
+ po_sku:{t:'po polsku',m:12,L:1,x:'po + the -sku form names a language: po polsku (in Polish), po niderlandzku (in Dutch). Jak jest po polsku…? = How do you say … in Polish?'},
+ /* spelling (module 1) */
+ sp_acc:{t:'ogonki (accents)',m:1,L:1,x:'ą ę ć ł ń ó ś ź ż are letters of their own. Without the mark it is a different spelling, and sometimes a different word. They count on the test.'},
+ sp_rz:{t:'rz or ż',m:1,L:1,x:'rz and ż sound exactly the same, so you learn the spelling word by word. Hint: rz often alternates with r (morze ↔ morski), ż with g, z or h (może ↔ mogę).'},
+ sp_u:{t:'ó or u',m:1,L:1,x:'ó and u sound the same. Hint: ó usually alternates with o in other forms of the word (Kraków → w Krakowie, Łódź → w Łodzi); u is the default.'},
+ sp_h:{t:'ch or h',m:1,L:1,x:'ch and h sound the same; ch is the default, h is mostly in loanwords.'},
+ sp_prz:{t:'rz after p, t, k',m:1,L:1,x:'After p, t, k and ch, rz sounds like sz but is still written rz: przepraszam, przeczytać, trzy, krzesło.'},
+ sp_soft:{t:'ci or ć (soft letters)',m:1,L:1,x:'The same soft sound is written with i before a vowel (ci, si, zi, ni, dzi: ciasto, nie) and with an accent before a consonant or at the end of a word (ć, ś, ź, ń, dź: jeść, koń).'},
+ sp_ij:{t:'-ii or -ji',m:8,L:1,x:'Countries in -ia take -ii in the genitive and locative (Belgia → z Belgii, Hiszpania → z Hiszpanii); after c, s and z they end in -ja and take -ji (Francja → z Francji, Rosja → z Rosji).'},
+ stem:{t:'stem changes',m:10,L:1,x:'Some words change inside when they take an ending: ó → o (Kraków → w Krakowie, Łódź → w Łodzi), a dropped e (dziadek → dziadka, cukier → cukru), ą → ę (mąż → męża). Learn these with the word.'},
+ /* later lessons */
+ z_ins:{t:'z + instrumental (with)',m:9,L:'later',x:'z meaning “with” takes the instrumental: kawa z mlekiem (coffee with milk), z babcią (with grandma). Same little word as z (from), different case.',why:'after <b>z</b> meaning “with” you need the <b>instrumental</b>',gl:'instrumental because of z (with)'},
+ w_acc:{t:'w + accusative (on a day)',m:12,L:'later',x:'w + accusative for days: w poniedziałek (on Monday). Going into a room is do + genitive: Idę do kuchni.',why:'here <b>w</b> takes the <b>accusative</b>',gl:'accusative after w'},
+ na_loc:{t:'na + locative (where)',m:10,L:'later',x:'na (on, at) + locative says where something is: na stole (on the table), na obiedzie (at dinner).',why:'after <b>na</b> (on, at), saying where, you need the <b>locative</b>',gl:'locative because na (on, at) says where'},
+ na_acc:{t:'na + accusative (where to)',m:12,L:'later',x:'na + accusative for where you are heading (an event, an open place): Idę na obiad. Idę na pocztę.',why:'after <b>na</b> for movement (onto, to) you need the <b>accusative</b>',gl:'accusative because na says where to'},
+ po_loc:{t:'po + locative (after)',m:10,L:'later',x:'po (after) takes the locative: po obiedzie (after dinner), po śniadaniu (after breakfast).',why:'after <b>po</b> (after) you need the <b>locative</b>',gl:'locative because of po (after)'},
+ od_gen:{t:'od + genitive',m:8,L:'later',x:'od (from a person or a starting point) takes the genitive: list od mamy, od poniedziałku.',why:'after <b>od</b> you need the <b>genitive</b>',gl:'genitive because of od (from)'},
+ u_gen:{t:'u + genitive',m:12,L:'later',x:'u (at someone’s place) takes the genitive: u babci (at grandma’s).',why:'after <b>u</b> you need the <b>genitive</b>',gl:'genitive because of u (at someone’s place)'},
+ bez_gen:{t:'bez + genitive',m:8,L:'later',x:'bez (without) takes the genitive: kawa bez cukru.',why:'after <b>bez</b> (without) you need the <b>genitive</b>',gl:'genitive because of bez (without)'},
+ dla_gen:{t:'dla + genitive',m:8,L:'later',x:'dla (for) takes the genitive: prezent dla mamy.',why:'after <b>dla</b> (for) you need the <b>genitive</b>',gl:'genitive because of dla (for)'},
+ o_loc:{t:'o + locative (about)',m:10,L:'later',x:'o (about) takes the locative: Mówię o mamie. Myślę o obiedzie.',why:'after <b>o</b> (about) you need the <b>locative</b>',gl:'locative because of o (about)'},
+ przy_loc:{t:'przy + locative',m:10,L:'later',x:'przy (at, by) takes the locative: przy stole.',why:'after <b>przy</b> you need the <b>locative</b>',gl:'locative because of przy (at, by)'},
+ obj_acc:{t:'object in the accusative',m:4,L:'later',x:'The object of most verbs (czytać, lubić, znać, jeść, pić…) is in the accusative: Lubię kawę. Jem zupę.',why:'the object of <b>{w}</b> goes into the <b>accusative</b>',gl:'accusative: the object of {w}'},
+ gen_verbs:{t:'verbs that take the genitive',m:8,L:'later',x:'szukać (look for), uczyć się (learn), bać się (be afraid of) take the genitive, even without nie: Szukam kluczy. Uczę się polskiego.',why:'the object of <b>{w}</b> is always in the <b>genitive</b>',gl:'genitive because of {w}'},
+ dat_verbs:{t:'verbs that take the dative',m:11,L:'later',x:'dziękować (thank), pomagać (help), wierzyć (believe) take the dative: Dziękuję bratu. Pomagam mamie.',why:'the person after <b>{w}</b> goes into the <b>dative</b>',gl:'dative because of {w}'},
+ motion_rest:{t:'where to or where? (do / na / w)',m:12,L:'later',x:'Going somewhere: do + genitive (Idę do kuchni) or na + accusative (Idę na obiad). Being somewhere: w + locative (Jestem w kuchni) or na + locative (Jestem na obiedzie).'}
+};
+/* ---------- every form of every word, tagged ---------- */
+const FORMS=new Map();
+const lo=s=>String(s).toLowerCase();
+const idx=(w,an)=>{const k=lo(w);let a=FORMS.get(k);if(!a)FORMS.set(k,a=[]);if(!a.some(x=>x.e===an.e&&x.case===an.case&&x.num===an.num&&x.g===an.g&&x.pers===an.pers&&x.vf===an.vf&&x.anim===an.anim))a.push(an)};
+/* adjective endings: -y / -a / -e …, -i and -ie after k and g (polski, jaki) */
+function adjTable(e){if(e.forms)return e.forms;
+ const kg=/[kg]i$/.test(e.lemma),st=e.lemma.slice(0,-1),fx=s=>kg?s.replace(/^y/,'i').replace(/^e/,'ie'):s;
+ return [['y','nom','m'],['ego','gen','m'],['emu','dat','m'],['y','acc','m','inan'],['ego','acc','m','anim'],['ym','ins','m'],['ym','loc','m'],
+  ['a','nom','f'],['ej','gen','f'],['ej','dat','f'],['ą','acc','f'],['ą','ins','f'],['ej','loc','f'],
+  ['e','nom','n'],['ego','gen','n'],['emu','dat','n'],['e','acc','n'],['ym','ins','n'],['ym','loc','n'],
+  ['e','nom','nonvir'],['ych','gen','pl'],['ym','dat','pl'],['ych','acc','vir'],['e','acc','nonvir'],['ymi','ins','pl'],['ych','loc','pl']]
+  .map(([s,c,g,a])=>[st+fx(s),c,g,a]).concat([[e.vir,'nom','vir']])}
+const PLG=g=>g==='vir'||g==='nonvir'||g==='pl';
+LEX.forEach(e=>{
+ if(e.pos==='noun'||e.pos==='name'){
+  if(e.indecl)CASES.forEach(c=>idx(e.lemma,{e,pos:e.pos,case:c,num:'sg',g:e.g}));
+  else if(e.sg)e.sg.forEach((f,k)=>idx(f,{e,pos:e.pos,case:CASES[k],num:'sg',g:e.g}));
+  if(e.pl){e.pl.forEach((f,k)=>idx(f,{e,pos:e.pos,case:CASES[k],num:'pl',g:e.g}));idx(e.pl[0],{e,pos:e.pos,case:'voc',num:'pl',g:e.g})}}
+ else if(e.pos==='verb'){const inf=e.lemma.replace(/ się$/,'');idx(inf,{e,pos:'verb',vf:'inf'});e.f.forEach((f,k)=>idx(f,{e,pos:'verb',vf:'fin',pers:k%3+1,num:k<3?'sg':'pl'}))}
+ else if(e.pos==='adj')adjTable(e).forEach(([f,c,g,a])=>idx(f,{e,pos:'adj',case:c,g,num:PLG(g)?'pl':'sg',anim:a}));
+ else if(e.pos==='pron')e.forms.forEach(([f,c,g,en,note])=>idx(f,{e,pos:'pron',case:c,g:g||null,num:PLG(g)?'pl':e.num||'sg',pers:e.person,en:en||null,note:note||null}));
+ else if(e.forms&&e.pos==='wh')e.forms.forEach(([f,c])=>idx(f,{e,pos:'wh',case:c}));
+ else if(e.pos==='num')e.forms.forEach(f=>idx(f,{e,pos:'num'}));
+ else if(e.pos==='prep'){idx(e.lemma,{e,pos:'prep'});if(e.variant)idx(e.variant,{e,pos:'prep',variant:1})}
+ else idx(e.lemma,{e,pos:e.pos})});
+const lookup=w=>FORMS.get(lo(w))||[];
+/* the same, ignoring ogonki (Krakow finds Kraków) */
+const FORMS_FOLD=new Map();FORMS.forEach((v,k)=>{const f=strip(k);let a=FORMS_FOLD.get(f);if(!a)FORMS_FOLD.set(f,a=[]);v.forEach(x=>a.push(x))});
+const foldLookup=w=>FORMS_FOLD.get(strip(lo(w)))||[];
+/* the real spelling of a reading found without ogonki */
+function surfaceOf(an,g){for(const [k,v] of FORMS)if(strip(k)===strip(lo(g))&&v.includes(an))return k;return null}
+const LEMMA=new Map();LEX.forEach(e=>{if(!LEMMA.has(e.lemma))LEMMA.set(e.lemma,e)});
+/* one form of a word: form('Polska','gen') → Polski · form('stan','gen','pl') → Stanów */
+function form(lemma,c,num){const e=LEMMA.get(lemma);if(!e)return null;
+ if(e.pos==='verb')return e.f[c];
+ if(e.pos==='adj'){const r=adjTable(e).find(x=>x[1]===c&&(num==='pl'?PLG(x[2]):x[2]===(num||'m')));return r?r[0]:null}
+ const list=num==='pl'||!e.sg?e.pl:e.sg;return list?list[CASES.indexOf(c)]:null}
+/* z → ze, w → we before a hard cluster (ze Stanów, we Wrocławiu) */
+function zeWe(p,next){const n=lo(next||''),V=/^[aeiouyąęó]/;
+ if(/^mn/.test(n)||(p==='z'&&/^wszystk/.test(n)))return p+'e';
+ const m=p==='z'?n.match(/^(sz|rz|s|z|ś|ź|ż)(.*)$/):n.match(/^(w|f)(.*)$/);
+ return m&&m[2]&&!V.test(m[2])?p+'e':p}
+/* the plural pronoun for a group: oni as soon as one man is in it */
+/* the people in a group, each as a person or thing with a gender; a title decides a name's gender (pani Nowak is a woman) */
+function members(ws){const out=[];for(let k=0;k<ws.length;k++){const w=lo(ws[k]),x=lookup(w).find(c=>c.pos==='name'||c.pos==='noun'||c.pos==='pron');if(!x)continue;
+  if(x.e.para==='pan'&&x.num==='sg'){out.push({w:ws[k+1]&&lookup(ws[k+1]).some(c=>c.pos==='name')?ws[k+1]:ws[k],g:x.e.g});if(ws[k+1]&&lookup(ws[k+1]).some(c=>c.pos==='name'))k++;continue}
+  out.push({w:ws[k],g:x.pos==='pron'?x.g:x.e.vir?'m1':x.e.g})}return out}
+const isMan=m=>m.g==='m1'||m.g==='vir';
+function groupPron(ws){return members(ws).some(isMan)?'oni':'one'}
+
+/* ---------- reading a sentence ----------
+   tokens(): words, with the ones in brackets marked as hints, e.g. (ja) in “(ja) ___ z Polski”
+   analyse(): for each word its form (an), what governs it (gov: a preposition, verb, number, noun, or miło),
+              the rule behind its case (rule), the noun an adjective agrees with (head) and a verb's subject (subj) */
+const WORD_RE=/([A-Za-zÀ-ÿĄąĆćĘęŁłŃńÓóŚśŹźŻż]+)/;
+function tokens(s){const out=[];let d=0,cl=0;String(s||'').split(WORD_RE).forEach((p,i)=>{if(i%2)out.push({w:p.toLowerCase(),raw:p,hint:d>0,cl});else{if(/[.,!?;:·–—…→=+]/.test(p.replace(/\.{3}/g,'…')))cl++;for(const c of p){if(c==='(')d++;else if(c===')')d=Math.max(0,d-1)}}});return out}
+const NOMINAL=x=>x.pos==='noun'||x.pos==='name'||x.pos==='pron'||(x.pos==='wh'&&x.case);
+const pi=an=>an&&an.pers?(an.pers-1)+(an.num==='pl'?3:0):-1;
+function adjAgrees(x,h){if(x.case!==h.case||x.num!==h.num)return false;const g=h.e.g;
+ if(h.num==='pl'){const vir=g==='m1'||!!h.e.vir;return x.g==='pl'||x.g===(vir?'vir':'nonvir')}
+ if(g==='f'||g==='n')return x.g===g;const anim=g==='m1'||g==='m2';return x.g==='m'&&(!x.anim||x.anim===(anim?'anim':'inan'))}
+function analyse(toks){
+ const A=toks.map((t,i)=>{let c=lookup(t.w);
+  if(!c.length&&i>0&&/^[A-ZĄĆĘŁŃÓŚŹŻ]/.test(t.raw))c=[{e:{pos:'name',lemma:t.raw,g:null,en:null},pos:'name',case:'nom',num:'sg',g:null}];
+  return {i,t,c,an:null,gov:null,rule:null,head:null,subj:null}});
+ const P=j=>new Set(A[j]?A[j].c.map(x=>x.pos):[]);
+ const sie=cl=>A.some(a=>a.t.w==='się'&&(a.t.cl||0)===cl);
+ const same=(a,b)=>(a.t.cl||0)===(b.t.cl||0);
+ /* verbs first: the reflexive one (nazywać się, mieć się) when się is in the sentence */
+ A.forEach(a=>{const v=a.c.filter(x=>x.pos==='verb');if(v.length)a.an=v.find(x=>!!x.e.refl===sie(a.t.cl||0))||v.find(x=>!x.e.refl)||v[0]});
+ A.forEach(a=>{if(!a.an&&a.c.length&&a.c.every(x=>x.pos===a.c[0].pos)&&!NOMINAL(a.c[0])&&a.c[0].pos!=='adj')a.an=a.c[0]});
+ const govOf=i=>govL(i)||govR(i);
+ const govR=i=>{const r=A[i+1];if(r&&same(r,A[i])&&r.c.some(x=>x.pos==='adv'&&x.e.gov)&&A[i].c.some(x=>x.pos==='pron'))return {k:'adv',j:i+1,e:r.c.find(x=>x.e.gov).e,w:r.t.w};return null};
+ const govL=i=>{for(let j=i-1;j>=0&&j>=i-5;j--){const a=A[j];if(!same(a,A[i]))return null;if(a.t.hint)continue;const p=P(j);
+   if(p.has('prep'))return {k:'prep',j,e:a.c.find(x=>x.pos==='prep').e,w:a.t.w};
+   if(p.has('num'))return {k:'num',j,n:a.c.find(x=>x.pos==='num').e.n,w:a.t.w};
+   if(p.has('verb')){const v=a.an&&a.an.pos==='verb'?a.an:a.c.find(x=>x.pos==='verb');return {k:'verb',j,e:v.e,neg:j>0&&A[j-1].t.w==='nie',w:a.t.w}}
+   if(a.c.some(x=>x.pos==='adv'&&x.e.gov))return {k:'adv',j,e:a.c.find(x=>x.e.gov).e,w:a.t.w};
+   if(p.has('conj')||p.has('interj'))return null;
+   if(p.has('noun')&&!p.has('adj')){const n=a.c.find(x=>x.pos==='noun');if(n.e.para==='pan')continue;
+    if(j===i-1&&A[i].c.some(x=>x.case==='gen'&&NOMINAL(x)))return {k:'noun',j,e:n.e,w:a.t.w};return null}
+  }return null};
+ const want=g=>{if(!g)return null;
+  if(g.k==='prep')return Object.keys(g.e.cases).map(c=>({case:c}));
+  if(g.k==='num')return g.n===1?null:g.n>=2&&g.n<=4?[{case:'nom',num:'pl'},{case:'acc',num:'pl'}]:[{case:'gen',num:'pl'}];
+  if(g.k==='verb'){const c=g.e.gov;return c?[{case:g.neg&&c==='acc'?'gen':c}]:null}
+  if(g.k==='adv')return [{case:g.e.gov}];
+  if(g.k==='noun')return [{case:'gen'}]};
+ const fits=(x,E)=>E.some(w=>x.case===w.case&&(!w.num||x.num===w.num));
+ const RANK={noun:0,name:1,pron:2,wh:3,adj:4};
+ const ruleOf=(g,an)=>{if(!g)return null;
+  if(g.k==='prep')return g.e.lemma==='na'&&an.case==='acc'&&/^(imię|nazwisko)$/.test(an.e.lemma)?'na_imie':g.e.cases[an.case]||null;
+  if(g.k==='num')return an.case==='gen'?'num5':'num24';
+  if(g.k==='verb'){if(g.neg&&an.case==='gen'&&g.e.gov==='acc')return 'neg_gen';const L=g.e.lemma;
+   return L==='mieć'?'miec_acc':L==='być'?'byc_nom':L==='nazywać się'?'name_nom':({acc:'obj_acc',gen:'gen_verbs',dat:'dat_verbs'})[g.e.gov]||null}
+  if(g.k==='adv')return 'dat_exp';if(g.k==='noun')return 'gen_of';return null};
+ /* nouns, names, pronouns: the form that fits what governs them */
+ A.forEach(a=>{if(a.an)return;const nom=a.c.filter(NOMINAL);if(!nom.length)return;
+  if(a.t.hint){a.an=nom.find(x=>x.case==='nom')||nom[0];return}
+  const g=govOf(a.i),E=want(g),m=E?nom.filter(x=>fits(x,E)):[];
+  const adjFit=a.c.filter(x=>x.pos==='adj');
+  if(!m.length&&adjFit.length&&(A[a.i+1]&&same(A[a.i+1],a)&&P(a.i+1).has('noun')||A[a.i-1]&&same(A[a.i-1],a)&&P(a.i-1).has('noun')))return; // an adjective after all (decided below)
+  const ord=x=>E?E.findIndex(w=>w.case===x.case):0;
+  const pool=(m.length?m:nom).slice().sort((x,y)=>(RANK[x.pos]-RANK[y.pos])||(m.length?ord(x)-ord(y):0)||((x.case==='voc')-(y.case==='voc'))||((x.num==='sg'?0:1)-(y.num==='sg'?0:1))||(CASES.indexOf(x.case)-CASES.indexOf(y.case)));
+  a.an=pool[0];a.gov=g;if(m.length)a.rule=ruleOf(g,a.an)});
+ /* adjectives and jaki: the form that agrees with their noun */
+ const isN=(j,i)=>A[j]&&same(A[j],A[i])&&!A[j].t.hint&&A[j].an&&(A[j].an.pos==='noun'&&A[j].an.e.para!=='pan'||A[j].an.pos==='name');
+ A.forEach(a=>{if(a.an)return;const adj=a.c.filter(x=>x.pos==='adj');if(!adj.length)return;
+  let h=null;if(isN(a.i+1,a.i))h=a.i+1;else if(adj[0].e.wh){for(let j=a.i+1;j<A.length&&j<=a.i+4;j++)if(isN(j,a.i)){h=j;break}}
+  if(h==null&&isN(a.i-1,a.i))h=a.i-1;
+  const H=h!=null?A[h].an:null,m=H?adj.filter(x=>adjAgrees(x,H)):[];
+  a.an=m[0]||adj.find(x=>x.case==='nom'&&x.g==='m')||adj[0];if(m.length){a.head=h;a.rule=adj[0].e.wh?'jaki':'adj'}});
+ A.forEach(a=>{if(!a.an&&a.c.length)a.an=a.c[0]});
+ /* verbs: who does it */
+ A.forEach(a=>{const an=a.an;if(!an||an.pos!=='verb')return;
+  if(an.vf==='inf'){const p=A[a.i-1];if(p&&p.an&&p.an.e.lemma==='prosić')a.rule='prosze_inf';return}
+  if(an.vf!=='fin')return;a.subj=subjOf(A,a.i);a.rule=a.subj&&a.subj.kind==='formal'?'formal':'subj'});
+ return A}
+/* the subject of the verb at i: a pronoun, pan / pani, a name or noun before the verb, or a group joined by i */
+function subjOf(A,i){const cl=A[i].t.cl||0;A=A.filter(b=>(b.t.cl||0)===cl||b.t.hint);
+ const nomOf=a=>a.c.find(c=>c.pos==='pron'&&c.e.para==='pers'&&c.case==='nom')||a.c.find(c=>c.pos==='noun'&&c.e.para==='pan'&&c.case==='nom')||a.c.find(c=>(c.pos==='name'||c.pos==='noun')&&c.case==='nom');
+ const ok=(a,x)=>x&&(a.t.hint||x.pos==='pron'||x.e.para==='pan'||a.i<i)&&!(a.gov&&a.gov.k==='prep')&&!a.c.some(c=>c.pos==='verb');
+ /* a group: X i Y (in brackets, or before the verb) */
+ for(const a of A){if(a.t.w!=='i')continue;const L=A[a.i-1],R=A[a.i+1];if(!L||!R)continue;
+  if(!(L.t.hint===R.t.hint&&(L.t.hint||R.i<i)))continue;
+  const span=A.filter(b=>b.t.hint===a.t.hint&&(a.t.hint||b.i<i)&&b.i!==a.i&&nomOf(b)&&b.t.w!=='i');
+  const M=members(span.map(b=>b.t.raw));
+  if(M.length>=2)return {kind:'group',words:M.map(m=>m.w),mem:M,pers:3,num:'pl',vir:M.some(isMan)}}
+ let best=null;A.forEach(a=>{if(a.i===i)return;const x=nomOf(a);if(!ok(a,x))return;
+  const kind=x.pos==='pron'?'pron':x.e.para==='pan'?'formal':'name';
+  const d=(a.t.hint?0:Math.abs(i-a.i))+(kind==='name'?.5:0);if(!best||d<best.d)best={d,a,x,kind}});
+ if(!best)return {kind:'none'};const x=best.x;
+ return {kind:best.kind,word:best.a.t.w,raw:best.a.t.raw,pers:x.pos==='pron'?x.e.person:3,num:x.pos==='pron'?x.num:(x.e.g==='pl'||x.num==='pl'?'pl':'sg'),g:x.g||x.e.g}}
+/* ---------- labels ---------- */
+const Lm=e=>e?e.lemma:'';
+/* words are compared in lower case but shown as they were written (Polski, not polski) */
+let RAW=new Map();
+const shown=w=>String(w).split(' ').map(x=>RAW.get(x)||x).join(' ');
+const ital=w=>`<i>${esc(shown(w))}</i>`;
+const caseLbl=an=>`${CASE_EN[an.case]}${an.num==='pl'&&an.e.g!=='pl'&&an.pos!=='pron'?' plural':''}${an.case==='nom'&&an.num==='sg'&&an.pos!=='pron'?' (the dictionary form)':''}`;
+const gLbl=an=>an.pos==='noun'||an.pos==='name'?GEN_EN[an.e.g]||'':GEN_EN[an.g]||'';
+/* the 3rd-person pronoun's dictionary form for a gender: jej → ona */
+const pronNom=an=>an.e.lemma!=='on'?an.e.lemma:({m:'on',f:'ona',n:'ono',vir:'oni',nonvir:'one',pl:'oni / one'})[an.g]||'on';
+function verbEn(e,i){if(e.en6)return e.en6[i];const base=e.en.replace(/^to /,'');if(e.pf)return `${EN_SUBJ[i]} will ${base}`;return `${EN_SUBJ[i]} ${i===2?(e.s3||base.replace(/^(\S+)/,w=>/(s|sh|ch|x)$/.test(w)?w+'es':w+'s')):base}`}
+function anMean(an){const e=an.e;
+ if(an.pos==='verb')return an.vf==='fin'?((e.fm&&e.fm[e.f[pi(an)]])||verbEn(e,pi(an))):e.en;
+ if(an.pos==='noun')return an.num==='pl'&&e.g!=='pl'?(e.enpl||e.en+' (plural)'):e.en;
+ if(an.pos==='pron')return an.en||(an.case==='nom'?({on:'he',ona:'she',ono:'it',oni:'they (men, or a mixed group)',one:'they (no men in the group)'})[pronNom(an)]||e.en:e.en);
+ return e.en}
+function formLbl(an){const e=an.e;
+ switch(an.pos){
+  case 'noun':if(e.indecl)return `noun, ${GEN_EN[e.g]}, does not change form`;
+   return an.case==='nom'&&(an.num==='sg'||e.g==='pl')?(e.g==='pl'?'noun, plural only':`noun, ${GEN_EN[e.g]}`):`${e.lemma} in the ${CASE_EN[an.case]}${an.num==='pl'?(e.g!=='pl'?' plural':' (plural)'):''}${an.num==='sg'&&lo(e.sg[0])===lo(e.sg[CASES.indexOf(an.case)])?' (same as the dictionary form)':''}`;
+  case 'name':return an.case==='nom'?'name':`${e.lemma} in the ${CASE_EN[an.case]}`;
+  case 'verb':return an.vf==='fin'?`${e.lemma}, ${PERS_FORM[pi(an)]}${e.pf?' (future: this verb has no present)':''}`:`infinitive (dictionary form), ${VCLASS[e.cls]} verb`;
+  case 'impers':return 'impersonal verb form';
+  case 'adj':return e.wh?`question word, ${GEN_EN[an.g]} form`:`${e.lemma}, ${GEN_EN[an.g]}${an.case!=='nom'?' '+CASE_EN[an.case]:''}`;
+  case 'pron':return an.case==='nom'?(e.refl?'reflexive pronoun, the same for every person':e.para?'personal pronoun':'pronoun'):e.refl?'reflexive pronoun, the same for every person':`${pronNom(an)} in the ${CASE_EN[an.case]}`;
+  case 'wh':return an.case&&an.case!=='nom'?`${e.lemma} in the ${CASE_EN[an.case]}`:'question word';
+  case 'prep':{if(an.variant)return `${e.lemma} with an extra e`;const c=Object.entries(e.cases).filter(([,r])=>RULES[r]&&RULES[r].L===1).map(([c])=>CASE_EN[c]);return c.length?`preposition, followed by the ${c.join(' or ')}`:'preposition'}
+  case 'num':return 'number';
+  case 'adv':return e.adj?`adverb of ${e.adj} (${(LEMMA.get(e.adj)||{}).en||''})`:'adverb';
+  case 'part':return 'particle';case 'conj':return 'conjunction';case 'interj':return 'interjection';
+  case 'lang':return `${e.adj}, special form after po`;case 'abbr':return `abbreviation of ${e.full}`;
+ }return ''}
+/* how a word changes: Polska → Polski is “-ka → -ki”, Kraków → Krakowie is “-ów → -owie” */
+function change(lemma,f){const a=lo(lemma),b=lo(f);if(a===b)return '';let p=0;while(p<a.length&&p<b.length&&a[p]===b[p])p++;
+ while(p>0&&a.length-p<2&&b.length-p<2&&a.length>p&&b.length>p)p--;const x=a.slice(p),y=b.slice(p);
+ return (x?`-${x} → `:'+ ')+(y?'-'+y:'(no ending)')+(a[p]==='ó'&&b[p]==='o'?' (ó becomes o)':'')}
+const sent=s=>String(s).trim().replace(/[.!?]*$/,'.');const cap=s=>String(s).replace(/^(<[^>]+>)?(.)/,(m,t,c)=>(t||'')+c.toUpperCase());
+const fill=(s,w,self)=>String(s||'').replace(/\{w\}/g,w||'').replace(/\{self\}/g,self||'');
+
+/* ---------- glosses: meaning | form | why, for a word in its sentence ---------- */
+const IDIOMS=[
+ {w:'jak',has:['na','imię'],why:'Jak masz na imię? is literally “How do you have as a first name?”'},
+ {w:'jak',has:['na','nazwisko'],why:'Jak masz na nazwisko? is literally “How do you have as a surname?”'},
+ {w:'jak',lemma:'mieć się',why:'Jak się masz? = How are you? (literally “How do you have yourself?”)'},
+ {self:'mieć',has:['na','imię'],why:'mieć … na imię is how Polish asks and gives names: “have as first name”'},
+ {self:'mieć',has:['na','nazwisko'],why:'mieć … na nazwisko is how Polish asks and gives surnames: “have as surname”'},
+ {w:'sobie',prev:'tak',mean:'(tak sobie) so-so',form:'reflexive pronoun',why:'tak sobie = “so so”'},
+ {w:'tak',next:/^sobie$/,mean:'so (tak sobie = so-so)',form:'adverb'},
+ {w:'na',next:/^(imię|nazwisko)$/,mean:'as (here)',form:'preposition, basic meaning “on”',why:'fixed expression: mam na imię = “I have as first name” = my first name is'}];
+/* where a form usually comes from, when the sentence around it is not known (Belgii alone: “because of z”) */
+function usual(an){const e=an.e;if(e.kind==='country'&&an.case==='gen')return fill(RULES.z_gen.gl,'z');if(e.kind==='city'&&an.case==='loc')return fill(RULES.w_loc.gl,zeWe('w',form(e.lemma,'loc')));return ''}
+function glossAt(A,i){const a=A[i];if(!a||!a.an||!a.an.e||!a.an.e.en)return null;const an=a.an,e=an.e;
+ if(an.pos==='prep'){const nx=A[i+1],c=nx&&nx.gov&&nx.gov.j===i&&nx.rule?nx.an.case:null;const pm=c&&e.mean&&e.mean[c];
+  const id=IDIOMS.find(d=>d.w===a.t.w&&d.next&&nx&&d.next.test(nx.t.w));if(id)return [id.mean,id.form,id.why].join('|');
+  return [pm||e.en,formLbl(an),an.variant?e.vnote:(c&&RULES[nx.rule].L!==1?`+ ${CASE_EN[c]} here`:e.note)].filter(x=>x!=null).join('|').replace(/\|+$/,'')}
+ const id=IDIOMS.find(d=>(d.w?d.w===a.t.w:e.lemma===d.self)&&(!d.has||d.has.every(w=>A.some(b=>b.t.w===w)))&&(!d.lemma||A.some(b=>b.an&&b.an.e.lemma===d.lemma))&&(!d.next||A[i+1]&&d.next.test(A[i+1].t.w))&&(!d.prev||A[i-1]&&A[i-1].t.w===d.prev));
+ let m=anMean(an),f=formLbl(an),y='';
+ if(a.rule&&RULES[a.rule]&&RULES[a.rule].gl&&(NOMINAL(an)||an.pos==='adj'&&!a.head||an.pos==='verb'&&a.rule==='prosze_inf')){
+  y=fill(RULES[a.rule].gl,a.gov&&a.gov.w,a.t.w);
+  if(an.case==='nom'&&/^(byc_nom|name_nom)$/.test(a.rule))y=e.note||'';
+  else if((an.pos==='noun'||an.pos==='name')&&an.case!=='nom'&&!e.indecl){const c=change(e.g==='pl'&&e.pl?e.pl[0]:e.lemma,a.t.w);if(c)y+=': '+c;if(an.pos==='name'&&e.note)y+='. '+e.note}}
+ else if((an.pos==='noun'||an.pos==='name')&&an.case!=='nom'&&!e.indecl&&usual(an)){const c=change(e.lemma,a.t.w);y=usual(an)+(c?': '+c:'')}
+ else if(e.para==='pan'&&an.num==='pl'&&e.notepl)y=e.notepl;
+ else if(an.pos==='adj'&&a.head!=null){const H=A[a.head];y=e.wh?`${GEN_EN[an.g]} because ${H.t.w} is a ${GEN_EN[H.an.e.g]||''} noun`.replace('a masculine (a person) noun','a masculine noun (a person)'):`${GEN_EN[an.g]}${an.case!=='nom'?' '+CASE_EN[an.case]:''}, to agree with ${H.t.w}`}
+ else if(an.pos==='verb'&&an.vf==='fin'){const s=a.subj,k=pi(an);
+  if(s&&s.kind==='formal')y=`with ${s.word} the verb takes the ${PERS_FORM[k]}: ${s.word}${e.refl?' się':''} ${a.t.w} = ${verbEn(e,k===2?1:4).replace(/^you( \(all\))? /,'you ')}`;
+  else if(e.refl)y=e.note;
+  else if(k===0&&e.note1)y=e.note1;
+  else if(k===2&&(!s||s.kind==='none'))y=`also with pan / pani: pan ${a.t.w} = ${verbEn(e,1)}`;
+  else if(k===5&&(!s||s.kind==='none'))y='also with państwo';}
+ else if(e.refl&&an.pos==='pron'){const v=A.find(b=>b.an&&b.an.pos==='verb'&&b.an.e.refl);y=v?v.an.e.note:e.note}
+ else y=an.note||e.note||'';
+ if(id){m=id.mean||m;f=id.form||f;y=id.why!=null?id.why:y}
+ return [m,f,y].map(s=>String(s||'').replace(/\|/g,'/')).join('|').replace(/\|+$/,'')}
+/* a word on its own (no sentence around it) */
+const GLW=w=>glossAt(analyse(tokens(w)),0);
+
+/* ---------- what went wrong ----------
+   Your answer is lined up word by word with the closest correct answer. For each word that differs:
+   1. both words are in the word list and are forms of the same word (or of the same set: ja / ty / on…, pan / pani):
+      compare their tags (case, number, person, gender, infinitive) and name every feature that differs,
+      with the reason taken from the sentence (the preposition, verb, number, subject or noun that decides it)
+   2. two different words that a rule says are easily confused (jak / jaki / co, z / w, dobry / dobrze, być / mieć)
+   3. your word is not in the word list: spelling (ogonki, rz / ż, ó / u, ch / h, ci / ć, -ii / -ji),
+      a stem change (Kraków → Krakowie), a wrong ending on the right word, or a different word */
+const FEATS=['case','num','pers','g','anim','vf'];
+/* an adjective reading that could stand next to this noun, ignoring case (jaki / jaka: gender and number only) */
+function adjAgreesLoose(x,h){return adjAgrees({...x,case:h.case},h)}
+/* the case a word would have here if nothing went wrong: the verb's own case (without nie), the preposition's cases, else nominative */
+function natural(a){const g=a&&a.gov;return g&&g.k==='verb'&&g.e.gov?[g.e.gov]:['nom']}
+function feats(an){return {case:an.case||null,num:an.pos==='verb'&&an.vf!=='fin'?null:an.num||null,pers:an.pos==='verb'||an.pos==='pron'?(an.pers||an.e.person||null):null,
+ g:an.pos==='noun'||an.pos==='name'?an.e.g:an.g||null,anim:an.anim||null,vf:an.vf||null}}
+function diffs(x,t){const a=feats(x),b=feats(t);return FEATS.filter(f=>{if(a[f]===b[f])return false;if(f==='anim'&&(!a.anim||!b.anim))return false;
+ if(f==='g'&&(a.g==='pl'&&(b.g==='vir'||b.g==='nonvir')||b.g==='pl'&&(a.g==='vir'||a.g==='nonvir')))return false;
+ if(f==='g'&&x.pos==='adj'&&(a.num!==b.num))return false;return true})}
+function caseWhy(a,A){const R=a.rule&&RULES[a.rule];
+ if((a.rule==='adj'||a.rule==='jaki')&&a.head!=null)return `it agrees with ${ital(A[a.head].t.w)}, which is in the <b>${CASE_EN[A[a.head].an.case]}</b>`;
+ if(R&&R.why)return fill(R.why,a.gov&&a.gov.w);
+ return `here it has to be the <b>${CASE_EN[a.an.case]}</b>`}
+function phraseOf(a,A){const g=a.gov;if(g&&g.j===a.i-1)return `${g.neg?'nie ':''}${A[g.j].t.w} ${a.t.w}`;return a.t.w}
+function subjWhy(a,want){const s=a.subj||{kind:'none'},k=PERS_FORM[pi(want)];
+ if(s.kind==='formal')return `the subject is <b>${esc(shown(s.word))}</b>, and ${s.num==='sg'?'pan / pani take':'państwo, panowie and panie take'} the <b>${k}</b>`;
+ if(s.kind==='pron')return `the subject is <b>${esc(shown(s.word))}</b>, so the verb takes the <b>${k}</b>`;
+ if(s.kind==='group')return `${esc(s.words.join(' i '))} are more than one person, so the <b>${k}</b>`;
+ if(s.kind==='name')return `${esc(s.raw||s.word)} is one person, so the <b>${k}</b>`;
+ return `here it has to be the <b>${k}</b>`+(pi(want)===1?' (talking to one friend)':'')}
+function groupWhy(A,want){const s=A.map(b=>b.subj).find(x=>x&&x.kind==='group');const M=s?s.mem:members(A.filter(b=>b.t.hint).map(b=>b.t.raw));
+ if(!M||M.length<2)return RULES.oni.x;const men=M.filter(isMan);
+ return men.length?`${men.map(m=>ital(m.w)).join(' and ')} ${men.length>1?'are men':'is a man'}, so the group is <b>oni</b>. (<b>one</b> only when there is no man.)`
+  :`there is no man in the group (${M.map(m=>ital(m.w)).join(', ')}), so <b>one</b>. (<b>oni</b> as soon as one man is in it.)`}
+function featNote(g,t,ga,a,A,D){const ta=a.an,parts=[];let key;
+ if(D.includes('vf'))D=['vf'];
+ if(ta.pos==='verb'&&!D.includes('vf')&&(D.includes('pers')||D.includes('num'))){
+  key=D.includes('pers')&&D.includes('num')?'verb person':D.includes('num')?'verb number':'verb person';
+  parts.push(`You used the <b>${PERS_FORM[pi(ga)]}</b> ${ital(g)}; ${subjWhy(a,ta)} → ${ital(t)}.`)}
+ else if(D.includes('vf')){key='verb form';
+  parts.push(ga.vf==='inf'?`${ital(g)} is the infinitive (dictionary form); here the verb needs a person: ${subjWhy(a,ta)} → ${ital(t)}.`
+   :`${ital(g)} is the ${PERS_FORM[pi(ga)]}; ${a.rule==='prosze_inf'?RULES.prosze_inf.why:'here the verb stays in the <b>infinitive</b>'} → ${ital(t)}.`)}
+ else if(D.includes('anim')&&!D.includes('case')&&!D.includes('g')&&ta.pos==='adj'&&a.head!=null){key='gender';const H=A[a.head];
+  parts.push(`${ital(g)} is the form for a person or an animal; ${ital(H.t.w)} is a thing (masculine, not alive), so the form stays like the dictionary form → ${ital(t)}.`)}
+ else if(D.includes('g')&&!D.includes('case')){
+  if(ta.pos==='adj'&&a.head!=null){const H=A[a.head];key='gender';
+   parts.push(`${ital(g)} is ${GEN_EN[ga.g]}; it agrees with ${ital(H.t.w)}, which is ${GEN_EN[H.an.e.g]||H.an.g} → ${ital(t)}.`+(ta.e.wh?` (jaki + masculine, jaka + feminine, jakie + neuter)`:''))}
+  else if(ta.pos==='pron'&&ta.num==='pl'){key='oni / one';parts.push(`${ital(t)}, not ${ital(g)}: ${groupWhy(A,ta)}`)}
+  else if(ta.pos==='pron'){key='he / she';parts.push(`<b>on</b> = he, <b>ona</b> = she, <b>ono</b> = it: you wrote ${ital(g)} (${anMean(ga)}), the answer needs ${ital(t)} (${anMean(ta)}). Check who the sentence is about.`)}
+  else if(ta.e.para==='pan'){key='pan / pani';parts.push(`${ital(g)} is for ${({m1:'a man',f:'a woman',pl:'a mixed group'})[ga.e.g]||'a group'}; here it is ${ital(t)} (${({m1:'a man',f:'a woman',pl:'a mixed group'})[ta.e.g]||'a group'}). ${RULES.pan_pani.x}`)}
+  else {key='gender';parts.push(`${ital(g)} is ${gLbl(ga)}; here it has to be ${gLbl(ta)}: ${ital(t)}.`)}}
+ if(D.includes('case')){key=D.includes('num')&&ta.pos!=='verb'?'case + number':key&&key!=='case'?key+' + case':'case';
+  const both=D.includes('num')?`the ${CASE_EN[ga.case]} ${ga.num==='pl'?'plural':'singular'}`:`the ${caseLbl(ga)}`;
+  const tag=ta.pos==='pron'&&ga.pos==='pron'&&ga.case==='nom'?` (${anMean(ga)})`:'';
+  parts.push(`${ital(g)}${tag} is ${both}; ${caseWhy(a,A)}: ${ital(phraseOf(a,A))}.`)}
+ else if(D.includes('num')&&ta.pos!=='verb'){key=key||'number';
+  const r=a.rule==='num24'||a.rule==='num5'?caseWhy(a,A):ta.num==='pl'?'here it is more than one':'here it is just one';
+  parts.push(`${ital(g)} is ${ga.num==='pl'?'plural':'singular'}; ${r}: ${ital(phraseOf(a,A))}.`)}
+ if(!parts.length)return null;return [key,parts.join(' ')]}
+function pairNote(g,t,gc,a,A,C){const ta=a.an;
+ /* words a rule names as easily confused */
+ for(const [id,R] of Object.entries(RULES)){if(!R.pair)continue;const x=gc.find(c=>R.pair.includes(c.e.lemma));if(!x||!R.pair.includes(ta.e.lemma))continue;
+  if(id==='wh'){let s=`<b>${esc(x.e.lemma)}</b> = ${esc(x.e.role||x.e.en)}; <b>${esc(ta.e.lemma)}</b> = ${esc(ta.e.role||ta.e.en)}.`;
+   if(ta.e.lemma==='jaki'&&a.head!=null)s+=` Here it describes ${ital(A[a.head].t.w)}, which is ${GEN_EN[A[a.head].an.e.g]}, so ${ital(t)}.`;
+   if(ta.e.lemma==='jak'){const v=A.find(b=>b.an&&b.an.pos==='verb');if(v)s+=` Here it goes with the verb ${ital(v.t.w)}: ${ital(C.toks.map(z=>z.w).join(' '))}.`}
+   return [`${x.e.lemma} / ${ta.e.lemma}`,s]}
+  if(id==='skad_gdzie'){const q=C.qtoks||[];const asks=q.includes('skąd')?' The question is <b>Skąd?</b> (where from), so <b>z</b>.':q.includes('gdzie')?' The question is <b>Gdzie?</b> (where), so <b>w</b>.':'';
+   const nx=A[a.i+1];return [`${x.e.lemma} / ${ta.e.lemma}`,`<b>z</b> = from (+ genitive: z Belgii); <b>w</b> = in (+ locative: w Gandawie).${asks}`+(nx?` Here: ${ital(t+' '+nx.t.w)}.`:'')]}
+  if(id==='byc_miec'){const na=A.some(b=>b.t.w==='na')&&A.some(b=>/^(imię|nazwisko)$/.test(b.t.w));
+   return ['być / mieć',`${ital(g)} is from <b>${esc(x.e.lemma)}</b> (${esc(x.e.en)}); here you need <b>${esc(ta.e.lemma)}</b> (${esc(ta.e.en)}): ${ital(t)}.`+(na?` Polish says “I have as first name”: <i>mam na imię</i>.`:` ${RULES.byc_miec.x.split('. ').slice(1).join('. ')}`)]}}
+ /* adjective ↔ adverb of the same word (dobry / dobrze) */
+ const adv=gc.find(c=>c.pos==='adv'&&c.e.adj===ta.e.lemma)||(ta.pos==='adv'&&gc.find(c=>c.pos==='adj'&&c.e.lemma===ta.e.adj));
+ if(adv){const isAdv=ta.pos==='adv';return [`${isAdv?adv.e.lemma:ta.e.lemma} / ${isAdv?ta.e.lemma:adv.e.lemma}`.replace(/^(\S+) \/ (\S+)$/,isAdv?'$1 / $2':'$1 / $2'),
+  isAdv?`${ital(g)} is an adjective (${esc(adv.e.en)}): it describes a noun. Here you say <b>how</b>, so the adverb ${ital(t)} (${esc(ta.e.en)}).`
+   :`${ital(g)} is an adverb (${esc(adv.e.en)}): it says how. Here it describes a noun, so the adjective ${ital(t)} (${esc(ta.e.en)}).`]}
+ /* two prepositions */
+ if(ta.pos==='prep'){const p=gc.find(c=>c.pos==='prep');if(p){const cs=e=>Object.entries(e.cases).filter(([,r])=>RULES[r].L===1).map(([c])=>CASE_EN[c]).join(' / ')||Object.keys(e.cases).map(c=>CASE_EN[c]).join(' / ');
+  return ['preposition',`<b>${esc(p.e.lemma)}</b> = ${esc(p.e.en)} (+ ${cs(p.e)}); <b>${esc(ta.e.lemma)}</b> = ${esc(ta.e.en)} (+ ${cs(ta.e)}).`]}}
+ /* two different verbs */
+ if(ta.pos==='verb'){const v=gc.find(c=>c.pos==='verb');if(v){const also=v.vf==='fin'&&ta.vf==='fin'&&pi(v)!==pi(ta)?` It is also the ${PERS_FORM[pi(v)]}; ${subjWhy(a,ta)}.`:'';
+  return ['different verb',`${ital(g)} is from <b>${esc(v.e.lemma)}</b> (${esc(v.e.en)}); here you need <b>${esc(ta.e.lemma)}</b> (${esc(ta.e.en)}): ${ital(t)}.${also}`]}}
+ return null}
+const SOUND=[['rz','ż','sp_rz'],['ó','u','sp_u'],['ch','h','sp_h'],['rz','sz','sp_prz']];
+const SOFT=s=>s.replace(/dzi(?=[aeouyąęó])/g,'dź').replace(/([csznCSZN])i(?=[aeouyąęó])/g,(m,c)=>({c:'ć',s:'ś',z:'ź',n:'ń'})[c.toLowerCase()]);
+function spellNote(g,t,a,A){const ta=a&&a.an;const L=ta&&ta.e?lo(ta.e.lemma):'';
+ if(ta&&L&&L!==t){let p=0;while(p<L.length&&p<t.length&&L[p]===t[p])p++;
+  if(p<L.length&&p<t.length&&g.length>p&&g.slice(0,p+1)===L.slice(0,p+1)&&g.slice(0,p+1)!==t.slice(0,p+1)){
+   const what=L[p]==='ó'&&t[p]==='o'?'ó becomes o':L[p]==='e'&&t[p]===L[p+1]?'the e drops out':L[p]==='ą'&&t[p]==='ę'?'ą becomes ę':`${L[p]} becomes ${t[p]}`;
+   return ['stem change',`${esc(ta.e.lemma)} changes inside when it takes an ending: ${what} (${esc(ta.e.lemma)} → ${ital(t)}).${a.rule?' '+caseWhy(a,A).replace(/^./,c=>c.toUpperCase())+'.':''}`]}}
+ if(strip(g)===strip(t)&&g.length===t.length){const fix=[];for(let k=0;k<t.length;k++)if(g[k]!==t[k])fix.push(`${t[k]}, not ${g[k]}`);
+  return ['accents',`Check the ogonki: ${[...new Set(fix)].join(' · ')} → ${ital(t)}.`]}
+ for(const [x,y,r] of SOUND){const nx=s=>s.split(x).join(y);if(g!==t&&nx(g)===nx(t)&&(g.includes(x)||g.includes(y))){const right=t.includes(x)?x:y,wrong=right===x?y:x;
+  return [`${x} / ${y}`,`${ital(t)} is written with <b>${right}</b>, not ${wrong}. ${sent(RULES[r].x.split('. ')[0])}`]}}
+ if(SOFT(g)===SOFT(t))return ['ci / ć',`${ital(t)}: ${RULES.sp_soft.x}`];
+ if(/[ij]i$/.test(t)&&g.replace(/j/g,'i')===t.replace(/j/g,'i'))return ['-ii / -ji',`${ital(t)}, not ${ital(g)}. ${RULES.sp_ij.x}`];
+ if(ta&&(ta.pos==='noun'||ta.pos==='name'||ta.pos==='adj'||ta.pos==='verb')){const stem=(L||t).slice(0,Math.max(3,Math.min(5,(L||t).length-2)));
+  if(g.startsWith(stem.slice(0,Math.min(stem.length,t.length-1)))&&g.length>=3){
+   const what=ta.pos==='verb'?(ta.vf==='fin'?`the ${PERS_FORM[pi(ta)]}`:'the infinitive (dictionary form)'):ta.case?`the ${caseLbl(ta)}`:'this form';
+   const why=ta.pos==='verb'?(ta.vf==='fin'?subjWhy(a,ta):a.rule?RULES[a.rule].why:''):a.rule?caseWhy(a,A):'';
+   return ['ending',`Right word, wrong ending: ${ital(g)} is not a form of ${esc(ta.e.lemma)}. ${why?cap(why):'Here you need '+what}: ${ital(ta.pos==='verb'?t:phraseOf(a,A))}.`]}}
+ const d=editOps([...g],[...t]).dist;
+ if(d<=2&&t.length>=4)return ['spelling',`Close: check the spelling of ${ital(t)}.`];
+ return ['different word',`${ital(g)} is not a word from the course; here you need ${ital(t)}${ta&&ta.e&&ta.e.en?` (“${esc(anMean(ta))}”)`:''}.`]}
+function explainSub(g,t,i,A,C){if(g===t)return null;const a=A[i],ta=a&&a.an;let gc=lookup(g),fold=null;
+ if(!gc.length&&ta&&ta.e){const f=foldLookup(g).filter(x=>x.e===ta.e||(x.e.para&&x.e.para===ta.e.para));if(f.length&&strip(lo(f[0].e.lemma))!==strip(t)){if(f.some(x=>x===ta||diffs(x,ta).length===0))return spellNote(g,t,a,A);gc=f;fold=f[0]}}
+ const r=explainSub2(g,t,i,A,C,gc,a,ta);
+ if(r&&fold){let w=surfaceOf(fold,g);if(w&&/^[A-ZĄĆĘŁŃÓŚŹŻ]/.test(fold.e.lemma))w=w[0].toUpperCase()+w.slice(1);if(w&&w!==g)r[1]+=` (Also check the ogonki: <i>${esc(w)}</i>.)`}
+ return r}
+function explainSub2(g,t,i,A,C,gc,a,ta){
+ if(ta&&ta.e&&ta.e.en&&gc.length){
+  const same=gc.filter(x=>x.e===ta.e||(x.e.para&&x.e.para===ta.e.para&&x.pos===ta.pos)||(x.e.lemma===ta.e.lemma&&x.pos===ta.pos));
+  if(same.length){
+   /* the readings of the correct word that fit this sentence: jaki before adres is accusative, but reads the same as the nominative */
+   const tAlts=[ta,...lookup(t).filter(x=>x!==ta&&x.e===ta.e&&x.pos===ta.pos&&(x.pos!=='adj'||a.head==null||adjAgreesLoose(x,A[a.head].an)))];
+   const nat=natural(a);
+   const PREF=['nom','acc','gen','loc','ins','dat','voc'];
+   const sc=(x,y)=>diffs(x,y).length*10+(x.num!==y.num?1:0)+(x.e!==y.e?2:0)+(nat.includes(x.case)?0:.5)+(y===ta?0:.1)+(x.case?PREF.indexOf(x.case)*.01:0);
+   let ga=null,tb=ta,bs=1e9;same.forEach(x=>tAlts.forEach(y=>{const s=sc(x,y);if(s<bs){bs=s;ga=x;tb=y}}));
+   const D=diffs(ga,tb);
+   if(ga.pos==='prep'&&ga.e===ta.e&&!!ga.variant!==!!ta.variant)return ['z / ze, w / we',`${ital(t+' '+((A[i+1]||{}).t||{w:''}).w)}: ${RULES.ze_we.x}`];
+   if(D.length){const n=featNote(g,t,ga,a,A,D);if(n)return n}}
+  const p=pairNote(g,t,gc,a,A,C);if(p)return p;
+  const x=gc[0];if(x.e&&x.e.en)return ['different word',`${ital(g)} means “${esc(anMean(x))}”; here you need ${ital(t)} (“${esc(anMean(ta))}”).`];}
+ if(!gc.length)return spellNote(g,t,a,A);
+ return null}
+function explainMissing(t,i,A,C){const a=A[i],ta=a&&a.an;if(!ta||!ta.e)return null;const nx=A[i+1];
+ if(ta.pos==='prep'){if(nx&&nx.rule==='na_imie')return ['missing na',`Polish says “I have as first name”, with <b>na</b>: ${ital(A.map(b=>b.t.w).join(' '))}.`];
+  return [`missing ${t}`,`<b>${esc(t)}</b> (${esc(ta.e.mean&&nx&&nx.an&&ta.e.mean[nx.an.case]||ta.e.en)}) is missing`+(nx&&nx.rule&&RULES[nx.rule].why&&nx.gov&&nx.gov.j===i?`; it is the word that puts ${ital(nx.t.w)} in the ${CASE_EN[nx.an.case]}: ${ital(t+' '+nx.t.w)}.`:'.')]}
+ if(ta.e.lemma==='się'){const v=A.find(b=>b.an&&b.an.pos==='verb'&&b.an.e.refl);
+  if(v){const plain=lookup(v.t.w).find(x=>x.pos==='verb'&&!x.e.refl);
+   return ['missing się',`<b>się</b> is part of the verb <i>${esc(v.an.e.lemma)}</i> (${esc(v.an.e.en)})${plain?`; without it ${ital(v.t.w)} means “${esc(anMean(plain))}”`:''}.`]}
+  return ['missing się','<b>się</b> is part of the verb here.']}
+ if(ta.pos==='verb'){if(ta.e.lemma==='być')return ['missing verb',`Polish keeps the verb <b>być</b> here: ${ital(t)} (${esc(anMean(ta))}).`];return ['missing verb',`The verb ${ital(t)} (${esc(anMean(ta))}) is missing.`]}
+ if(ta.e.en)return ['missing word',`Missing: ${ital(t)} (“${esc(anMean(ta))}”).`];return null}
+function explainExtra(g,A,C,T){const gc=lookup(g),x=gc[0];
+ if(C.pre.some(z=>z.w===g)||C.post.some(z=>z.w===g))return ['extra word',`${ital(g)} is already in the sentence: write only the missing part.`];
+ if(x&&x.pos==='verb'&&x.e.lemma==='być'){const na=T.includes('na')&&T.some(w=>/^(imię|nazwisko)$/.test(w));
+  return ['extra być',na?`Polish says “I have as first name” (mieć), not “I am”: ${ital(T.join(' '))}.`:`Polish does not use ${ital(g)} (być) here: ${ital(T.join(' '))}.`]}
+ if(g==='się'){const v=A.find(b=>b.an&&b.an.pos==='verb');return ['extra się',v?`${ital(v.t.w)} (${esc(v.an.e.lemma)}) does not take <b>się</b> here.`:'This verb does not take <b>się</b> here.']}
+ if(x&&x.pos==='prep')return [`extra ${g}`,`<b>${esc(g)}</b> (${esc(x.e.en)}) does not belong here: ${ital(T.join(' '))}.`];
+ if(x&&x.pos==='pron'&&x.e.para==='pers'&&x.case==='nom')return ['extra pronoun',`${ital(g)} is not needed: the verb form already says who does it.`];
+ return null}
+const CLITICS=new Set(['się','mi','ci','mu','go','cię']);
+function explainOrder(G,T,A){
+ if(CLITICS.has(G[0]))return ['word order',`<b>${esc(G[0])}</b> never comes first in the sentence: ${ital(T.join(' '))}. ${sent(RULES.clitic.x.split('. ')[0])}`];
+ const s=T.indexOf('się');if(s>0&&G.indexOf('się')!==s)return ['word order',`<b>się</b> sits early, right after ${ital(T[s-1])}: ${ital(T.join(' '))}.`];
+ const wh=lookup(T[0]).some(x=>x.pos==='wh'||x.e.wh);
+ return ['word order',`Right words, wrong order: ${ital(T.join(' '))}.`+(wh&&G[0]!==T[0]?' Polish questions start with the question word.':'')]}
+/* the correct sentence your answer sits in: for a gap (“Jestem z ___ (Polska).”) the words around the gap count too */
+function ctxOf(q,T){const p=String(q.prompt||''),qtoks=tokens(p).map(z=>z.w);
+ if(p.includes('___')&&!q.table){const full=tokens(p.replace('___',' \u0003gap\u0003 ')),k=full.findIndex(z=>z.w==='gap');const pre=full.slice(0,k),post=full.slice(k+1);
+  const ans=T.map(w=>({w,raw:w,hint:false,cl:full[k].cl}));return {toks:[...pre,...ans,...post],off:pre.length,pre,post,qtoks}}
+ return {toks:T.map(w=>({w,raw:w,hint:false,cl:0})),off:0,pre:[],post:[],qtoks}}
+const words=s=>String(s).replace(/[.,!?;:…]/g,' ').split(/\s+/).filter(Boolean);
+function diagnose(given,q){given=String(given==null?'':given);
+ if(!q||q.open||q.check)return [];
+ const G=norm(given).split(' ').filter(Boolean);if(!G.length)return [];
+ let best=null;(q.accept||[q.mcAnswer||q.answer]).forEach(a=>{const T=norm(String(a)).split(' ').filter(Boolean);const r=editOps(G,T);if(!best||r.dist<best.dist)best={...r,T,a:String(a)}});
+ if(!best||best.dist===0)return [];
+ const T=best.T,C=ctxOf(q,T),A=analyse(C.toks),notes=[];
+ RAW=new Map();[...words(given),...words(best.a),...C.pre.map(z=>z.raw),...C.post.map(z=>z.raw)].forEach(w=>{if(w!==lo(w)&&!RAW.has(lo(w)))RAW.set(lo(w),w)});
+ [...words(best.a),...C.pre.map(z=>z.raw),...C.post.map(z=>z.raw)].forEach(w=>RAW.set(lo(w),w));
+ const put=n=>{if(n&&!notes.some(m=>m[1]===n[1]))notes.push(n)};
+ if(G.length===T.length&&[...G].sort().join(' ')===[...T].sort().join(' ')){put(explainOrder(G,T,A));return notes}
+ if(best.dist>Math.max(3,T.length))return [];
+ let ti=0;
+ best.ops.forEach(([o,x,y])=>{if(o==='='){ti++;return}
+  if(o==='~'){put(explainSub(x,y,C.off+ti,A,C));ti++}
+  else if(o==='+'){put(explainMissing(x,C.off+ti,A,C));ti++}
+  else put(explainExtra(x,A,C,T))});
+ return notes.slice(0,3)}
+
+/* ---------- content (from the Test 1 overview slide + lessons 0–1) ----------
+   Verb forms, countries, cities, numbers and the answers to sentence gaps come from the word list (LEX) and the rules. */
+const QA=[
+ {k:'imie',en:"What's your first name?",en3:"Ask about her: what's her first name?",inf:"Jak masz na imię?",form:"Jak ma pan / pani na imię?",formAlt:["Jak pan / pani ma na imię?"],trap:"Jak masz pani na imię?",third:"Jak ona ma na imię?",thirdAlt:["Jak ma ona na imię?"],fact:"Her first name is Anna.",ans:"Mam na imię Jan.",ans3:"Ona ma na imię Anna.",acc3:["Ma na imię Anna."],pat:/^mam na imię \S+/},
+ {k:'nazwisko',en:"What's your surname?",en3:"Ask about him: what's his surname?",inf:"Jak masz na nazwisko?",form:"Jak ma pan / pani na nazwisko?",formAlt:["Jak pan / pani ma na nazwisko?"],trap:"Jak masz pan na nazwisko?",third:"Jak on ma na nazwisko?",thirdAlt:["Jak ma on na nazwisko?"],fact:"His surname is Kowalski.",ans:"Mam na nazwisko Kowalski.",ans3:"On ma na nazwisko Kowalski.",acc3:["Ma na nazwisko Kowalski."],pat:/^mam na nazwisko \S+/},
+ {k:'nazywa',en:"What's your (full) name?",en3:"Ask about him: what's he called?",inf:"Jak się nazywasz?",form:"Jak się pan / pani nazywa?",formAlt:["Jak pan / pani się nazywa?"],trap:"Jak się pani nazywasz?",third:"Jak on się nazywa?",thirdAlt:["Jak się on nazywa?"],fact:"His name is Jan Kowalski.",ans:"Nazywam się Jan Kowalski.",ans3:"On nazywa się Jan Kowalski.",acc3:["Nazywa się Jan Kowalski.","On się nazywa Jan Kowalski."],pat:/^nazywam się \S+/},
+ {k:'ma',en:"How are you?",en3:"Ask about her: how is she?",inf:"Jak się masz?",form:"Jak się pan / pani ma?",formAlt:["Jak pan / pani się ma?"],trap:"Jak się pani masz?",third:"Jak ona się ma?",thirdAlt:["Jak się ona ma?"],fact:"She is doing well.",ans:"Świetnie, dziękuję.",ans3:"Ona ma się dobrze.",acc3:["Ma się dobrze.","Ona się ma dobrze.","Dobrze.","Ona ma się bardzo dobrze."],pat:/(dobrze|świetnie|nieźle|w porządku|tak sobie|źle|super)/},
+ {k:'skad',en:"Where are you from?",en3:"Ask about him: where is he from?",inf:"Skąd jesteś?",form:"Skąd pan / pani jest?",formAlt:["Skąd jest pan / pani?"],trap:"Skąd pani jesteś?",third:"Skąd on jest?",thirdAlt:["Skąd jest on?"],fact:"He is from Poland.",ans:"Jestem z Belgii.",ans3:"On jest z Polski.",acc3:["Jest z Polski.","Z Polski."],pat:/^jestem ze? \S+/},
+ {k:'gdzie',en:"Where do you live?",en3:"Ask about her: where does she live?",inf:"Gdzie mieszkasz?",form:"Gdzie pan / pani mieszka?",formAlt:["Gdzie mieszka pan / pani?"],trap:"Gdzie pani mieszkasz?",third:"Gdzie ona mieszka?",thirdAlt:["Gdzie mieszka ona?"],fact:"She lives in Warsaw.",ans:"Mieszkam w Gandawie.",ans3:"Ona mieszka w Warszawie.",acc3:["Mieszka w Warszawie.","W Warszawie."],pat:/^mieszkam we? \S+/},
+ {k:'adres',en:"What's your address?",en3:"Ask about him: what's his address?",inf:"Jaki masz adres?",form:"Jaki ma pan / pani adres?",formAlt:["Jaki pan / pani ma adres?"],trap:"Jaki masz pani adres?",third:"Jaki on ma adres?",thirdAlt:["Jaki ma on adres?"],fact:"His address is 7 Mickiewicz Street (write it the Polish way).",ans:"Ulica Prosta 69.",ans3:"Ulica Mickiewicza 7.",acc3:["ul. Mickiewicza 7","On ma adres ulica Mickiewicza 7","On ma adres ul. Mickiewicza 7"],pat:/^(ul|ulica|al|aleja|pl|plac|os|osiedle) \S+/},
+ {k:'tel',en:"What's your phone number?",en3:"Ask about her: what's her phone number?",inf:"Jaki masz numer telefonu?",form:"Jaki ma pan / pani numer telefonu?",formAlt:["Jaki pan / pani ma numer telefonu?"],trap:"Jaki pani masz numer telefonu?",third:"Jaki ona ma numer telefonu?",thirdAlt:["Jaki ma ona numer telefonu?"],fact:"Her number is 0123 456 789 (digits are fine).",ans:"Zero, cztery, siedem, pięć…",ans3:"0123 456 789",acc3:[],pat3:/\d{3}/,pat:/(\d|zero|jeden|dwa|trzy|cztery|pięć|sześć|siedem|osiem|dziewięć)/}
+];
+/* the verbs taught as tables, in this order; forms, family and notes come from the word list */
+const VERBS=Object.fromEntries(['być','mieć','mieszkać','nazywać się','czytać','pytać','przepraszać'].map(l=>{const e=LEMMA.get(l);
+ return [l,{en:e.en,f:e.f.map(x=>e.refl?x+' się':x),fam:e.cls==='am'?'am':'irr',...(e.cls==='am'?{stem:e.f[0].slice(0,-2)}:{}),...(e.model?{model:1}:{}),note:e.vnote,...(e.bonus?{bonus:1}:{})}]}));
+const PRON_CORE=[['I','ja'],['you (one person, informal)','ty'],['he','on'],['she','ona'],['it','ono'],['we','my'],['you (several people, informal)','wy'],['they (men, or a mixed group)','oni'],['they (no men in the group)','one']];
+const FORMAL=[['to one man','pan'],['to one woman','pani'],['to a mixed group','państwo'],['to several men','panowie'],['to several women','panie']];
+const PERS=[['ja'],['ty'],['on','ona','pan','pani'],['my'],['wy'],['oni','one','państwo']];
+const PERS_LBL=['ja','ty','on / ona / ono · pan / pani','my','wy','oni / one · państwo'];
+/* sentence gaps: [sentence, verb]; the answer is the verb form for the sentence's subject (see subjOf) */
+const SENT_SRC=[
+ ['Skąd (ty) ___?','być'],['(ja) ___ z Polski.','być'],['One ___ z Niemiec.','być'],['Skąd (wy) ___?','być'],['Ona ___ z Włoch.','być'],['(my) ___ z Francji.','być'],
+ ['Jak (ty) ___ na imię?','mieć'],['Oni ___ problem.','mieć'],['(my) ___ dom w Krakowie.','mieć'],['(ja) ___ na imię Andrzej.','mieć'],['On ___ pytanie.','mieć'],['Czy (wy) ___ nowe auto?','mieć'],
+ ['Gdzie on ___?','mieszkać'],['Michael teraz ___ w Krakowie.','mieszkać'],['(my) ___ w Poznaniu.','mieszkać'],['Oni ___ w Gdańsku.','mieszkać'],['Czy (wy) teraz ___ w Łodzi?','mieszkać'],['Teraz (ja) ___ w Gandawie.','mieszkać'],
+ ['Jak się pani ___?','nazywać się'],['(my) ___ się Nowak.','nazywać się']
+];
+function gapVerb(s,verb){const full=tokens(s.replace('___',' \u0003gap\u0003 ')),k=full.findIndex(z=>z.w==='gap');full[k]={w:'',raw:'',hint:false,cl:full[k].cl};
+ const A=analyse(full),su=subjOf(A,k);return LEMMA.get(verb).f[(su.pers-1)+(su.num==='pl'?3:0)]}
+const SENT=SENT_SRC.map(([s,v])=>[s,gapVerb(s,v),v]);
+/* countries: [English, Polish, “from …” (z + genitive)]; America also accepts ze Stanów Zjednoczonych */
+const capW=t=>t.replace(/(^|\s)(\S)/g,(m,a,b)=>a+b.toUpperCase());
+const fromC=l=>{const g=form(l,'gen');return `${zeWe('z',g)} ${g}`};
+const USA=capW(`${form('stan','gen','pl')} ${form('zjednoczony','gen','pl')}`);
+const COUNTRIES=['Belgia','Niemcy','Anglia','Francja','Włochy','Japonia','Holandia','Polska','Rosja','Hiszpania','Ameryka','Flandria'].map(l=>
+ l==='Ameryka'?['America / USA','Ameryka · Stany Zjednoczone',fromC(l),[`${zeWe('z',USA)} ${USA}`]]:[LEMMA.get(l).en,l,fromC(l)]);
+const PEOPLE=[['Ignatio','w Barcelonie','On','z Hiszpanii'],['Andreas','w Berlinie','On','z Niemiec'],['Pan Smith','w Nowym Jorku','On','z Ameryki'],['Pani Wysocka','w Poznaniu','Ona','z Polski'],['Roberto','w Rzymie','On','z Włoch'],['Paul','w Birmingham','On','z Anglii'],['Mami','w Tokio','Ona','z Japonii'],['Tatiana','w Moskwie','Ona','z Rosji'],['Nicole','w Paryżu','Ona','z Francji'],['Alexandra','w Londynie','Ona','z Anglii']];
+/* cities: [English, Polish, “in …” (w + locative)] */
+const inC=l=>{const c=form(l,'loc');return `${zeWe('w',c)} ${c}`};
+const CITIES=['Gandawa','Bruksela','Antwerpia','Warszawa','Kraków','Gdańsk','Poznań','Łódź','Wrocław'].map(l=>[LEMMA.get(l).en,l,inC(l)]);
+const NUMS=LEX.filter(e=>e.pos==='num').sort((a,b)=>a.n-b.n).map(e=>e.lemma);
+const CLASS=[
+ ['Co to znaczy…?','What does … mean?'],['Jak jest po polsku…?','How do you say … in Polish?'],['Jak jest po niderlandzku…?','How do you say … in Dutch?'],
+ ['Nie rozumiem.',"I don't understand."],['Nie wiem.',"I don't know."],['Proszę mówić wolniej.','Please speak more slowly.'],['Proszę napisać.','Please write it down.'],
+ ['Proszę przeczytać.','Please read it.'],['Proszę powtórzyć.','Please repeat.'],['Proszę przeliterować.','Please spell it.'],['Mam pytanie!','I have a question!'],
+ ['Gdzie jest toaleta?','Where is the toilet?'],['Przepraszam, gdzie jest sekretariat?','Excuse me, where is the office?'],
+ ['Dzień dobry.','Hello / good day (formal).'],['Do widzenia.','Goodbye (formal).'],['Cześć!','Hi! / Bye! (informal)'],['Dobranoc.','Good night.'],['Dziękuję.','Thank you.'],
+ ['Proszę.','Please. / Here you are.'],['Przepraszam.','Sorry. / Excuse me.'],['Rozumiem.','I understand.'],['Miło mi. / Bardzo mi miło.','Nice to meet you.'],['Co słychać?',"How's it going? / What's new?"],['Wszystko w porządku.','Everything is fine.']
+];
+const WORDS=[['ulica','street'],['aleja','avenue'],['osiedle','housing estate'],['plac','square'],['imię','first name'],['nazwisko','surname'],['kraj','country'],['adres','address'],['numer telefonu','phone number'],['pytanie','question'],['odpowiedź','answer'],['kontakt oficjalny','formal contact (pan / pani)'],['kontakt nieoficjalny','informal contact (ty)']];
+const ABBR=[['ul.','ulica'],['al.','aleja'],['os.','osiedle'],['pl.','plac']];
+/* oni or one: the answer comes from the oni / one rule (a man in the group → oni) */
+const ONI=['Magda i Dominika','Agnieszka i Jacek','pani Kruszańska i pani Wojciechowska','Piotrek i Mariusz','pan Kamil i pani Grażyna','Tadeusz i Andrzej','Anna i dziecko','Jan i Anna'].map(w=>[w,capW(groupPron(w.split(' ')))]);
+const PRON=[['ono','it (e.g. a baby)'],['oni','they: men, or a mixed group'],['one','they: only women, children, animals or things'],['państwo','you, formal: a mixed group (ladies and gentlemen)'],['panowie','you, formal: several men'],['panie','you, formal: several women'],['pan','you, formal: one man'],['pani','you, formal: one woman'],['wy','you, informal plural']];
+
+const DECKS={
+ qa:{pl:'Pytania i odpowiedzi',en:'Questions & answers · ty ↔ pan / pani · on / ona'},
+ verbs:{pl:'Czasowniki',en:'verb forms in small groups, then in sentences'},
+ kraje:{pl:'Skąd? Gdzie?',en:'Countries with z …, cities with w …'},
+ num:{pl:'Liczby 0–10',en:'Numbers and “Ile jest…?”'},
+ klasa:{pl:'W klasie',en:'Classroom phrases and greetings'},
+ words:{pl:'Słowa i zaimki',en:'ulica, aleja, osiedle, plac · oni czy one?'}
+};
 
 /* ---------- items ----------
    Every item can be asked three ways, from easy to hard:
@@ -648,147 +1293,14 @@ const spkBtn=t=>canSpeak&&t?`<button class="spk" data-say="${esc(t)}" aria-label
 let autoAudio=true;try{autoAudio=localStorage.getItem('pl-test1-audio')!=='0'}catch(e){}
 
 /* ---------- word glosses (tap or hover a Polish word on teaching screens) ----------
-   Each entry: "meaning | which form of which word | why this form here" (later parts optional). */
-const GL={
-/* pronouns */
-'ja':'I|personal pronoun, “I”','ty':'you (one person, informal)|personal pronoun|for friends, family, children; formal is pan / pani',
-'on':'he|personal pronoun','ona':'she|personal pronoun','ono':'it|personal pronoun|used for neuter nouns, e.g. dziecko (child)',
-'my':'we|personal pronoun','wy':'you (several people, informal)|personal pronoun, plural of ty',
-'oni':'they (men, or a mixed group)|pronoun, plural|used as soon as at least one man is in the group',
-'one':'they (no men in the group)|pronoun, plural|women, children, animals, things',
-'pan':'you (formal, to a man) · Mr|a noun, not a pronoun|that is why the verb takes the on / ona form: pan jest, pan ma',
-'pani':'you (formal, to a woman) · Mrs / Ms|a noun, not a pronoun|that is why the verb takes the on / ona form: pani jest, pani ma',
-'państwo':'you (formal, a mixed group) · Mr and Mrs …|a noun, used like oni|the verb takes the oni form: państwo są, państwo mają',
-'panowie':'gentlemen · you (formal, several men)|plural of pan|verb in the oni form','panie':'ladies · you (formal, several women)|plural of pani|verb in the oni form',
-/* być */
-'być':'to be|infinitive (dictionary form)|irregular verb: learn its six forms by heart',
-'jestem':'I am|być, ja-form','jesteś':'you are|być, ty-form','jest':'is (he / she / it is)|być, on / ona-form|also used with pan / pani: pan jest = you are',
-'jesteśmy':'we are|być, my-form','jesteście':'you (all) are|być, wy-form','są':'they are|być, oni / one-form|also used with państwo',
-/* mieć */
-'mieć':'to have|infinitive|forms follow the -am / -asz pattern: mam, masz, ma…',
-'mam':'I have|mieć, ja-form','masz':'you have|mieć, ty-form','ma':'has (he / she has)|mieć, on / ona-form|also with pan / pani: pan ma = you have',
-'mamy':'we have|mieć, my-form','macie':'you (all) have|mieć, wy-form','mają':'they have|mieć, oni / one-form',
-/* mieszkać, nazywać się */
-'mieszkać':'to live (reside)|infinitive|-am / -asz group: mieszkam, mieszkasz, mieszka…',
-'mieszkam':'I live|mieszkać, ja-form','mieszkasz':'you live|mieszkać, ty-form','mieszka':'lives (he / she lives)|mieszkać, on / ona-form|also with pan / pani',
-'mieszkamy':'we live|mieszkać, my-form','mieszkacie':'you (all) live|mieszkać, wy-form','mieszkają':'they live|mieszkać, oni / one-form',
-'nazywać':'to call|infinitive|nazywać się = to be called (literally “to call oneself”)',
-'nazywam':'I am called|nazywać się, ja-form|literally “I call myself”','nazywasz':'you are called|nazywać się, ty-form',
-'nazywa':'is called|nazywać się, on / ona-form|also with pan / pani','nazywamy':'we are called|nazywać się, my-form',
-'nazywacie':'you (all) are called|nazywać się, wy-form','nazywają':'they are called|nazywać się, oni / one-form',
-'się':'oneself (myself, yourself…)|reflexive pronoun, never changes form|makes a verb reflexive; it can stand before or after the verb',
-/* bonus verbs */
-'czytać':'to read|infinitive, -am / -asz group','czytam':'I read|czytać, ja-form','czytasz':'you read|czytać, ty-form','czyta':'reads|czytać, on / ona-form','czytamy':'we read|czytać, my-form','czytacie':'you (all) read|czytać, wy-form','czytają':'they read|czytać, oni / one-form',
-'pytać':'to ask|infinitive, -am / -asz group','pytam':'I ask|pytać, ja-form','pytasz':'you ask|pytać, ty-form','pyta':'asks|pytać, on / ona-form','pytamy':'we ask|pytać, my-form','pytacie':'you (all) ask|pytać, wy-form','pytają':'they ask|pytać, oni / one-form',
-'przepraszać':'to apologise|infinitive, -am / -asz group','przepraszam':'sorry · excuse me|przepraszać, ja-form|literally “I apologise”',
-'przepraszasz':'you apologise|przepraszać, ty-form','przeprasza':'apologises|przepraszać, on / ona-form','przepraszamy':'we apologise|przepraszać, my-form','przepraszacie':'you (all) apologise|przepraszać, wy-form','przepraszają':'they apologise|przepraszać, oni / one-form',
-/* question words */
-'jak':'how|question word',
-'jaki':'what · which (what kind of)|question word, masculine form|masculine because adres and numer are masculine nouns; with a feminine noun it is jaka',
-'skąd':'where from|question word|answer with z + genitive: z Belgii',
-'gdzie':'where|question word (location)|answer with w + locative: w Gandawie',
-'co':'what|question word','kto':'who|question word','ile':'how much · how many|question word',
-'czy':'(marks a yes / no question)|question particle, no English equivalent|like “est-ce que” in French: Czy macie auto? = Do you have a car?',
-/* name, address */
-'na':'on · onto|preposition|its basic meaning; in mam na imię it means “as” (see that phrase)',
-'imię':'first name|noun, neuter','nazwisko':'surname|noun, neuter (ends in -o)',
-'adres':'address|noun, masculine','numer':'number|noun, masculine',
-'telefonu':'of the phone|telefon (phone) in the genitive|genitive = “of”: numer telefonu is “number of the phone”',
-'telefon':'phone|noun, masculine (dictionary form)',
-/* prepositions */
-'z':'from (out of)|preposition, always followed by the genitive|that is why countries change: Polska → z Polski, Belgia → z Belgii',
-'ze':'from|z with an extra e|added before awkward consonant clusters: ze Stanów',
-'w':'in|preposition, followed by the locative for “where”|that is why places change: Gandawa → w Gandawie, Kraków → w Krakowie',
-'we':'in|w with an extra e|added before awkward clusters: we Wrocławiu (w + Wr is hard to say)',
-'do':'to · until|preposition, always followed by the genitive|do widzenia = until seeing (again)',
-'po':'after · (po polsku) in Polish|preposition|po + -sku form = “in [language]”: po polsku, po niderlandzku',
-'i':'and|conjunction','to':'this · it|pronoun|Co to znaczy? = What does this mean?','nie':'no · not|negation','tak':'yes',
-/* greetings and classroom */
-'dzień':'day|noun, masculine|Dzień dobry = good day = hello (formal, until evening)',
-'dobry':'good|adjective, masculine|masculine to agree with dzień',
-'widzenia':'seeing|widzenie (seeing) in the genitive|genitive because of do: do widzenia = until seeing (again) = goodbye',
-'cześć':'hi · bye (informal)|interjection|literally “honour”; only with people you say ty to',
-'dobranoc':'good night|dobra (good) + noc (night) written as one word|said when going to bed',
-'dziękuję':'thank you|dziękować, ja-form|literally “I thank”',
-'proszę':'please · here you are · you’re welcome|prosić, ja-form|literally “I ask”; proszę + infinitive is a polite request: Proszę powtórzyć = Please repeat',
-'rozumiem':'I understand|rozumieć, ja-form (-em group)','wiem':'I know|wiedzieć, ja-form (irregular)',
-'znaczy':'means|znaczyć, on / ona-form|Co to znaczy? = What does this mean?',
-'polsku':'Polish (po polsku = in Polish)|special form used only after po|po + -sku means “in [language]”',
-'niderlandzku':'Dutch (po niderlandzku = in Dutch)|special form used only after po',
-'mówić':'to speak|infinitive|after proszę the verb stays in the infinitive','wolniej':'more slowly|comparative of wolno (slowly)',
-'napisać':'to write (down)|infinitive|after proszę the verb stays in the infinitive','przeczytać':'to read (out)|infinitive|after proszę the verb stays in the infinitive',
-'powtórzyć':'to repeat|infinitive|after proszę the verb stays in the infinitive','przeliterować':'to spell|infinitive|after proszę the verb stays in the infinitive',
-'pytanie':'question|noun, neuter (from pytać, to ask)','toaleta':'toilet|noun, feminine','sekretariat':'(school) office|noun, masculine',
-'odpowiedź':'answer|noun, feminine','kontakt':'contact|noun, masculine','oficjalny':'formal · official|adjective','nieoficjalny':'informal|adjective, nie + oficjalny',
-'wszystko':'everything|pronoun','porządku':'order|porządek (order) in the locative|locative because of w: w porządku = “in order” = fine, OK',
-'słychać':'(it can be) heard|impersonal verb form|Co słychać? = “What is heard?” = How’s it going?',
-'miło':'nice · pleasant|adverb of miły (nice)|Miło mi = “(it is) pleasant to me” = nice to meet you',
-'mi':'(to) me|ja in the dative|dative = “to me”: miło mi = pleasant to me','bardzo':'very',
-'dobrze':'well · fine|adverb of dobry (good)','nieźle':'not bad|adverb: nie + źle (badly)','źle':'badly · bad|adverb, the opposite of dobrze','sobie':'(tak sobie) so-so|tak sobie = “so so”','super':'super · great|informal','świetnie':'great · excellently|adverb of świetny (great)',
-/* address words */
-'ulica':'street|noun, feminine','ul':'street|abbreviation of ulica','aleja':'avenue|noun, feminine','al':'avenue|abbreviation of aleja',
-'osiedle':'housing estate|noun, neuter','os':'housing estate|abbreviation of osiedle','plac':'square|noun, masculine','pl':'square|abbreviation of plac',
-'kraj':'country|noun, masculine','miasto':'city · town|noun, neuter',
-'prosta':'straight|adjective, feminine|a street name: ulica Prosta = Straight Street; feminine to agree with ulica',
-'mickiewicza':'of Mickiewicz|Mickiewicz (Poland’s national poet) in the genitive|streets named after people use the genitive: “street of Mickiewicz”',
-/* countries: dictionary form */
-'belgia':'Belgium','niemcy':'Germany|plural-only noun|literally “the Germans”',
-'anglia':'England','francja':'France','włochy':'Italy|plural-only noun','japonia':'Japan','holandia':'the Netherlands','polska':'Poland',
-'rosja':'Russia','hiszpania':'Spain','ameryka':'America','stany':'states|plural of stan|Stany Zjednoczone = the United States','zjednoczone':'united|adjective, plural','flandria':'Flanders',
-/* countries after z: genitive */
-'belgii':'Belgium|Belgia in the genitive|genitive because of z (from): -ia → -ii',
-'niemiec':'Germany|Niemcy in the genitive (plural)|genitive because of z (from); Niemcy is plural, so this is genitive plural',
-'anglii':'England|Anglia in the genitive|genitive because of z (from): -ia → -ii','francji':'France|Francja in the genitive|genitive because of z (from): -ja → -ji',
-'włoch':'Italy|Włochy in the genitive (plural)|genitive because of z (from); Włochy is plural','japonii':'Japan|Japonia in the genitive|genitive because of z (from): -ia → -ii',
-'holandii':'the Netherlands|Holandia in the genitive|genitive because of z (from): -ia → -ii',
-'polski':'Poland · Polish|Polska in the genitive|genitive because of z (from): -ka → -ki. Also the adjective “Polish”',
-'rosji':'Russia|Rosja in the genitive|genitive because of z (from): -ja → -ji','hiszpanii':'Spain|Hiszpania in the genitive|genitive because of z (from): -ia → -ii',
-'ameryki':'America|Ameryka in the genitive|genitive because of z (from): -ka → -ki',
-'stanów':'states|Stany in the genitive plural|genitive because of ze (from): ze Stanów Zjednoczonych = from the USA',
-'zjednoczonych':'united|zjednoczone in the genitive plural|agrees with Stanów',
-'flandrii':'Flanders|Flandria in the genitive|genitive because of z (from): -ia → -ii',
-/* cities: dictionary form */
-'gandawa':'Ghent','bruksela':'Brussels','antwerpia':'Antwerp','warszawa':'Warsaw','kraków':'Kraków','gdańsk':'Gdańsk','poznań':'Poznań','łódź':'Łódź','wrocław':'Wrocław','tokio':'Tokyo|does not change form',
-/* cities after w: locative */
-'gandawie':'Ghent|Gandawa in the locative|locative because w (in) says where: -wa → -wie',
-'brukseli':'Brussels|Bruksela in the locative|locative because w (in) says where: -la → -li',
-'antwerpii':'Antwerp|Antwerpia in the locative|locative because w (in) says where: -ia → -ii',
-'warszawie':'Warsaw|Warszawa in the locative|locative because w (in) says where: -wa → -wie',
-'krakowie':'Kraków|Kraków in the locative|locative because w (in) says where: ó → o, + -ie',
-'gdańsku':'Gdańsk|Gdańsk in the locative|locative because w (in) says where: + -u after k',
-'poznaniu':'Poznań|Poznań in the locative|locative because w (in) says where: -ń → -niu',
-'łodzi':'Łódź|Łódź in the locative|locative because w (in) says where: ó → o, dź → dzi',
-'wrocławiu':'Wrocław|Wrocław in the locative|locative because we (in) says where: + -iu',
-'barcelonie':'Barcelona|Barcelona in the locative|locative because w (in) says where: -na → -nie','berlinie':'Berlin|Berlin in the locative|locative because w (in) says where',
-'nowym':'New|nowy (new) in the locative|agrees with Jorku: w Nowym Jorku = in New York','jorku':'York|Jork in the locative|locative because w (in) says where',
-'rzymie':'Rome|Rzym in the locative|locative because w (in) says where','moskwie':'Moscow|Moskwa in the locative|locative because w (in) says where',
-'paryżu':'Paris|Paryż in the locative|locative because w (in) says where','londynie':'London|Londyn in the locative|locative because w (in) says where',
-/* numbers */
-'zero':'zero · 0','jeden':'one · 1','dwa':'two · 2','trzy':'three · 3','cztery':'four · 4','pięć':'five · 5','sześć':'six · 6','siedem':'seven · 7','osiem':'eight · 8','dziewięć':'nine · 9','dziesięć':'ten · 10','plus':'plus','minus':'minus',
-/* sentence words */
-'teraz':'now','problem':'problem|noun, masculine','dom':'house · home|noun, masculine','nowe':'new|adjective, neuter|neuter to agree with auto',
-'auto':'car|noun, neuter','dzisiaj':'today','dziecko':'child|noun, neuter|neuter, so a group of women and children is one',
-'kowalski':'Kowalski|a common Polish surname','nowak':'Nowak|the most common Polish surname'
-};
-/* meanings that depend on the neighbouring words */
-const NAZ=/^nazyw/,MIEC=/^(mam|masz|ma|mamy|macie|mają)$/;
-function glCtx(w,p,n,p2,n2){
- if(w==='na'&&(n==='imię'||n==='nazwisko'))return `as (here)|preposition, basic meaning “on”|fixed expression: mam na ${n} = “I have as ${n==='imię'?'first name':'surname'}” = my ${n==='imię'?'first name':'surname'} is. The noun after it is accusative, which for ${n} looks the same as the dictionary form`;
- if((w==='imię'||w==='nazwisko')&&p==='na')return `${w==='imię'?'first name':'surname'}|${w} in the accusative (same as the dictionary form)|accusative because of na in the fixed expression mam na ${w}`;
- if(MIEC.test(w)&&(n==='na'||(n2==='na'&&/^(pan|pani|on|ona)$/.test(n))))return GL[w].split('|')[0]+`|mieć, ${GL[w].split('|')[1].split(', ')[1]}|mieć … na imię is how Polish asks and gives names: “have as first name”`;
- if(w==='się'&&[p,n,p2,n2].some(x=>x&&NAZ.test(x)))return 'oneself|reflexive pronoun, never changes form|nazywać się = “to call oneself” = to be called';
- if(w==='się'&&[p,n,p2,n2].some(x=>x&&MIEC.test(x)))return 'oneself|reflexive pronoun, never changes form|mieć się = “to have oneself” = to be doing: Jak się masz? = How are you?';
- if(MIEC.test(w)&&(p==='się'||p2==='się'))return GL[w].split('|')[0]+`|mieć, ${GL[w].split('|')[1].split(', ')[1]}|with się it means “to be doing”: Jak się masz? = How are you?`;
- if(w==='jak'&&n2==='na')return 'how|question word|Jak masz na imię? is literally “How do you have as a first name?”';
- if(w==='jak'&&n==='się'&&MIEC.test(n2||''))return 'how|question word|Jak się masz? = How are you? (literally “How do you have yourself?”)';
- if(w==='jaki'&&(n==='numer'||n==='adres'||n2==='numer'||n2==='adres'))return GL.jaki;
- if(w==='mi'&&p==='miło')return GL.mi;
- return null}
-const PL_LETTER=/([A-Za-zÀ-ÿĄąĆćĘęŁłŃńÓóŚśŹźŻż]+)/;
-function gl(t){const parts=String(t).split(PL_LETTER);const words=[];parts.forEach((p,i)=>{if(i%2)words.push(i)});
- return parts.map((p,i)=>{if(i%2===0)return esc(p);const k=words.indexOf(i),lw=j=>words[j]!=null?parts[words[j]].toLowerCase():null;
-  const w=p.toLowerCase(),g=glCtx(w,lw(k-1),lw(k+1),lw(k-2),lw(k+2))||GL[w];
-  return g?`<span class="gw" tabindex="0" data-g="${esc(g)}">${esc(p)}</span>`:esc(p)}).join('')}
+   Each gloss is “meaning | form | why”, generated from the word list and the rules (glossAt) for the word in its sentence.
+   pre / post: words around the text that are not shown but decide its grammar (the rest of a gap sentence). */
+const PL_LETTER=WORD_RE;
+function gl(t,pre,post){const txt=String(t),np=tokens(pre).length,A=analyse(tokens(`${pre||''}\u0003${txt.replace(/[\u0001\u0002]/g,'')}\u0003${post||''}`));let k=0;const P={length:np};
+ return txt.split(PL_LETTER).map((p,i)=>{if(i%2===0)return esc(p).replace(/\u0001/g,'<b class="fill">').replace(/\u0002/g,'</b>');
+  const g=glossAt(A,P.length+(k++));return g?`<span class="gw" tabindex="0" data-g="${esc(g)}">${esc(p)}</span>`:esc(p)}).join('')}
+/* a text that fills the gap of a question's prompt, glossed in that sentence */
+const glQ=(t,q)=>{const p=String(q&&q.prompt||'');return p.includes('___')&&!q.table?gl(t,...p.split('___')):gl(t)};
 const tip=document.createElement('div');tip.id='tip';tip.setAttribute('role','tooltip');tip.hidden=true;document.body.appendChild(tip);let tipOn=null;
 let tipAt=0;
 function showTip(el){tipAt=Date.now();if(tipOn)tipOn.classList.remove('on');tipOn=el;el.classList.add('on');
@@ -879,7 +1391,7 @@ const ONI_F=['Magda','Dominika','Agnieszka','Anna','Ewa','Grażyna','pani Nowak'
 const ONI_V=[['są z Polski','are from Poland'],['mieszkają w Krakowie','live in Kraków'],['mają problem','have a problem'],['są w domu','are at home']];
 const oniCases=()=>Array.from({length:8},(_,k)=>({id:'tmp:oni:'+k,tmp:1,deck:'words',make:()=>{const r=Math.random();
  const [a,b2]=r<.3?[pick(ONI_F),pick(ONI_F)]:r<.5?[pick(ONI_M),pick(ONI_M)]:r<.8?[pick(ONI_F),pick(ONI_M)]:[pick(ONI_F),'dziecko'];
- const pair=a===b2?[a,pick(ONI_F.filter(x=>x!==a))]:[a,b2],man=pair.some(x=>ONI_M.includes(x)),ans=man?'Oni':'One',[v,ve]=pick(ONI_V);
+ const pair=a===b2?[a,pick(ONI_F.filter(x=>x!==a))]:[a,b2],man=groupPron(pair.join(' ').split(' '))==='oni',ans=man?'Oni':'One',[v,ve]=pick(ONI_V);
  return{eyebrow:'Oni czy one?',prompt:`(${pair.join(' i ')}) ___ ${v}.`,sub:`They ${ve}.`,answer:ans,accept:[ans],sayAns:`${ans} ${v}.`,note:man?'At least one man in the group → oni.':'No man in the group → one.'}}}));
 const DRILLS=[['formal','Formal ↔ informal',()=>[...ITEMS.filter(i=>/^qa:[a-z]+:form$/.test(i.id)),...REV_INF]],['third','About someone · on / ona',()=>ITEMS.filter(i=>/^qa:[a-z]+:(3|a3)$/.test(i.id))],
  ['sentence','Verbs in sentences',()=>ITEMS.filter(i=>/^vs:/.test(i.id))],['oni','oni or one',()=>oniCases()],
@@ -1017,7 +1529,8 @@ function resumeSess(){const o=savedSess();if(!o)return false;const byId=id=>ITEM
 function start(queue,title,test,restore){clearSess();sess={title,test,queue,i:0,log:[],fresh:0,stage0:currentStage(),...(restore||{})};
  const put=(e,off)=>sess.queue.splice(Math.min(sess.queue.length,sess.i+off),0,e);sess.put=put;nav.hidden=true;app.className='app quiz';saveSess();ask()}
 
-function promptHTML(q,fill,g){const f=g?gl:esc;let p=f(q.prompt);p=fill!=null?p.replace('___',`<b class="fill">${f(fill)}</b>`):p.replace('___','<span class="blank"></span>');return `<h2 class="prompt${q.big?' big':''}">${p}</h2>`}
+function promptHTML(q,fill,g){let p;if(g)p=fill!=null?gl(q.prompt.replace('___','\u0001'+fill+'\u0002')):gl(q.prompt).replace('___','<span class="blank"></span>');
+ else{p=esc(q.prompt);p=fill!=null?p.replace('___',`<b class="fill">${esc(fill)}</b>`):p.replace('___','<span class="blank"></span>')}return `<h2 class="prompt${q.big?' big':''}">${p}</h2>`}
 const topBar=(cur)=>`<div class="qtop"><button class="qx" id="qx" aria-label="Stop and go home">✕</button>${sess.hist&&sess.hist.length?'<button class="qx" id="qb" aria-label="Look at the previous exercise">←</button>':''}<div class="bar"><i style="width:${Math.round(sess.i/sess.queue.length*100)}%"></i></div><span class="count">${sess.i+1}/${sess.queue.length}</span></div>`;
 
 /* ---------- blocks: taught as one unit ---------- */
@@ -1192,7 +1705,7 @@ function finish(res,given,msg,quick){
   ${res!=='right'&&q.kind==='type'?(()=>{const d=closeDiff(given,q.accept||q.valid||[q.answer]);
     return d?`<p class="diff" aria-label="Your answer with corrections">${d.html}</p><p class="note">Close: ${d.n===1?'one letter':d.n+' letters'} to fix. <span class="dkey"><del>red</del> = wrong or extra, <ins>green</ins> = should be there.</span></p>`
      :`<p class="note">${L('Napisałeś:','you wrote:','napisać, past tense, ty (masculine)')} <b>${esc(given)}</b></p>`})():''}
-  ${q.table?'':`<div class="ansline"><p>${res==='accent'?'Spelled: ':''}${q.reveal?esc(shown):gl(shown)}</p>${spkBtn(q.sayAns)}</div>`}
+  ${q.table?'':`<div class="ansline"><p>${res==='accent'?'Spelled: ':''}${q.reveal?esc(shown):glQ(shown,q)}</p>${spkBtn(q.sayAns)}</div>`}
   ${msg?`<p class="note">${esc(msg)}</p>`:''}
   ${res!=='right'&&q.kind==='type'?(()=>{const c=confusedWith(given,{...q,id:id});return c?`<p class="note conf">You wrote <b>${gl(c.text)}</b> = ${esc(c.mean)}. That is another term you are learning, so you mixed the two up.</p>`:''})():''}
   ${q.note&&res!=='right'?`<p class="note">${esc(q.note)}</p>`:''}
@@ -1229,8 +1742,8 @@ document.addEventListener('click',e=>{if(e.target&&e.target.id==='qb'&&sess&&ses
 function drill(t,q){let n=0;const fb=$('#fb');
  const draw=msg=>{
   fb.innerHTML=`<div class="fb"><p class="eyebrow">${L('Napisz 3 razy','write it 3 times')} · ${n}/3</p>
-   ${n<2?`<div class="ansline"><p>${gl(t)}</p>${spkBtn(q.sayAns)}</div>`
-     :`<p class="note">Last one: from memory.</p><div class="ansline" id="pk" hidden><p>${gl(t)}</p></div><button type="button" class="ghost ov" id="peek">Show it</button>`}
+   ${n<2?`<div class="ansline"><p>${glQ(t,q)}</p>${spkBtn(q.sayAns)}</div>`
+     :`<p class="note">Last one: from memory.</p><div class="ansline" id="pk" hidden><p>${glQ(t,q)}</p></div><button type="button" class="ghost ov" id="peek">Show it</button>`}
    <form class="typed" id="df"><input id="di" type="text" lang="pl" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Write the answer" placeholder="Write it…">
     <div class="keys">${'ąćęłńóśźż'.split('').map(c=>`<button type="button" data-k="${c}">${c}</button>`).join('')}</div>
     <button class="check" type="submit">${L('Sprawdź','check','sprawdzić, imperative')}</button></form>
@@ -1259,7 +1772,7 @@ function results(){
  <header class="row"><p class="eyebrow">${esc(sess.title)} · round ${round()} done</p>
   <p class="score">${ok}<small> / ${first.length} ${L('dobrze napisanych','written right','dobrze = well · napisanych = genitive plural of napisany (written)')}</small></p>
   <p class="lede">${sess.fresh?`${sess.fresh} new term${sess.fresh>1?'s':''} this round. `:''}${!sess.test&&first.length&&ok/first.length<0.5?'Next round brings fewer new terms, so you can fix these first. ':''}${up?`<b>Next stage unlocked: ${esc(STAGES[cs].n)}.</b> `:''}${missed.length?'Missed questions came back once at the end. Here they are again:':'Clean round.'}</p></header>
- ${missed.length?`<div class="miss"><ul>${missed.map(l=>`<li><p class="q">${(l.q.say||l.q.prompt.includes('___')?gl:esc)(l.q.prompt.replace('___','…'))}${l.q.sub?' · '+esc(l.q.sub):''}</p><p class="a">${l.q.table?l.q.rows.map(r=>`${esc(r.label)}: ${gl(r.answer)}`).join(' · '):l.q.reveal?esc(l.q.answer):gl(l.q.answer)}</p></li>`).join('')}</ul></div>`:''}
+ ${missed.length?`<div class="miss"><ul>${missed.map(l=>`<li><p class="q">${(l.q.say||l.q.prompt.includes('___')?gl:esc)(l.q.prompt.replace('___','…'))}${l.q.sub?' · '+esc(l.q.sub):''}</p><p class="a">${l.q.table?l.q.rows.map(r=>`${esc(r.label)}: ${gl(r.answer)}`).join(' · '):l.q.reveal?esc(l.q.answer):glQ(l.q.answer,l.q)}</p></li>`).join('')}</ul></div>`:''}
  <div class="row">
   ${sess.drill?`<button class="cta2" id="again-drill">Another 5 · ${esc(sess.title.replace('Rapid fire · ',''))}</button>`:''}
   <button class="cta" id="more"><span>${sess.test?'Ucz się dalej':'Następna runda'}</span><small>${sess.test?L('Wróć do nauki','back to learning','do + genitive of nauka'):L(`${mix().n+mix().m+mix().c} odpowiedzi`,`${mix().n+mix().m+mix().c} written answers`)}</small></button>
@@ -1307,13 +1820,20 @@ function sheet(){
  <details><summary>Adres i słowa</summary>
   ${t(['skrót','słowo','meaning'],ABBR.map(a=>[a[0],a[1],WORDS.find(w=>w[0]===a[1])[1]]),[1])}
   ${t(['słowo','meaning'],WORDS.slice(4),[0])}
+ </details>
+ <details id="rules"><summary>Gramatyka · the rules</summary>
+  <p class="tip">The rules the mistake explainer uses. Each one is from your grammar modules.</p>
+  ${ruleList(1)}
+  <details class="later"><summary>Later lessons</summary>${ruleList('later')}</details>
  </details>`;
 }
 
+/* the grammar rules, as the cheat sheet lists them */
+const ruleList=L=>Object.values(RULES).filter(r=>r.t&&r.L===L).map(r=>`<p class="rule"><b>${esc(r.t)}</b> <span class="muted">· module ${r.m}</span><br>${esc(r.x)}</p>`).join('');
 /* what an option means (shown after answering a multiple-choice question) */
 let MEANS=null;
 function meanTable(){if(MEANS)return MEANS;const m=new Map(),put=(k,v)=>{if(k&&v&&!m.has(k))m.set(k,v)};
- CLASS.forEach(([pl,en])=>{put(pl,en);put(en,'= '+pl)});WORDS.forEach(([pl,en])=>{put(pl,en);put(en,'= '+pl)});ABBR.forEach(([ab,f])=>put(f,GL[f]?GL[f].split('|')[0]:f));
+ CLASS.forEach(([pl,en])=>{put(pl,en);put(en,'= '+pl)});WORDS.forEach(([pl,en])=>{put(pl,en);put(en,'= '+pl)});ABBR.forEach(([ab,f])=>{const g=GLW(f);put(f,g?g.split('|')[0]:f)});
  QA.forEach(q=>{put(q.inf,q.en);put(q.form,q.en+' (formal)');put(q.third,q.en3.replace(/^Ask about (him|her): /,'').replace(/^./,c=>c.toUpperCase()));put(q.ans3,q.fact);put(q.trap,'✗ mixes the ty-form with pan / pani: use the on / ona form');put(q.en,'= '+q.inf)});
  PRON_CORE.forEach(([en,pl])=>put(en,'= '+pl));FORMAL.forEach(([en,pl])=>put(`“you”, formal: ${en}`,'= '+pl));
  return MEANS=m}
@@ -1330,7 +1850,7 @@ function confusedWith(given,q){const g=strip(norm(given));if(!g)return null;cons
  if(!hit||own.has(strip(norm(hit.text)))||hit.id===q.id)return null;return hit}
 function meaningOf(opt,q){if(q.mean&&q.mean[opt])return q.mean[opt];if(/^\d+$/.test(opt)&&NUMS[+opt])return '= '+NUMS[+opt];const t=meanTable().get(opt);if(t)return t;
  const ws=String(opt).split(PL_LETTER).filter((x,i)=>i%2);if(!ws.length)return null;
- const g=ws.map(w=>GL[w.toLowerCase()]).filter(Boolean);if(!g.length)return null;
+ const A=analyse(tokens(opt)),g=ws.map((w,k)=>glossAt(A,k)).filter(Boolean);if(!g.length)return null;
  if(ws.length===1){const [mm,f]=g[0].split('|');return f?`${mm} · ${f}`:mm}
  return g.length===ws.length?g.map(x=>x.split('|')[0].split(' · ')[0]).join(' ')+' (word by word)':null}
 /* keyboard for multiple choice: 1–4 picks; typing letters highlights the matching option, Enter picks it */
@@ -1350,9 +1870,6 @@ document.addEventListener('keydown',e=>{
 });
 document.addEventListener('click',e=>{const b=e.target.closest('[data-say]');if(b&&!e.target.closest('.gw'))say(b.dataset.say)});
 drawNav();$('#t-home').onclick=()=>home();$('#t-sheet').onclick=sheet;$('#t-set').onclick=()=>settingsView();
-/* progress carried over from the Claude version: merged once per seed, the more-practised copy of each term wins */
-const SEED={"_bk": {"kraje": 1, "pron:pl": 1, "pron:sg": 1}, "_d": {"d": "2026-10-23", "n": 36}, "_p": 8, "_r": 4, "_t": {"d": "2026-10-23", "r": 1, "u0": 186}, "cl:13": {"b": 2, "due": 5, "n": 5, "w": 1}, "cl:14": {"b": 3, "due": 6, "n": 3, "w": 0}, "cl:15": {"b": 2, "due": 4, "lr": "w", "n": 6, "w": 2, "ws": 1}, "cl:16": {"b": 3, "due": 5, "n": 3, "w": 0}, "cl:17": {"b": 1, "due": 3, "n": 4, "w": 1}, "cl:18": {"b": 2, "due": 3, "n": 2, "w": 0}, "cl:19": {"b": 1, "due": 3, "n": 3, "w": 1}, "cl:20": {"b": 2, "due": 4, "n": 2, "w": 0}, "cl:21": {"b": 3, "dr": 0, "due": 9, "lr": "r", "n": 5, "w": 1, "ws": 0}, "cl:22": {"b": 0, "due": 4, "f": "2026-10-23", "n": 0, "w": 0}, "kr:Belgia:m": {"b": 1, "due": 6, "f": "2026-10-23", "lr": "r", "n": 1, "w": 0, "ws": 0}, "kr:s:ja": {"b": 0, "due": 4, "f": "2026-10-23", "n": 0, "w": 0}, "n:0": {"b": 2, "due": 6, "n": 2, "w": 0}, "n:1": {"b": 2, "due": 7, "lr": "r", "n": 2, "w": 0, "ws": 0}, "n:10": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:2": {"b": 1, "due": 3, "n": 1, "w": 0}, "n:3": {"b": 0, "due": 3, "n": 2, "w": 1}, "n:4": {"b": 1, "due": 5, "f": "2026-10-22", "n": 3, "w": 1}, "n:5": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:6": {"b": 1, "due": 5, "f": "2026-10-22", "lr": "w", "n": 2, "w": 0}, "n:7": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:8": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "n:9": {"b": 1, "due": 4, "f": "2026-10-22", "lr": "w", "n": 2, "w": 1, "ws": 1}, "pn:ja": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:my": {"b": 2, "due": 7, "f": "2026-10-23", "lr": "r", "n": 2, "w": 0, "ws": 0}, "pn:on": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ona": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:one": {"b": 1, "due": 6, "f": "2026-10-23", "lr": "r", "n": 1, "w": 0, "ws": 0}, "pn:oni": {"b": 0, "due": 4, "f": "2026-10-23", "n": 0, "w": 0}, "pn:ono": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:ty": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "pn:wy": {"b": 0, "due": 4, "f": "2026-10-23", "n": 0, "w": 0}, "pr:0": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:1": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:2": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:3": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:4": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:5": {"b": 1, "due": 3, "f": "2026-10-22", "n": 1, "w": 0}, "pr:6": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "pr:7": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "pr:8": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:adres:ans": {"b": 0, "due": 4, "f": "2026-10-23", "n": 0, "w": 0}, "qa:gdzie:ans": {"b": 4, "due": 9, "n": 4, "w": 0}, "qa:gdzie:en": {"b": 0, "due": 4, "f": "2026-10-23", "n": 0, "w": 0}, "qa:imie:ans": {"b": 3, "due": 9, "lr": "r", "n": 3, "w": 0, "ws": 0}, "qa:imie:en": {"b": 2, "due": 6, "n": 2, "w": 0}, "qa:ma:ans": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:ma:en": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:milo": {"b": 1, "due": 5, "f": "2026-10-23", "n": 1, "w": 0}, "qa:nazwisko:ans": {"b": 2, "due": 5, "n": 2, "w": 0}, "qa:nazwisko:en": {"b": 1, "due": 2, "n": 7, "w": 2}, "qa:nazywa:ans": {"b": 1, "due": 2, "n": 1, "w": 0}, "qa:nazywa:en": {"b": 1, "due": 5, "n": 3, "w": 1}, "qa:skad:ans": {"b": 2, "due": 7, "f": "2026-10-22", "lr": "r", "n": 2, "w": 0, "ws": 0}, "qa:skad:en": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "qa:slychac": {"b": 1, "due": 4, "f": "2026-10-22", "n": 1, "w": 0}, "v:być:0": {"b": 2, "due": 5, "n": 2, "w": 0}, "v:być:1": {"b": 1, "due": 2, "n": 1, "w": 0}, "v:być:2": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:3": {"b": 1, "due": 5, "lr": "w", "n": 2, "w": 0}, "v:być:4": {"b": 1, "due": 3, "n": 1, "w": 0}, "v:być:5": {"b": 2, "due": 6, "n": 2, "w": 0}, "w:4": {"b": 1, "due": 2, "n": 1, "w": 0}, "w:5": {"b": 2, "due": 5, "n": 2, "w": 0}, "w:6": {"b": 1, "due": 4, "f": "2026-10-23", "lr": "w", "n": 1, "w": 1, "ws": 1}},SEED_ID='1792917976';
-if(S._seed!==SEED_ID){S=Object.keys(S).length?mergeS(S,SEED):JSON.parse(JSON.stringify(SEED));S._seed=SEED_ID;saveLocal()}
 if(!resumeSess())home();
 </script>
 

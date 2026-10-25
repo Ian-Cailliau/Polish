@@ -34,6 +34,9 @@ const TERMS=[
 ];
 /* 2. one or more wrong answers for every grammatical feature, on made-up questions */
 const SYN=[
+ // from the review: animate forms on a thing, adjectives agreeing with their noun
+ [S('x','Jaki masz adres?'),'Jakiego masz adres','^gender$','person or an animal.*adres is a thing'],
+ [S('x','Dzień dobry.'),'Dzień dobrego','case','agrees with Dzień, which is in the nominative'],
  // case: prepositions
  [S("I'm from Belgium.",'Jestem z Belgii.'),'Jestem z Belgia','^case$','Belgia is the nominative.*genitive: z Belgii'],
  [S("I'm from Belgium.",'Jestem z Belgii.'),'Jestem w Belgii','z / w|w / z','z = from'],

@@ -374,7 +374,7 @@ N('Belgia','f','Belgium','Belgia Belgii Belgii Belgię Belgią Belgii Belgio',nu
 N('Niemcy','pl','Germany',null,'Niemcy Niemiec Niemcom Niemcy Niemcami Niemczech',{...KRAJ,note:'plural-only noun, literally “the Germans”'});
 N('Anglia','f','England','Anglia Anglii Anglii Anglię Anglią Anglii Anglio',null,KRAJ);
 N('Francja','f','France','Francja Francji Francji Francję Francją Francji Francjo',null,KRAJ);
-N('Włochy','pl','Italy',null,'Włochy Włoch Włochom Włochy Włochami Włoszech',{...KRAJ,note:'plural-only noun, literally “the Italians”'});
+N('Włochy','pl','Italy',null,'Włochy Włoch Włochom Włochy Włochami Włoszech',{...KRAJ,note:'plural-only noun'});
 N('Japonia','f','Japan','Japonia Japonii Japonii Japonię Japonią Japonii Japonio',null,KRAJ);
 N('Holandia','f','the Netherlands','Holandia Holandii Holandii Holandię Holandią Holandii Holandio',null,KRAJ);
 N('Polska','f','Poland','Polska Polski Polsce Polskę Polską Polsce Polsko',null,KRAJ);
@@ -504,7 +504,7 @@ PRN('on',3,'sg','he',[['on','nom','m','he'],['ona','nom','f','she'],['ono','nom'
  {});
 PRN('my',1,'pl','we',[['my','nom'],['nas','gen','','us'],['nam','dat','','(to) us'],['nas','acc','','us'],['nami','ins','','(with) us'],['nas','loc','','us']]);
 PRN('wy',2,'pl','you (several people, informal)',[['wy','nom'],['was','gen','','you'],['wam','dat','','(to) you'],['was','acc','','you'],['wami','ins','','(with) you'],['was','loc','','you']],{note:'plural of ty'});
-lx({pos:'pron',lemma:'się',en:'oneself (myself, yourself…)',forms:[['się','acc'],['się','gen']],refl:1,note:'reflexive pronoun, never changes form; it makes a verb reflexive'});
+lx({pos:'pron',lemma:'się',en:'oneself (myself, yourself…)',forms:[['się','acc'],['się','gen']],refl:1,note:'reflexive pronoun, the same for every person (myself, yourself, himself…); it makes a verb reflexive'});
 lx({pos:'pron',lemma:'sobie',en:'(to) oneself',forms:[['sobie','dat'],['sobie','loc']],note:'tak sobie = “so so”'});
 lx({pos:'pron',lemma:'to',en:'this · it',forms:[['to','nom','n'],['tego','gen','n'],['temu','dat','n'],['to','acc','n'],['tym','ins','n'],['tym','loc','n']],note:'Co to znaczy? = What does this mean?'});
 lx({pos:'pron',lemma:'wszystko',en:'everything',forms:[['wszystko','nom','n'],['wszystkiego','gen','n'],['wszystkiemu','dat','n'],['wszystko','acc','n'],['wszystkim','ins','n'],['wszystkim','loc','n']]});
@@ -539,7 +539,7 @@ W('dobrze','adv','well · fine',{adj:'dobry'});W('źle','adv','badly · bad',{ad
 W('świetnie','adv','great · excellently',{adj:'świetny'});W('miło','adv','nice · pleasant',{adj:'miły',gov:'dat',note:'Miło mi = “(it is) pleasant to me” = nice to meet you'});
 W('wolniej','adv','more slowly',{adj:'wolny',note:'comparative of wolno (slowly)'});
 W('bardzo','adv','very');W('teraz','adv','now');W('dzisiaj','adv','today');W('tak','adv','yes · so');W('też','adv','also');W('super','adv','super · great',{note:'informal'});
-W('nie','part','no · not',{note:'nie goes right before the verb; it turns the object of the verb into the genitive'});
+W('nie','part','no · not',{note:'nie goes right before the verb; it turns the accusative object of the verb into the genitive'});
 W('i','conj','and');W('a','conj','and · whereas');W('ale','conj','but');W('albo','conj','or');
 W('cześć','interj','hi · bye (informal)',{note:'literally “honour”; only with people you say ty to'});
 W('dobranoc','interj','good night',{note:'dobra (good) + noc (night) written as one word; said when going to bed'});
@@ -599,7 +599,7 @@ const RULES={
  z_ins:{t:'z + instrumental (with)',m:9,L:'later',x:'z meaning “with” takes the instrumental: kawa z mlekiem (coffee with milk), z babcią (with grandma). Same little word as z (from), different case.',why:'after <b>z</b> meaning “with” you need the <b>instrumental</b>',gl:'instrumental because of z (with)'},
  w_acc:{t:'w + accusative (on a day)',m:12,L:'later',x:'w + accusative for days: w poniedziałek (on Monday). Going into a room is do + genitive: Idę do kuchni.',why:'here <b>w</b> takes the <b>accusative</b>',gl:'accusative after w'},
  na_loc:{t:'na + locative (where)',m:10,L:'later',x:'na (on, at) + locative says where something is: na stole (on the table), na obiedzie (at dinner).',why:'after <b>na</b> (on, at), saying where, you need the <b>locative</b>',gl:'locative because na (on, at) says where'},
- na_acc:{t:'na + accusative (where to)',m:12,L:'later',x:'na + accusative when something moves onto a surface or you head to an event: Połóż chleb na stół. Idę na obiad.',why:'after <b>na</b> for movement (onto, to) you need the <b>accusative</b>',gl:'accusative because na says where to'},
+ na_acc:{t:'na + accusative (where to)',m:12,L:'later',x:'na + accusative for where you are heading (an event, an open place): Idę na obiad. Idę na pocztę.',why:'after <b>na</b> for movement (onto, to) you need the <b>accusative</b>',gl:'accusative because na says where to'},
  po_loc:{t:'po + locative (after)',m:10,L:'later',x:'po (after) takes the locative: po obiedzie (after dinner), po śniadaniu (after breakfast).',why:'after <b>po</b> (after) you need the <b>locative</b>',gl:'locative because of po (after)'},
  od_gen:{t:'od + genitive',m:8,L:'later',x:'od (from a person or a starting point) takes the genitive: list od mamy, od poniedziałku.',why:'after <b>od</b> you need the <b>genitive</b>',gl:'genitive because of od (from)'},
  u_gen:{t:'u + genitive',m:12,L:'later',x:'u (at someone’s place) takes the genitive: u babci (at grandma’s).',why:'after <b>u</b> you need the <b>genitive</b>',gl:'genitive because of u (at someone’s place)'},
@@ -650,8 +650,10 @@ function form(lemma,c,num){const e=LEMMA.get(lemma);if(!e)return null;
  if(e.pos==='adj'){const r=adjTable(e).find(x=>x[1]===c&&(num==='pl'?PLG(x[2]):x[2]===(num||'m')));return r?r[0]:null}
  const list=num==='pl'||!e.sg?e.pl:e.sg;return list?list[CASES.indexOf(c)]:null}
 /* z → ze, w → we before a hard cluster (ze Stanów, we Wrocławiu) */
-function zeWe(p,next){const n=lo(next||'');const pair=p==='z'?/^(s|z|ś|ź|ż|sz|rz)[^aeiouyąęó]/:/^(w|f)[^aeiouyąęó]/;
- return pair.test(n)||(p==='z'&&/^mn/.test(n))?p+'e':p}
+function zeWe(p,next){const n=lo(next||''),V=/^[aeiouyąęó]/;
+ if(/^mn/.test(n)||(p==='z'&&/^wszystk/.test(n)))return p+'e';
+ const m=p==='z'?n.match(/^(sz|rz|s|z|ś|ź|ż)(.*)$/):n.match(/^(w|f)(.*)$/);
+ return m&&m[2]&&!V.test(m[2])?p+'e':p}
 /* the plural pronoun for a group: oni as soon as one man is in it */
 /* the people in a group, each as a person or thing with a gender; a title decides a name's gender (pani Nowak is a woman) */
 function members(ws){const out=[];for(let k=0;k<ws.length;k++){const w=lo(ws[k]),x=lookup(w).find(c=>c.pos==='name'||c.pos==='noun'||c.pos==='pron');if(!x)continue;
@@ -712,7 +714,8 @@ function analyse(toks){
   const g=govOf(a.i),E=want(g),m=E?nom.filter(x=>fits(x,E)):[];
   const adjFit=a.c.filter(x=>x.pos==='adj');
   if(!m.length&&adjFit.length&&(A[a.i+1]&&same(A[a.i+1],a)&&P(a.i+1).has('noun')||A[a.i-1]&&same(A[a.i-1],a)&&P(a.i-1).has('noun')))return; // an adjective after all (decided below)
-  const pool=(m.length?m:nom).slice().sort((x,y)=>(RANK[x.pos]-RANK[y.pos])||((x.case==='voc')-(y.case==='voc'))||((x.num==='sg'?0:1)-(y.num==='sg'?0:1))||(CASES.indexOf(x.case)-CASES.indexOf(y.case)));
+  const ord=x=>E?E.findIndex(w=>w.case===x.case):0;
+  const pool=(m.length?m:nom).slice().sort((x,y)=>(RANK[x.pos]-RANK[y.pos])||(m.length?ord(x)-ord(y):0)||((x.case==='voc')-(y.case==='voc'))||((x.num==='sg'?0:1)-(y.num==='sg'?0:1))||(CASES.indexOf(x.case)-CASES.indexOf(y.case)));
   a.an=pool[0];a.gov=g;if(m.length)a.rule=ruleOf(g,a.an)});
  /* adjectives and jaki: the form that agrees with their noun */
  const isN=(j,i)=>A[j]&&same(A[j],A[i])&&!A[j].t.hint&&A[j].an&&(A[j].an.pos==='noun'&&A[j].an.e.para!=='pan'||A[j].an.pos==='name');
@@ -752,7 +755,7 @@ const caseLbl=an=>`${CASE_EN[an.case]}${an.num==='pl'&&an.e.g!=='pl'&&an.pos!=='
 const gLbl=an=>an.pos==='noun'||an.pos==='name'?GEN_EN[an.e.g]||'':GEN_EN[an.g]||'';
 /* the 3rd-person pronoun's dictionary form for a gender: jej → ona */
 const pronNom=an=>an.e.lemma!=='on'?an.e.lemma:({m:'on',f:'ona',n:'ono',vir:'oni',nonvir:'one',pl:'oni / one'})[an.g]||'on';
-function verbEn(e,i){if(e.en6)return e.en6[i];const base=e.en.replace(/^to /,'');return `${EN_SUBJ[i]} ${i===2?(e.s3||base.replace(/^(\S+)/,w=>/(s|sh|ch|x)$/.test(w)?w+'es':w+'s')):base}`}
+function verbEn(e,i){if(e.en6)return e.en6[i];const base=e.en.replace(/^to /,'');if(e.pf)return `${EN_SUBJ[i]} will ${base}`;return `${EN_SUBJ[i]} ${i===2?(e.s3||base.replace(/^(\S+)/,w=>/(s|sh|ch|x)$/.test(w)?w+'es':w+'s')):base}`}
 function anMean(an){const e=an.e;
  if(an.pos==='verb')return an.vf==='fin'?((e.fm&&e.fm[e.f[pi(an)]])||verbEn(e,pi(an))):e.en;
  if(an.pos==='noun')return an.num==='pl'&&e.g!=='pl'?(e.enpl||e.en+' (plural)'):e.en;
@@ -763,10 +766,10 @@ function formLbl(an){const e=an.e;
   case 'noun':if(e.indecl)return `noun, ${GEN_EN[e.g]}, does not change form`;
    return an.case==='nom'&&(an.num==='sg'||e.g==='pl')?(e.g==='pl'?'noun, plural only':`noun, ${GEN_EN[e.g]}`):`${e.lemma} in the ${CASE_EN[an.case]}${an.num==='pl'?(e.g!=='pl'?' plural':' (plural)'):''}${an.num==='sg'&&lo(e.sg[0])===lo(e.sg[CASES.indexOf(an.case)])?' (same as the dictionary form)':''}`;
   case 'name':return an.case==='nom'?'name':`${e.lemma} in the ${CASE_EN[an.case]}`;
-  case 'verb':return an.vf==='fin'?`${e.lemma}, ${PERS_FORM[pi(an)]}`:`infinitive (dictionary form), ${VCLASS[e.cls]} verb`;
+  case 'verb':return an.vf==='fin'?`${e.lemma}, ${PERS_FORM[pi(an)]}${e.pf?' (future: this verb has no present)':''}`:`infinitive (dictionary form), ${VCLASS[e.cls]} verb`;
   case 'impers':return 'impersonal verb form';
   case 'adj':return e.wh?`question word, ${GEN_EN[an.g]} form`:`${e.lemma}, ${GEN_EN[an.g]}${an.case!=='nom'?' '+CASE_EN[an.case]:''}`;
-  case 'pron':return an.case==='nom'?(e.refl?'reflexive pronoun, never changes form':e.para?'personal pronoun':'pronoun'):e.refl?'reflexive pronoun, never changes form':`${pronNom(an)} in the ${CASE_EN[an.case]}`;
+  case 'pron':return an.case==='nom'?(e.refl?'reflexive pronoun, the same for every person':e.para?'personal pronoun':'pronoun'):e.refl?'reflexive pronoun, the same for every person':`${pronNom(an)} in the ${CASE_EN[an.case]}`;
   case 'wh':return an.case&&an.case!=='nom'?`${e.lemma} in the ${CASE_EN[an.case]}`:'question word';
   case 'prep':{if(an.variant)return `${e.lemma} with an extra e`;const c=Object.entries(e.cases).filter(([,r])=>RULES[r]&&RULES[r].L===1).map(([c])=>CASE_EN[c]);return c.length?`preposition, followed by the ${c.join(' or ')}`:'preposition'}
   case 'num':return 'number';
@@ -807,7 +810,7 @@ function glossAt(A,i){const a=A[i];if(!a||!a.an||!a.an.e||!a.an.e.en)return null
  else if(e.para==='pan'&&an.num==='pl'&&e.notepl)y=e.notepl;
  else if(an.pos==='adj'&&a.head!=null){const H=A[a.head];y=e.wh?`${GEN_EN[an.g]} because ${H.t.w} is a ${GEN_EN[H.an.e.g]||''} noun`.replace('a masculine (a person) noun','a masculine noun (a person)'):`${GEN_EN[an.g]}${an.case!=='nom'?' '+CASE_EN[an.case]:''}, to agree with ${H.t.w}`}
  else if(an.pos==='verb'&&an.vf==='fin'){const s=a.subj,k=pi(an);
-  if(s&&s.kind==='formal')y=`with ${s.word} the verb takes the ${PERS_FORM[k]}: ${s.word} ${a.t.w} = ${verbEn(e,k===2?1:4).replace(/^you( \(all\))? /,'you ')}`;
+  if(s&&s.kind==='formal')y=`with ${s.word} the verb takes the ${PERS_FORM[k]}: ${s.word}${e.refl?' się':''} ${a.t.w} = ${verbEn(e,k===2?1:4).replace(/^you( \(all\))? /,'you ')}`;
   else if(e.refl)y=e.note;
   else if(k===0&&e.note1)y=e.note1;
   else if(k===2&&(!s||s.kind==='none'))y=`also with pan / pani: pan ${a.t.w} = ${verbEn(e,1)}`;
@@ -827,17 +830,18 @@ const GLW=w=>glossAt(analyse(tokens(w)),0);
    2. two different words that a rule says are easily confused (jak / jaki / co, z / w, dobry / dobrze, być / mieć)
    3. your word is not in the word list: spelling (ogonki, rz / ż, ó / u, ch / h, ci / ć, -ii / -ji),
       a stem change (Kraków → Krakowie), a wrong ending on the right word, or a different word */
-const FEATS=['case','num','pers','g','vf'];
+const FEATS=['case','num','pers','g','anim','vf'];
 /* an adjective reading that could stand next to this noun, ignoring case (jaki / jaka: gender and number only) */
 function adjAgreesLoose(x,h){return adjAgrees({...x,case:h.case},h)}
 /* the case a word would have here if nothing went wrong: the verb's own case (without nie), the preposition's cases, else nominative */
 function natural(a){const g=a&&a.gov;return g&&g.k==='verb'&&g.e.gov?[g.e.gov]:['nom']}
 function feats(an){return {case:an.case||null,num:an.pos==='verb'&&an.vf!=='fin'?null:an.num||null,pers:an.pos==='verb'||an.pos==='pron'?(an.pers||an.e.person||null):null,
- g:an.pos==='noun'||an.pos==='name'?an.e.g:an.g||null,vf:an.vf||null}}
-function diffs(x,t){const a=feats(x),b=feats(t);return FEATS.filter(f=>{if(a[f]===b[f])return false;
+ g:an.pos==='noun'||an.pos==='name'?an.e.g:an.g||null,anim:an.anim||null,vf:an.vf||null}}
+function diffs(x,t){const a=feats(x),b=feats(t);return FEATS.filter(f=>{if(a[f]===b[f])return false;if(f==='anim'&&(!a.anim||!b.anim))return false;
  if(f==='g'&&(a.g==='pl'&&(b.g==='vir'||b.g==='nonvir')||b.g==='pl'&&(a.g==='vir'||a.g==='nonvir')))return false;
  if(f==='g'&&x.pos==='adj'&&(a.num!==b.num))return false;return true})}
 function caseWhy(a,A){const R=a.rule&&RULES[a.rule];
+ if((a.rule==='adj'||a.rule==='jaki')&&a.head!=null)return `it agrees with ${ital(A[a.head].t.w)}, which is in the <b>${CASE_EN[A[a.head].an.case]}</b>`;
  if(R&&R.why)return fill(R.why,a.gov&&a.gov.w);
  return `here it has to be the <b>${CASE_EN[a.an.case]}</b>`}
 function phraseOf(a,A){const g=a.gov;if(g&&g.j===a.i-1)return `${g.neg?'nie ':''}${A[g.j].t.w} ${a.t.w}`;return a.t.w}
@@ -859,6 +863,8 @@ function featNote(g,t,ga,a,A,D){const ta=a.an,parts=[];let key;
  else if(D.includes('vf')){key='verb form';
   parts.push(ga.vf==='inf'?`${ital(g)} is the infinitive (dictionary form); here the verb needs a person: ${subjWhy(a,ta)} → ${ital(t)}.`
    :`${ital(g)} is the ${PERS_FORM[pi(ga)]}; ${a.rule==='prosze_inf'?RULES.prosze_inf.why:'here the verb stays in the <b>infinitive</b>'} → ${ital(t)}.`)}
+ else if(D.includes('anim')&&!D.includes('case')&&!D.includes('g')&&ta.pos==='adj'&&a.head!=null){key='gender';const H=A[a.head];
+  parts.push(`${ital(g)} is the form for a person or an animal; ${ital(H.t.w)} is a thing (masculine, not alive), so the form stays like the dictionary form → ${ital(t)}.`)}
  else if(D.includes('g')&&!D.includes('case')){
   if(ta.pos==='adj'&&a.head!=null){const H=A[a.head];key='gender';
    parts.push(`${ital(g)} is ${GEN_EN[ga.g]}; it agrees with ${ital(H.t.w)}, which is ${GEN_EN[H.an.e.g]||H.an.g} → ${ital(t)}.`+(ta.e.wh?` (jaki + masculine, jaka + feminine, jakie + neuter)`:''))}
@@ -969,8 +975,8 @@ function ctxOf(q,T){const p=String(q.prompt||''),qtoks=tokens(p).map(z=>z.w);
   const ans=T.map(w=>({w,raw:w,hint:false,cl:full[k].cl}));return {toks:[...pre,...ans,...post],off:pre.length,pre,post,qtoks}}
  return {toks:T.map(w=>({w,raw:w,hint:false,cl:0})),off:0,pre:[],post:[],qtoks}}
 const words=s=>String(s).replace(/[.,!?;:…]/g,' ').split(/\s+/).filter(Boolean);
-function diagnose(given,q){
- if(q.open||q.check)return [];
+function diagnose(given,q){given=String(given==null?'':given);
+ if(!q||q.open||q.check)return [];
  const G=norm(given).split(' ').filter(Boolean);if(!G.length)return [];
  let best=null;(q.accept||[q.mcAnswer||q.answer]).forEach(a=>{const T=norm(String(a)).split(' ').filter(Boolean);const r=editOps(G,T);if(!best||r.dist<best.dist)best={...r,T,a:String(a)}});
  if(!best||best.dist===0)return [];
