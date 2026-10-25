@@ -23,7 +23,7 @@ const ids=JSON.parse(fs.readFileSync(__dirname+'/terms-fixture.json','utf8')).id
  F(s1.seeds===40&&s1.n===40,`one seed per met term (${s1.seeds} seeds, ${s1.n} events)`);
  F(Object.keys(S0).every(k=>JSON.stringify(S0[k])===JSON.stringify(s1.S[k])),'the old progress itself is untouched');
  await p.reload();await p.waitForTimeout(300);F(await p.evaluate(()=>AL.count())===40,'reloading does not seed again');
- const tile=await p.textContent('#nut-ready');F(/gotowość \d+%/.test(tile),`the tile shows readiness: “${tile.trim()}”`);
+ const tile=await p.textContent('#go-nut');F(!/gotowość|\d+%/.test(tile),`the Twardy orzech button stays clean, no readiness on it: “${tile.trim().replace(/\s+/g,' ')}”`);
  // 2. selection
  const sel=await p.evaluate(()=>{const cnt={},orders=new Set();let fresh=0;for(let k=0;k<150;k++){const r=planNut(ENGINE.pick.rng(k+1));orders.add(r.queue.map(e=>e.it.id).join());
   r.queue.forEach(e=>{cnt[e.it.id]=(cnt[e.it.id]||0)+1;if(e.st==='intro')fresh++})}return {cnt,orders:orders.size,fresh}});

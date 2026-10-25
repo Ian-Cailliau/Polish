@@ -1976,13 +1976,11 @@ const hintOf=q=>{const a=q.accept?q.accept[0]:(q.mcAnswer||q.answer);const w=a.r
 
 const GRADE_EN={'niedostateczny':'insufficient (fail)','dopuszczający':'passing','dostateczny':'satisfactory','dobry':'good','bardzo dobry':'very good','celujący':'excellent'};
 const DECK_IC={qa:'qa',verbs:'verbs',kraje:'kraje',num:'num',klasa:'klasa',words:'words'};
-/* readiness, as shown on the Twardy orzech tile: the expected score on the test if you stopped practising now */
-function readyLabel(){const R=MEM.readiness(vis()),pct=Math.round(R.score*100),when=EXAM.at>Date.now()?`on the test (${EXAM.en})`:'a day from now';
- return L(`gotowość ${pct}%`,`ready: ${pct}%`,'gotowość = readiness',`Expected score ${when} if you stopped practising now: the average chance over all ${R.n} terms (a term not met yet counts 0). ${R.below.length} of them are under 95%. 100% = you are expected to get any question right.`)}
 function startNut(){const r=planNut();if(!r.queue.length){const g=app.querySelector('#go-nut .gx');return g?showTip(g):home()}
  start(r.queue,'Twardy orzech',false,{nut:1,mode:'nut',ready0:MEM.readiness(vis()).score})}
 /* when a new fit arrives, the numbers on the home screen follow */
-MEM.onUpdate(()=>{if(sess)return;if(view==='home'){const el=document.getElementById('nut-ready');if(el)el.innerHTML=readyLabel()}else if(view==='set')drawModel()});
+/* (readiness is not shown on the home buttons, to keep them clean: see Ustawienia and the end of a Twardy orzech round) */
+MEM.onUpdate(()=>{if(sess)return;if(view==='set')drawModel()});
 function home(){sheetOff();delete app.dataset.mode;
  hideTip();closeReview();view='home';sess=null;nav.hidden=false;app.className='app';setTab('home');
  const m=mastery(vis()),g=gradeOf(m),known=vis().filter(it=>isKnown(it.id)).length;
@@ -2013,7 +2011,7 @@ function home(){sheetOff();delete app.dataset.mode;
    <span class="mixrow2">${chips.map(c=>`<i>${c}</i>`).join('')}</span>`}</span></button>
  ${o?`<button class="sy-link newr" id="go-learn">${L('albo zacznij nową rundę','or start a new round','zacząć, imperative · nową rundę = nowa runda in the accusative')}</button>`:''}
  <div class="tiles2">
-  <button class="tile2 t-nut" id="go-nut">${ic('nut','ti')}<span class="tlab">${L('Twardy orzech','tough nut: a hard problem','twardy (hard) + orzech (nut)','A round of the terms you are most likely to get wrong on the test: drawn at random, weighted toward the weakest. A miss comes back until you get it right twice; it counts as a round.')}<small class="tsub" id="nut-ready">${readyLabel()}</small></span></button>
+  <button class="tile2 t-nut" id="go-nut">${ic('nut','ti')}<span class="tlab">${L('Twardy orzech','tough nut: a hard problem','twardy (hard) + orzech (nut)','A round of the terms you are most likely to get wrong on the test: drawn at random, weighted toward the weakest. A miss comes back until you get it right twice; it counts as a round.')}</span></button>
   <button class="tile2 t-fix${fixN?'':' off'}" id="go-weak">${ic('fix','ti')}${L('Popraw błędy','fix the mistakes','poprawić (to correct), imperative · błędy = błąd (mistake), accusative plural',fixN?`A round with only the ${fixN} terms to fix.`:'Nothing to fix right now.')}</button>
   <button class="tile2 t-test" id="go-test">${ic('test','ti')}${L('Próbny test','practice test','próbny = trial, practice','20 written questions from everything you have met, no warm-ups or hints.')}</button>
  </div>
