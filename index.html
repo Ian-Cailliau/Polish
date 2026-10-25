@@ -64,7 +64,7 @@ p{margin:0}
 .grade{font-family:var(--f-hand);font-weight:700;font-size:62px;line-height:1;color:var(--pen);width:88px;height:88px;display:grid;place-items:center;border:3px solid var(--pen);border-radius:52% 46% 55% 44% / 48% 55% 45% 52%;transform:rotate(-7deg)}
 .grade-lbl{font-family:var(--f-hand);font-size:21px;color:var(--pen);line-height:1}
 .cta{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;border:0;border-radius:16px;padding:18px 20px;background:var(--blue);color:var(--on-blue);text-align:left}
-.cta span{font-family:var(--f-display);font-weight:800;font-size:24px}
+.cta>span{font-family:var(--f-display);font-weight:800;font-size:24px}
 .cta small{font-size:15px;opacity:.85}
 .cta2{width:100%;border:2px solid var(--pen);background:var(--pen-soft);color:var(--pen);border-radius:14px;padding:13px 18px;font-weight:700;text-align:left}
 .sec{font-size:19px;font-weight:600;margin-top:6px}
@@ -320,6 +320,7 @@ p.diff{font-size:21px;font-weight:600;letter-spacing:.01em;line-height:1.5;overf
 .tiles2{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 .tile2{border:0;border-radius:16px;padding:14px 12px;min-height:104px;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;gap:10px;text-align:left;font-weight:700;font-size:14.5px;line-height:1.2;color:var(--ink)}
 .tile2 .ti{width:32px;height:32px}
+.tile2 .tlab{display:flex;flex-direction:column;gap:4px}.tile2 .tsub{font-size:12.5px;font-weight:600;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
 .t-nut{background:var(--slate)}.t-nut .ti{color:var(--ink)}.t-fix{background:var(--pen-soft)}.t-fix .ti{color:var(--pen)}.t-test{background:var(--blue-soft)}.t-test .ti{color:var(--blue)}
 .tile2.off .ti,.tile2.off>.gx{opacity:.45}
 .sec2{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:4px}.sec2 h2{font-size:19px}.sec2>span{font-size:13.5px;color:var(--muted)}
@@ -328,6 +329,7 @@ p.diff{font-size:21px;font-weight:600;letter-spacing:.01em;line-height:1.5;overf
 .pill3 .pi{width:24px;height:24px;color:var(--blue);flex:none}.pill3 .gx{flex:1;min-width:0}
 .pill3 .pc{font-weight:700;font-size:14px;color:var(--blue);font-variant-numeric:tabular-nums}
 .pill3 .pb{position:absolute;left:0;right:0;bottom:0;height:3px;background:transparent}.pill3 .pb i{display:block;height:100%;background:var(--blue);opacity:.55}
+.mtab th{width:38%;text-transform:none;letter-spacing:0;font-size:13.5px;vertical-align:top}.mtab td{font-size:14px}.model{display:flex;flex-direction:column;gap:10px;padding-top:6px}
 .setc{display:flex;flex-direction:column;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px}.setc h2{font-size:17px}
 .nav button{display:flex;flex-direction:column;align-items:center;gap:3px}.nav .ico{width:24px;height:24px}
 
@@ -1371,12 +1373,256 @@ for(let i=ITEMS.length-1;i>=0;i--)if(DUPES.test(ITEMS[i].id))ITEMS.splice(i,1);
 ITEMS.forEach((it,i)=>{it.stage=STAGES.findIndex(s=>s.m.test(it.id));it.pos=i});
 const ORDER=ITEMS.slice().sort((a,b)=>a.stage-b.stage||a.pos-b.pos);
 
+/* ========== ENGINE:BEGIN ==========
+   The learning engine. Pure functions only: no DOM, no localStorage and no app globals, so it runs (and is tested) on its own
+   (tests/engine.js reads this block out of app.html). The app wraps it in two services further down: AL (the answer log on
+   this device) and MEM (the memory model's predictions).
+   · ENGINE.log    the answer log: every answer is an event with a unique id and a time. Devices merge logs by union, so a
+                   sync can never lose or double an answer. A reset is a time stamp (resetAt), not a deletion.
+   · ENGINE.model  the memory model: from the log, the chance you get a term right at a given moment.
+                   Forgetting follows a power law (the FSRS curve). Each term has a stability S (days until recall drops to
+                   90%) and a difficulty D (its smoothed error rate). The parameters are estimated with partial pooling:
+                   one global set, plus one forgetting multiplier per family of terms that only moves away from 1 when
+                   that family has the evidence for it. Families are used only if they predict your newest answers better.
+   · ENGINE.pick   Thompson sampling: draws a plausible chance per term and returns the terms sorted by that draw.
+   · ENGINE.nut    the drill-to-criterion rule of the Twardy orzech round.
+   Units: event times are ms since 1970; inside the model, time is in days. */
+const ENGINE=(()=>{
+ const VERSION=1,DAY=864e5;
+ const clamp=(x,a,b)=>x<a?a:x>b?b:x;
+ const logit=p=>Math.log(p/(1-p)),sigm=u=>1/(1+Math.exp(-u));
+
+ /* ---------- log ----------
+    An event in memory: {id, t, term, ev, kind, res, sid, att, mode, ref, x}
+    id    unique: device + time + counter; 'seed:<term>' for the one-off import of progress from before the log
+    t     ms since 1970 · term: the term id (ITEMS[].id)
+    ev    'answer' · 'seen' (intro card) · 'known' (“I know this”) · 'easy' (“too easy”) · 'seed' · 'amend' (an answer corrected)
+    kind  answers: 'type' · 'table' (written) · 'mc' (multiple choice) · 'reveal' (meaning card, marked yourself)
+    res   answers: 'right' · 'wrong' · 'accent' (ogonki) · 'hint'; amend: the corrected result
+    sid   the round it was given in · att: attempt number of this term in that round (1 = first) · mode: the kind of round
+    ref   amend: the id of the corrected answer · x: extra data (seed: level b, written n, wrong w and
+          last result lr of the old progress entry, and its assumed last practice)
+    On the wire (sync, storage) events are arrays in FIELDS order, term ids are numbers into a term list, and common values
+    get one-letter codes. Unknown values pass through unchanged, so a newer app can add values without breaking an older one. */
+ const LOG_VERSION=1,MAX_EVENTS=15000;
+ const FIELDS=['id','t','term','ev','kind','res','sid','att','mode','ref','x'];
+ const CODES={ev:{answer:'a',seen:'s',known:'k',easy:'e',seed:'d',amend:'m'},kind:{type:'t',table:'b',mc:'m',reveal:'r'},
+  res:{right:'r',wrong:'w',accent:'a',hint:'h'},mode:{learn:'n',nut:'o',test:'t',fix:'f',drill:'d',again:'g',deck:'k'}};
+ const DECODE={};Object.keys(CODES).forEach(f=>{DECODE[f]={};Object.keys(CODES[f]).forEach(k=>{DECODE[f][CODES[f][k]]=k})});
+ const emptyLog=()=>({v:LOG_VERSION,resetAt:0,events:[]});
+ const validEvent=e=>!!e&&typeof e.id==='string'&&e.id.length>0&&typeof e.t==='number'&&isFinite(e.t)&&typeof e.term==='string'&&e.term.length>0&&typeof e.ev==='string';
+ const byTime=(a,b)=>a.t-b.t||(a.id<b.id?-1:a.id>b.id?1:0);
+ /* two copies of the same id: the same answer seen by two devices, so they are equal, except seeds, which each device made
+    from its own copy of the old progress: the more-practised one wins (as in the old progress merge), then the earlier one */
+ function better(a,b){const na=a.x&&a.x.n||0,nb=b.x&&b.x.n||0;if(na!==nb)return na>nb?a:b;if(a.t!==b.t)return a.t<b.t?a:b;
+  return JSON.stringify(a)>=JSON.stringify(b)?a:b}
+ /* keeps the newest MAX_EVENTS events; seeds stay (they are each term's starting point and there is at most one per term) */
+ function trim(log,max){max=max||MAX_EVENTS;if(log.events.length<=max)return log;
+  const seeds=log.events.filter(e=>e.ev==='seed'),rest=log.events.filter(e=>e.ev!=='seed');
+  return {...log,events:[...seeds,...rest.slice(Math.max(0,rest.length-Math.max(0,max-seeds.length)))].sort(byTime)}}
+ function mergeLogs(a,b){a=a||emptyLog();b=b||emptyLog();const resetAt=Math.max(a.resetAt||0,b.resetAt||0),m=new Map();
+  for(const e of [...a.events,...b.events]){if(!validEvent(e)||e.t<resetAt)continue;const o=m.get(e.id);m.set(e.id,o?better(o,e):e)}
+  return trim({v:LOG_VERSION,resetAt,events:[...m.values()].sort(byTime)})}
+ function encode(log){const terms=[],ix=new Map();
+  const e=log.events.map(ev=>{const row=FIELDS.map(f=>{const v=ev[f];if(v===undefined||v===null)return null;
+    if(f==='term'){if(!ix.has(v)){ix.set(v,terms.length);terms.push(v)}return ix.get(v)}
+    return CODES[f]&&CODES[f][v]!==undefined?CODES[f][v]:v});
+   while(row.length&&row[row.length-1]===null)row.pop();return row});
+  return {v:LOG_VERSION,resetAt:log.resetAt||0,terms,e}}
+ /* null for something that is not a log, or a log written by a newer version of the app (that one must not be overwritten) */
+ function decode(o){if(!o||typeof o!=='object'||!Array.isArray(o.e)||!Array.isArray(o.terms))return null;if((o.v|0)>LOG_VERSION)return null;
+  const events=[];for(const row of o.e){if(!Array.isArray(row))continue;const ev={};
+   FIELDS.forEach((f,i)=>{let v=row[i];if(v===undefined||v===null)return;if(f==='term')v=o.terms[v];else if(DECODE[f]&&typeof v==='string'&&DECODE[f][v]!==undefined)v=DECODE[f][v];if(v!==undefined)ev[f]=v});
+   if(validEvent(ev))events.push(ev)}
+  return mergeLogs({v:LOG_VERSION,resetAt:+o.resetAt||0,events},null)}
+
+ /* ---------- families: kinds of question that are expected to be forgotten at a similar speed ----------
+    A new kind of term needs one line here (first match wins); a term that matches nothing is in 'other'. */
+ const FAMILIES=[
+  ['qa-self',/^qa:([a-z]+:ans|slychac)$/,'answer about yourself'],
+  ['qa-ask',/^qa:[a-z]+:en$/,'ask a friend (ty)'],
+  ['qa-formal',/^qa:[a-z]+:(form|inf)$/,'make it formal'],
+  ['qa-third',/^qa:[a-z]+:(3|a3)$/,'about someone (on / ona)'],
+  ['verb-form',/^v:/,'verb forms'],
+  ['verb-sentence',/^vs:/,'verbs in sentences'],
+  ['country',/^kr:/,'z + genitive · countries'],
+  ['city',/^city:/,'w + locative · cities'],
+  ['number',/^n:/,'numbers 0–10'],
+  ['sum',/^ile:/,'Ile jest…? · sums'],
+  ['classroom',/^cl:/,'classroom phrases'],
+  ['word',/^(w:|ab:|qa:milo$)/,'words and abbreviations'],
+  ['pronoun',/^(pn:|pf:|oni:)/,'pronouns · oni / one · pan / pani']];
+ const familyOf=id=>{for(const f of FAMILIES)if(f[1].test(id))return f[0];return 'other'};
+ const familyLabel=k=>{const f=FAMILIES.find(x=>x[0]===k);return f?f[2]:'other'};
+
+ /* ---------- model ---------- */
+ const F=19/81,C=-0.5;                    // the FSRS forgetting curve R(t) = (1 + F·t/S)^C: R(S) = 90%, R(12.8·S) = 50%
+ const recall=(dt,S)=>dt<=0?1:Math.pow(1+F*dt/S,C);
+ const HALF=3/F;                          // half-life = HALF · S
+ const MIN_GAP=1/24;                      // an answer tests memory only after an hour away from the term (shorter gaps test short-term memory)
+ const MIN_FIT=30,MIN_COMPARE=80,MIN_TEST=20;   // answers after a break needed to fit at all, and to compare global vs per-family
+ /* the four global parameters, each with its prior (centre, spread, scale) and its range:
+    s0     days until recall drops to 90% after a first correct answer
+    gain   how much S grows after a correct answer at R = 90% (S becomes (1 + gain)·S for a term of average difficulty)
+    lapse  share of S kept after a miss (never more than s0)
+    slip   chance of a slip (typo, ogonek) on a term you do know */
+ const DEFAULTS={s0:0.4,gain:1.5,lapse:0.3,slip:0.04};
+ const PRIORS={s0:[Math.log(0.4),1.0,'log'],gain:[Math.log(1.5),0.7,'log'],lapse:[logit(0.3),0.8,'logit'],slip:[logit(0.04),0.8,'logit']};
+ const BOUNDS={s0:[0.02,20],gain:[0.1,6],lapse:[0.05,0.9],slip:[0.005,0.3]};
+ const FAM_SD=0.5,FAM_LIM=2.5;            // prior spread of a family's log multiplier (most families within ×0.37 … ×2.7)
+ const D_PRIOR_K=20,D_SEED_K=3,D_RATE=0.3,D_START=0.25;  // difficulty: family prior strength, seed prior strength, update rate, before any data
+ const S_MIN=0.005,S_MAX=3650,GROW_MAX=8,GROW_REF=Math.exp(0.15)-1;
+ const tf=(k,x)=>PRIORS[k][2]==='log'?Math.log(x):logit(x),itf=(k,u)=>PRIORS[k][2]==='log'?Math.exp(u):sigm(u);
+ const clampS=s=>clamp(s,S_MIN,S_MAX);
+ const GRADED={ok:1,near:1,lapse:1},clampP=p=>clamp(p,1e-4,1-1e-4);
+
+ /* events → per term, the steps the model reads, in time order: g = ok · near (ogonki) · lapse (wrong, or only with a hint)
+    · seen (shown the answer without writing it) · known · easy · seed. Corrections (amend) are applied to their answer. */
+ function prepare(events){const amend=new Map(),by=new Map();
+  for(const e of events)if(e.ev==='amend'&&e.ref)amend.set(e.ref,e.res);
+  for(const e of events){let st;
+   if(e.ev==='answer'){const res=amend.has(e.id)?amend.get(e.id):e.res;
+    st=e.kind==='type'||e.kind==='table'?{g:res==='right'?'ok':res==='accent'?'near':'lapse'}:{g:'seen'}}
+   else if(e.ev==='seen'||e.ev==='known'||e.ev==='easy')st={g:e.ev};
+   else if(e.ev==='seed')st={g:'seed',x:e.x||{}};
+   else continue;                        // kinds of event this version does not know: ignored
+   st.t=(st.g==='seed'&&st.x&&isFinite(st.x.last)?st.x.last:e.t)/DAY;
+   let a=by.get(e.term);if(!a)by.set(e.term,a=[]);a.push(st)}
+  by.forEach(a=>a.sort((p,q)=>p.t-q.t));return by}
+
+ /* a family's difficulty prior: its error rate, pooled toward the global rate (only answers before `until` are used) */
+ function dPriors(by,until){until=until===undefined?Infinity:until;const n={},e={};let N=0,E=0;
+  by.forEach((steps,id)=>{const f=familyOf(id);for(const s of steps){if(s.t>=until)break;
+   if(GRADED[s.g]){n[f]=(n[f]||0)+1;N++;if(s.g!=='ok'){e[f]=(e[f]||0)+1;E++}}
+   else if(s.g==='seed'){const k=s.x.n|0,w=Math.min(s.x.w|0,k);n[f]=(n[f]||0)+k;N+=k;e[f]=(e[f]||0)+w;E+=w}}});
+  const g=(E+D_START*5)/(N+5),out={_:g};Object.keys(n).forEach(f=>{out[f]=((e[f]||0)+D_PRIOR_K*g)/(n[f]+D_PRIOR_K)});
+  Object.keys(e).forEach(f=>{if(out[f]===undefined)out[f]=g});return out}
+
+ /* replays one term: returns its state {S, D, last, n}. For every answer after a break, `sink` gets the prediction made just
+    before it: an array gets {t, p, y} pushed; an accumulator {lo, hi, ll, n} adds the log-likelihood of those with t in [lo, hi). */
+ function replayTerm(steps,P,m,D0,sink){let s=null;const base=P.s0*m,arr=Array.isArray(sink)?sink:null,acc=arr?null:sink;
+  for(const st of steps){const t=st.t,g=st.g;
+   if(g==='seed'){if(s)continue;const x=st.x,b=clamp(x.b|0,0,6),n=Math.max(0,x.n|0),w=clamp(x.w|0,0,n);
+    s={S:clampS(base*Math.pow(2,b)*(n>0?1:0.5)*(x.lr==='w'?P.lapse:1)),D:(D_SEED_K*D0+w)/(D_SEED_K+n),last:t,n:Math.min(n,6),seed:1};continue}
+   if(!s){s={S:clampS(g==='ok'?base:g==='near'?base*Math.sqrt(P.lapse):g==='lapse'?base*P.lapse:g==='known'?base*2:base*0.5),
+     D:g==='known'?D0*0.5:D0,last:t,n:0};
+    if(GRADED[g]){s.D+=D_RATE*((g==='ok'?0:1)-s.D);s.n=1}continue}
+   const dt=t-s.last,R=recall(dt,s.S);
+   if(GRADED[g]){
+    if(sink&&dt>=MIN_GAP&&!s.seed){const p=(1-P.slip)*R,y=g==='ok'?1:0;
+     if(arr)arr.push({t,p,y});else if(t>=acc.lo&&t<acc.hi){const q=clampP(p);acc.ll+=y?Math.log(q):Math.log(1-q);acc.n++}}
+    s.seed=0;
+    if(g==='ok'){const k=(1.5-s.D)/1.2,grow=1+P.gain*k*Math.pow(s.S,-0.2)*(Math.exp(1.5*(1-R))-1)/GROW_REF;s.S=clampS(s.S*clamp(grow,1,GROW_MAX))}
+    else if(g==='near')s.S=clampS(s.S*Math.sqrt(P.lapse));
+    else s.S=clampS(Math.min(s.S*P.lapse,base));
+    s.D+=D_RATE*((g==='ok'?0:1)-s.D);s.n++;s.last=t}
+   else if(g==='easy'){s.S=clampS(s.S*2);s.D*=0.7}
+   else if(g==='known'){s.S=Math.max(s.S,clampS(base*2));s.last=t}
+   else s.last=t}                        // seen: the answer was shown, which refreshes it but does not make it last longer
+  return s}
+
+ /* log-likelihood of the answers after a break with t in [lo, hi) (days), for the terms of one family (or all) */
+ function loglik(by,P,mult,D,lo,hi,only){const acc={lo,hi,ll:0,n:0};
+  by.forEach((steps,id)=>{const f=familyOf(id);if(only&&f!==only)return;replayTerm(steps,P,mult[f]||1,D[f]!==undefined?D[f]:D._,acc)});
+  return {ll:acc.ll,n:acc.n}}
+ function points(by,P,mult,D){const out=[];by.forEach((steps,id)=>{const f=familyOf(id),pts=[];replayTerm(steps,P,mult[f]||1,D[f]!==undefined?D[f]:D._,pts);pts.forEach(q=>{q.f=f;out.push(q)})});return out.sort((a,b)=>a.t-b.t)}
+ /* golden-section search for the maximum of f on [a, b] */
+ function golden(f,a,b,iters){const r=(Math.sqrt(5)-1)/2;let c=b-r*(b-a),d=a+r*(b-a),fc=f(c),fd=f(d);
+  for(let i=0;i<(iters||16);i++){if(fc>fd){b=d;d=c;fd=fc;c=b-r*(b-a);fc=f(c)}else{a=c;c=d;fc=fd;d=a+r*(b-a);fd=f(d)}}return fc>fd?c:d}
+ /* the global parameters: maximum of likelihood × prior (MAP), one parameter at a time; from `start` when given */
+ function fitGlobal(by,mult,D,lo,hi,start,sweeps){const P={...DEFAULTS,...(start||{})};
+  for(let sweep=0;sweep<(sweeps||2);sweep++)for(const k of Object.keys(DEFAULTS)){const [mu,sd]=PRIORS[k];
+   const obj=u=>{const Q={...P,[k]:itf(k,u)};return loglik(by,Q,mult,D,lo,hi).ll-(u-mu)*(u-mu)/(2*sd*sd)};
+   P[k]=clamp(itf(k,golden(obj,tf(k,BOUNDS[k][0]),tf(k,BOUNDS[k][1]),14)),BOUNDS[k][0],BOUNDS[k][1])}
+  return P}
+ /* one forgetting multiplier per family: its own likelihood × a prior centred on 1 (the global rate). With few answers the
+    prior wins and the family keeps the global rate; with many, the family's own answers decide. */
+ function fitFamilies(by,P,D,lo,hi){const mult={},count={};
+  by.forEach((steps,id)=>{const f=familyOf(id);count[f]=count[f]||0});
+  Object.keys(count).forEach(f=>{const n=loglik(by,P,{},D,lo,hi,f).n;count[f]=n;if(n<3)return;
+   const obj=u=>loglik(by,P,{[f]:Math.exp(u)},D,lo,hi,f).ll-u*u/(2*FAM_SD*FAM_SD);
+   mult[f]=Math.exp(golden(obj,-FAM_LIM,FAM_LIM,12))});
+  return {mult,count}}
+ function calibration(pts,bins){bins=bins||[0,.5,.7,.8,.9,.95,1.0001];const out=[];
+  for(let i=0;i<bins.length-1;i++){const q=pts.filter(x=>x.p>=bins[i]&&x.p<bins[i+1]);if(q.length)out.push({lo:bins[i],hi:Math.min(1,bins[i+1]),n:q.length,p:q.reduce((s,x)=>s+x.p,0)/q.length,y:q.reduce((s,x)=>s+x.y,0)/q.length})}
+  return out}
+ const perPoint=r=>r.n?-r.ll/r.n:null;   // log loss per answer (lower is better)
+ /* the whole fit. Returns {version, chosen, params, mult, D, report}:
+    chosen 'default' (too few answers after a break), 'global' (one forgetting rate) or 'family' (with per-family multipliers,
+    kept only when they predicted the newest 20% of your answers better than the global rate alone, after being fitted on the
+    older 80%). The final numbers are then fitted on everything. */
+ function fit(events){const by=prepare(events),D=dPriors(by);
+  const all=points(by,DEFAULTS,{},D),n=all.length;
+  const report={n,events:events.length,terms:by.size,minFit:MIN_FIT,minCompare:MIN_COMPARE};
+  if(n<MIN_FIT)return {version:VERSION,chosen:'default',params:{...DEFAULTS},mult:{},D,report:{...report,calib:calibration(all)}};
+  if(n>=MIN_COMPARE){const split=all[Math.floor(n*0.8)].t,Dt=dPriors(by,split);
+   const Pg=fitGlobal(by,{},Dt,-Infinity,split),fam=fitFamilies(by,Pg,Dt,-Infinity,split);report.trainParams=Pg;
+   const g=loglik(by,Pg,{},Dt,split,Infinity),f=loglik(by,Pg,fam.mult,Dt,split,Infinity);
+   if(g.n>=MIN_TEST){report.test={n:g.n,train:n-g.n,global:perPoint(g),family:perPoint(f)};
+    const useFam=f.ll>g.ll,Pt=useFam?fam.mult:{};
+    report.testCalib=calibration(points(by,Pg,Pt,Dt).filter(q=>q.t>=split));report.choice=useFam?'family':'global'}}
+  const chosen=report.choice==='family'?'family':'global';
+  const P=fitGlobal(by,{},D,-Infinity,Infinity,report.trainParams,report.trainParams?1:2);
+  const fam=chosen==='family'?fitFamilies(by,P,D,-Infinity,Infinity):{mult:{},count:{}};
+  if(chosen!=='family'){const c=fitFamilies(by,P,D,-Infinity,Infinity);report.familyCounts=c.count;report.familyIfUsed=c.mult}
+  else report.familyCounts=fam.count;
+  report.calib=calibration(points(by,P,fam.mult,D));
+  return {version:VERSION,chosen,params:P,mult:fam.mult,D,report}}
+ /* every term's state now, under a fit (or the defaults) */
+ function states(events,model){const by=prepare(events),P=model&&model.params||DEFAULTS,mult=model&&model.mult||{},
+   D=model&&model.D||dPriors(by),out=new Map();
+  by.forEach((steps,id)=>{const f=familyOf(id),s=replayTerm(steps,P,mult[f]||1,D[f]!==undefined?D[f]:D._,null);if(s)out.set(id,s)});
+  return out}
+ /* the chance of a right answer at time `at` (ms); 0 for a term never met */
+ const predict=(s,at,model)=>s?(1-(model&&model.params||DEFAULTS).slip)*recall(at/DAY-s.last,s.S):0;
+ /* how sure the model is about a term: grows with the term's own written answers (Beta concentration for Thompson sampling) */
+ const kappa=s=>2+2*Math.min(s?s.n:0,25);
+
+ /* ---------- pick: Thompson sampling ---------- */
+ function normal(rng){let u=0;while(u===0)u=rng();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*rng())}
+ function gamma(k,rng){if(k<1){let u=0;while(u===0)u=rng();return gamma(k+1,rng)*Math.pow(u,1/k)}
+  const d=k-1/3,c=1/Math.sqrt(9*d);for(;;){let x,v;do{x=normal(rng);v=1+c*x}while(v<=0);v=v*v*v;const u=rng();
+   if(u<1-0.0331*x*x*x*x||Math.log(u)<0.5*x*x+d*(1-v+Math.log(v)))return d*v}}
+ const beta=(a,b,rng)=>{const x=gamma(a,rng),y=gamma(b,rng);return x+y>0?x/(x+y):0.5};
+ /* cands: [{p, kappa, …}] → the same objects with draw, lowest draw first. A draw is a plausible value of p, given how much
+    evidence there is: a hard term draws low almost every time, an uncertain one sometimes, a solid one rarely. */
+ function thompson(cands,rng){return cands.map(c=>{const k=Math.max(0,(c.kappa||2)-2),p=clamp(c.p,0,1);return {...c,draw:beta(1+p*k,1+(1-p)*k,rng)}}).sort((a,b)=>a.draw-b.draw)}
+ /* a small seeded random generator, for tests and repeatable runs */
+ function rng(seed){let a=seed>>>0;return ()=>{a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296}}
+
+ /* ---------- nut: drill to criterion ----------
+    After each written answer of a term in a Twardy orzech round:
+    · right the first time → cracked (a term met for the first time this round must also pass a check later on)
+    · a miss → back after 2 other questions, as long as the term has had fewer than maxTries attempts
+    · right on a retry → one check later, after 6 other questions; right there → cracked
+    · out of attempts (a right answer on the last attempt is 'unconfirmed'), or the round has had maxExtra repeats → it stays
+      on the list for next time */
+ const NUT={retryGap:3,confirmGap:7,maxTries:4,maxExtra:20,bar:0.95,recentMin:20};
+ function nutStep(e,res,extraUsed,cfg){cfg=cfg||NUT;const tries=e.tries||1,ok=res==='right',left=(extraUsed||0)<cfg.maxExtra;
+  if(ok){if((e.retry||e.fresh)&&!e.confirm)return left&&tries<cfg.maxTries?{status:'pending',next:{gap:cfg.confirmGap,retry:true,confirm:true,tries:tries+1}}:{status:'unconfirmed'};
+   return {status:'cracked'}}
+  if(tries<cfg.maxTries&&left)return {status:'pending',next:{gap:cfg.retryGap,retry:true,confirm:false,tries:tries+1}};
+  return {status:'failed'}}
+
+ return {VERSION,DAY,
+  log:{empty:emptyLog,valid:validEvent,merge:mergeLogs,encode,decode,trim,MAX_EVENTS,VERSION:LOG_VERSION},
+  families:{list:FAMILIES,of:familyOf,label:familyLabel},
+  model:{fit,states,predict,kappa,recall,prepare,dPriors,replayTerm,loglik,DEFAULTS,PRIORS,BOUNDS,HALF,MIN_GAP,MIN_FIT,MIN_COMPARE},
+  pick:{thompson,beta,rng},
+  nut:{step:nutStep,CFG:NUT}};
+})();
+/* ========== ENGINE:END ========== */
+/* the engine's own source, so the slow part (the fit) can run in a background worker; read while this script first runs */
+const ENGINE_SRC=(()=>{try{const t=document.currentScript&&document.currentScript.textContent||'';const m=t.match(/\/\* ========== ENGINE:BEGIN[\s\S]*?ENGINE:END ========== \*\//);return m?m[0]:null}catch(e){return null}})();
+
 /* ---------- progress (stored on this phone only) ---------- */
 let S={};try{S=JSON.parse(localStorage.getItem('pl-test1')||'{}')||{}}catch(e){S={}}
 const saveLocal=()=>{try{localStorage.setItem('pl-test1',JSON.stringify(S))}catch(e){}};
 const save=()=>{saveLocal();scheduleSync();if(window.onProgressSaved)window.onProgressSaved()};
 
-/* ---------- account sync: one private progress document per person ---------- */
+/* ---------- account sync: one private progress document per person ----------
+   (this Claude-artifact copy syncs the progress S only; the answer log stays on the device here. The GitHub Pages app syncs
+   both through the gist: see build.py) */
 let cloud=null,cloudBusy=false,cloudDirty=false,cloudTimer=null,cloudRetried=false,syncState='local',view='home';
 function scheduleSync(){if(!cloud)return;cloudDirty=true;clearTimeout(cloudTimer);cloudTimer=setTimeout(pushCloud,1500)}
 async function pushCloud(){
@@ -1386,7 +1632,9 @@ async function pushCloud(){
   if(c==='unavailable'&&!cloudRetried){cloudRetried=true;cloudDirty=true;cloudBusy=false;setTimeout(pushCloud,1500+Math.random()*1500);return}
   syncState='local';if(c&&c!=='unavailable'&&c!=='resource_exhausted')cloud=null}
  cloudBusy=false;updSync();if(cloudDirty)scheduleSync()}
-function mergeS(a,b){const out={};
+/* a reset is a time stamp (_z): when one copy was reset after the other, the newer copy wins whole, so a reset reaches every
+   device instead of being undone by the next sync */
+function mergeS(a,b){const za=a._z||0,zb=b._z||0;if(za!==zb)return JSON.parse(JSON.stringify(za>zb?a:b));const out={};if(za)out._z=za;
  new Set([...Object.keys(a),...Object.keys(b)]).forEach(k=>{if(k[0]==='_')return;const x=a[k],y=b[k];
   out[k]=!x?{...y}:!y?{...x}:(y.n>x.n||(y.n===x.n&&y.b>x.b))?{...y}:{...x}});
  const t=dayKey(),da=a._d&&a._d.d===t?a._d.n:0,db_=b._d&&b._d.d===t?b._d.n:0;
@@ -1403,7 +1651,7 @@ function updSync(){const el=document.getElementById('sync');if(el)el.textContent
  const ref=db.doc('data/users/'+uid+'/progress');
  const snap=await ref.get();const remote=snap.exists?((snap.data()||{}).s||{}):{};
  const merged=mergeS(S,remote);const changed=JSON.stringify(merged)!==JSON.stringify(remote);
- S=merged;saveLocal();cloud=ref;syncState='cloud';
+ S=merged;saveLocal();AL.seedFrom(S);cloud=ref;syncState='cloud';
  if(changed){cloudDirty=true;pushCloud()}
  if(view==='home'&&!sess)home();else updSync();
 }catch(e){}})();
@@ -1437,9 +1685,98 @@ function record(id,res,given){const s=S[id]||{b:0,n:0,w:0,f:dayKey()};s.n++;
 const dueNow=it=>S[it.id]&&(S[it.id].due??0)<=round();
 function wsample(items,n){const pool=items.map(it=>({it,w:weight(it.id)}));const out=[];
  while(out.length<n&&pool.length){let t=pool.reduce((s,p)=>s+p.w,0),r=Math.random()*t,k=0;for(;k<pool.length-1;k++){r-=pool[k].w;if(r<=0)break}out.push(pool.splice(k,1)[0].it)}return out}
-const daysLeft=()=>{const n=new Date();return Math.round((new Date(2026,9,26)-new Date(n.getFullYear(),n.getMonth(),n.getDate()))/864e5)};
+/* the test this app prepares for: its day drives the countdown, and its time is when the memory model's readiness is measured */
+const EXAM={at:new Date(2026,9,26,9,0).getTime(),pl:'pon. 26.10, 9:00',en:'Monday 26 October, 9:00'};
+const daysLeft=()=>{const n=new Date(),x=new Date(EXAM.at);return Math.round((new Date(x.getFullYear(),x.getMonth(),x.getDate())-new Date(n.getFullYear(),n.getMonth(),n.getDate()))/864e5)};
 function countdown(){const d=daysLeft();
  return d>1?`<b>in ${d} days</b>`:d===1?'<b>tomorrow</b>':d===0?'<b>today</b>':'done'}
+
+/* ---------- the answer log on this device (ENGINE.log) ----------
+   Every answer, intro card and correction, with its time: the evidence the memory model learns from. S stays what it was,
+   the state of the round planner; the log sits next to it and never changes it. Stored in localStorage 'pl-test1-log',
+   synced as answers.json in the same gist as the progress (build.py). The device id 'pl-device' keeps event ids unique. */
+const AL=(()=>{
+ const KEY='pl-test1-log',get=k=>{try{return localStorage.getItem(k)}catch(e){return null}},put=(k,v)=>{try{localStorage.setItem(k,v);return true}catch(e){return false}};
+ let dev=get('pl-device');if(!/^[a-z0-9]{5}$/.test(dev||'')){dev=(Math.random().toString(36).slice(2)+'00000').slice(0,5);put('pl-device',dev)}
+ let raw=null;try{raw=JSON.parse(get(KEY)||'null')}catch(e){}
+ let log=ENGINE.log.decode(raw);
+ /* a log written by a newer version of the app (after going back to an older one): left alone, nothing is added to it */
+ const frozen=!log&&!!raw&&typeof raw==='object'&&(raw.v|0)>ENGINE.log.VERSION;
+ if(!log)log=ENGINE.log.empty();
+ let version=0,ctr=0,lastMs=0;const ids=new Set(ITEMS.map(it=>it.id)),subs=[];
+ function persist(){if(frozen)return;let w=ENGINE.log.encode(log);
+  /* storage full: keep the newest three quarters, then half (seeds always stay) */
+  for(const keep of [1,0.75,0.5]){if(keep<1){log=ENGINE.log.trim(log,Math.floor(log.events.length*keep));w=ENGINE.log.encode(log)}if(put(KEY,JSON.stringify(w)))return}}
+ function changed(){version++;persist();subs.forEach(f=>{try{f()}catch(e){}});if(window.onProgressSaved)window.onProgressSaved()}
+ const newId=()=>{const ms=Date.now();ctr=ms===lastMs?ctr+1:0;lastMs=ms;return dev+Math.max(0,ms-1.7e12).toString(36)+ctr.toString(36)};
+ /* the progress entries from before the log: one seed per term met, with its level and an assumed last practice
+    (half a day ago, or noon of the day you first met it if that is later); the model starts each term from there */
+ const legacyLast=(f,now)=>{const m=/^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(f||'');const noon=m?new Date(+m[1],+m[2]-1,+m[3],12).getTime():0;return Math.min(now,Math.max(noon,now-12*36e5))};
+ function seedFrom(S){if(frozen)return 0;const have=new Set(log.events.map(e=>e.term)),now=Date.now(),add=[];
+  Object.keys(S).forEach(id=>{const t=S[id];if(id[0]==='_'||have.has(id)||!ids.has(id)||!t||typeof t!=='object')return;
+   add.push({id:'seed:'+id,t:now,term:id,ev:'seed',x:{b:t.b|0,n:t.n|0,w:t.w|0,...(t.lr?{lr:t.lr}:{}),last:legacyLast(t.f,now)}})});
+  if(add.length){log=ENGINE.log.merge(log,{v:ENGINE.log.VERSION,resetAt:0,events:add});changed()}return add.length}
+ /* the app open in two tabs: each takes in what the other one stored, so neither overwrites the other's answers */
+ try{addEventListener('storage',e=>{if(frozen||e.key!==KEY||!e.newValue)return;let o=null;try{o=ENGINE.log.decode(JSON.parse(e.newValue))}catch(x){}if(!o)return;
+  const merged=ENGINE.log.merge(log,o),w=JSON.stringify(ENGINE.log.encode(merged)),mine=JSON.stringify(ENGINE.log.encode(log));
+  if(w===mine)return;log=merged;version++;if(w!==e.newValue)persist();subs.forEach(f=>{try{f()}catch(x){}})})}catch(e){}
+ return {
+  /* e: {term, ev, kind, res, sid, att, mode, ref, x}; id and time are added here. Returns the event, or null. */
+  add(e){if(frozen||!e||!ids.has(e.term))return null;const ev={...e,id:newId(),t:Date.now()};Object.keys(ev).forEach(k=>{if(ev[k]===undefined||ev[k]===null)delete ev[k]});
+   if(!ENGINE.log.valid(ev))return null;const last=log.events[log.events.length-1];log.events.push(ev);if(last&&last.t>ev.t)log.events.sort((a,b)=>a.t-b.t||(a.id<b.id?-1:1));
+   if(log.events.length>ENGINE.log.MAX_EVENTS)log=ENGINE.log.trim(log);changed();return ev},
+  events:()=>log.events,count:()=>log.events.length,version:()=>version,resetAt:()=>log.resetAt||0,frozen:()=>frozen,device:()=>dev,
+  /* answers already given to a term in a round (for the attempt number) */
+  answersIn(sid,term){let n=0;if(!sid)return 0;for(let i=log.events.length-1;i>=0&&n<50;i--){const e=log.events[i];if(e.sid===sid&&e.term===term&&e.ev==='answer')n++}return n},
+  wire:()=>ENGINE.log.encode(log),
+  /* sync: take in another device's log (its wire form, or null when it has none yet). Returns the merged wire form to store
+     remotely, or null when the remote log is from a newer app version and must not be overwritten. */
+  mergeWire(remote){if(frozen)return null;const r=remote?ENGINE.log.decode(remote):null;
+   if(!r&&remote&&typeof remote==='object'&&(remote.v|0)>ENGINE.log.VERSION)return null;   // unreadable for other reasons: replaced by ours
+   const merged=ENGINE.log.merge(log,r),w=ENGINE.log.encode(merged);
+   if(JSON.stringify(w)!==JSON.stringify(ENGINE.log.encode(log))){log=merged;changed()}return w},
+  /* reset progress: every device drops what was logged before now */
+  reset(){if(frozen)return;log={v:ENGINE.log.VERSION,resetAt:Date.now(),events:[]};changed()},
+  seedFrom,onChange:f=>subs.push(f),bytes:()=>{try{return (get(KEY)||'').length}catch(e){return 0}}}})();
+
+/* ---------- memory: the chance of a right answer, per term (ENGINE.model) ----------
+   The fit (the slow part, about a second per 5000 answers) runs in a background worker when the browser allows it, and is
+   kept in localStorage 'pl-test1-model' until the log has grown by REFIT_N answers or REFIT_MS has passed. The terms' states
+   are replayed from the log whenever it changes (a few ms). Readiness = the average chance over all terms at the test
+   (a term never met counts 0), so 100% means you are expected to get any question right. */
+const MEM=(()=>{
+ const KEY='pl-test1-model',REFIT_N=20,REFIT_MS=6*36e5,DAY=ENGINE.DAY;
+ let model=null;try{const m=JSON.parse(localStorage.getItem(KEY)||'null');if(m&&m.version===ENGINE.VERSION&&m.fit&&m.fit.params)model=m}catch(e){}
+ let st=null,stKey='',running=false,worker=null,useWorker=!!(ENGINE_SRC&&window.Worker&&window.Blob&&window.URL),timer=null;const subs=[];
+ const fitOf=()=>model&&model.resetAt===AL.resetAt()?model.fit:null;
+ function states(){const key=AL.version()+'|'+(model?model.at:0);if(!st||stKey!==key){st=ENGINE.model.states(AL.events(),fitOf());stKey=key}return st}
+ const stale=()=>{const n=AL.count();if(!model||model.resetAt!==AL.resetAt())return n>0;return n-model.n>=REFIT_N||(n!==model.n&&Date.now()-model.at>REFIT_MS)};
+ function done(fit,n){model={version:ENGINE.VERSION,at:Date.now(),n,resetAt:AL.resetAt(),fit};try{localStorage.setItem(KEY,JSON.stringify(model))}catch(e){}
+  running=false;st=null;subs.forEach(f=>{try{f()}catch(e){}})}
+ function here(){const ev=AL.events(),n=ev.length;try{done(ENGINE.model.fit(ev),n)}catch(e){running=false}}
+ function inWorker(){const ev=AL.events(),n=ev.length;
+  try{if(!worker){const url=URL.createObjectURL(new Blob([ENGINE_SRC+'\nonmessage=e=>{let r;try{r={ok:1,fit:ENGINE.model.fit(e.data)}}catch(x){r={ok:0,err:String(x)}}postMessage(r)};'],{type:'text/javascript'}));worker=new Worker(url)}
+   worker.onmessage=e=>{if(e.data&&e.data.ok)done(e.data.fit,n);else{useWorker=false;here()}};
+   worker.onerror=()=>{useWorker=false;try{worker.terminate()}catch(x){}worker=null;here()};
+   worker.postMessage(ev)}
+  catch(e){useWorker=false;worker=null;here()}}
+ /* refit when stale: now (blocking, used before planning a Twardy orzech round when no worker is available) or in the background */
+ let since=0;
+ function ensure(now){if(running&&Date.now()-since<60e3||!stale())return;running=true;since=Date.now();if(useWorker)inWorker();else if(now)here();else{clearTimeout(timer);timer=setTimeout(here,1200)}}
+ /* readiness is measured at the test (at most a week ahead); after the test, one day ahead */
+ const horizon=now=>{now=now||Date.now();return EXAM.at>now?Math.min(EXAM.at,now+7*DAY):now+DAY};
+ const p=(id,at)=>ENGINE.model.predict(states().get(id),at||horizon(),fitOf());
+ function readiness(items,at){at=at||horizon();const S_=states(),f=fitOf();let sum=0;
+  const rows=items.map(it=>{const v=ENGINE.model.predict(S_.get(it.id),at,f);sum+=v;return {it,p:v}}).sort((a,b)=>a.p-b.p);
+  return {score:items.length?sum/items.length:0,n:items.length,below:rows.filter(r=>r.p<ENGINE.nut.CFG.bar),rows,at}}
+ return {p,readiness,horizon,ensure,stale,
+  kappa:id=>ENGINE.model.kappa(states().get(id)),
+  last:id=>{const s=states().get(id);return s?s.last*DAY:null},
+  state:id=>states().get(id)||null,
+  model:()=>fitOf(),fittedAt:()=>model&&model.resetAt===AL.resetAt()?model.at:null,running:()=>running,where:()=>useWorker?'worker':'page',
+  refit(){model=null;running=false;ensure(true)},
+  clear(){model=null;st=null;try{localStorage.removeItem(KEY)}catch(e){}},
+  onUpdate:f=>subs.push(f)}})();
 
 /* ---------- speech (uses the phone's Polish voice when it has one) ---------- */
 const canSpeak='speechSynthesis' in window;let plVoice=null;
@@ -1553,9 +1890,6 @@ function pickNew(unseen,budget){const fresh=[],taken=new Set();let used=0,groups
  return{fresh,used}}
 /* review only takes terms whose spacing has run out; spare slots go to fixing, then to extra new terms,
    and only as a last resort to review terms that are not due yet */
-/* the hardest terms: many mistakes, recent mistakes, wrong streaks, dropped a level */
-function hardness(it){const t=S[it.id];if(!t||!(t.w>0))return 0;return t.w*2+(t.ws||0)*2+(t.lr==='w'?2:0)+(t.dr?3:0)+(t.n?t.w/t.n*4:0)-Math.min(t.b||0,4)*0.5}
-function hardest(max){const keys=new Set();return vis().filter(it=>hardness(it)>0).sort((a,b)=>hardness(b)-hardness(a)).filter(it=>{const k=answerKey(it);if(k&&keys.has(k))return false;if(k)keys.add(k);return true}).slice(0,max)}
 /* rapid fire: 5 cases of one pattern in a row, all written */
 const REV_INF=QA.map(q=>({id:'tmp:inf:'+q.k,tmp:1,deck:'qa',make:()=>{const g=Math.random()<.5?'pan':'pani',f=q.form.replace('pan / pani',g);return{eyebrow:'Make it informal · ty',prompt:f,say:f,sub:'Ask the same question to a friend',answer:q.inf,accept:[q.inf],sayAns:q.inf,note:'To a friend: drop pan / pani and use the ty-form: ma → masz, jest → jesteś, mieszka → mieszkasz.'}}}));
 const ONI_F=['Magda','Dominika','Agnieszka','Anna','Ewa','Grażyna','pani Nowak'],ONI_M=['Jacek','Piotrek','Mariusz','Tadeusz','Andrzej','Kamil','pan Kowalski'];
@@ -1600,25 +1934,57 @@ function makeBurst(fam,entries,usedKeys,R0){const d=DRILLS.find(x=>x[0]===fam),n
  if(d)shuffle(d[2]()).filter(it=>it.tmp||S[it.id]).forEach(it=>add(it,'fix',1));
  const all=[...entries.filter(e=>e.st==='intro'),...shuffle([...entries.filter(e=>e.st!=='intro'),...fill])];
  all.forEach((e,k)=>{e.burst={name,k:k+1,n:all.length}});return all}
-function buildRound(pool){const R0=planRound(pool);
+function buildRound(pool){return assembleRound(planRound(pool),{bursts:true})}
+/* a plan (new terms, terms to fix, reviews) as a queue: each new term gets its card, and new terms are spread through the round;
+   with bursts, pattern cases come as one rapid-fire block of 5 */
+function assembleRound(R0,opt){const bursts=!!(opt&&opt.bursts);
  let rest=shuffle([...R0.fixSel.map(it=>({it,st:warm(it)?'pick':'write',slot:'fix'})),...R0.revSel.map(it=>({it,st:'write',slot:'rev'}))]);
  const firsts=R0.fresh.filter((it,k)=>!it.group||R0.fresh.findIndex(x=>x.group===it.group)===k);
  const fresh=firsts.map(it=>({it,st:'intro',slot:'new'}));
  const usedKeys=new Set([...R0.fresh,...R0.fixSel,...R0.revSel].map(answerKey).filter(Boolean));
  const byFam={},plain=[];
- [...fresh,...rest].forEach(e=>{const f=famOf(e.it);if(f&&!(e.it.group&&e.st==='intro'))(byFam[f]=byFam[f]||[]).push(e);else plain.push(e)});
+ [...fresh,...rest].forEach(e=>{const f=bursts?famOf(e.it):null;if(f&&!(e.it.group&&e.st==='intro'))(byFam[f]=byFam[f]||[]).push(e);else plain.push(e)});
  const blocks=Object.entries(byFam).map(([f,es])=>makeBurst(f,es,usedKeys,R0));
  const pFresh=plain.filter(e=>e.st==='intro'),pRest=shuffle(plain.filter(e=>e.st!=='intro'));
  pFresh.forEach((e,k)=>pRest.splice(Math.min(pRest.length,k*2),0,e));
  blocks.forEach(bl=>{const at=Math.floor(Math.random()*(pRest.length+1));pRest.splice(at,0,...bl)});
  return{queue:pRest,info:R0}}
 const GROUP_COST_NOTE='a card of k terms counts as 60% of k';
+/* ---------- Twardy orzech: a round of the terms you are most likely to get wrong on the test ----------
+   1. every term you have met gets its chance of a right answer at the test (MEM). Thompson sampling draws a plausible chance
+      per term, and the lowest draws fill the round: weak terms almost always, terms with little evidence sometimes, solid
+      terms rarely, and a different mix every time.
+   2. terms practised in the last 20 minutes wait (they are still in short-term memory), unless there are too few others.
+   3. new terms come in only when few met terms are under the bar (95%), up to the usual number of new terms: a term never
+      met counts 0 toward readiness, so 100% needs them too.
+   4. in the round every term is drilled until it sticks (requeueAfter → ENGINE.nut.step).
+   It is a real round: first answers count, and the round counter moves on (but its score never cuts new terms elsewhere). */
+function planNut(rng){rng=rng||Math.random;MEM.ensure(true);
+ const C=ENGINE.nut.CFG,M=mix(),N=M.n+M.m+M.c,now=Date.now(),at=MEM.horizon(now),P=piles(vis());
+ const met=vis().filter(it=>S[it.id]),pr=new Map(met.map(it=>[it.id,MEM.p(it.id,at)]));
+ const recent=it=>{const l=MEM.last(it.id);return l!=null&&now-l<C.recentMin*6e4};
+ let cands=met.filter(it=>!recent(it));if(cands.length<N)cands=met;
+ const drawn=ENGINE.pick.thompson(cands.map(it=>({it,p:pr.get(it.id),kappa:MEM.kappa(it.id)})),rng);
+ const below=met.filter(it=>pr.get(it.id)<C.bar).length;
+ const {fresh,used}=pickNew(P.unseen,P.unseen.length?Math.min(M.n,Math.max(0,N-below)):0);
+ const keys=new Set(),keep=it=>{const k=answerKey(it);if(!k)return true;if(keys.has(k))return false;keys.add(k);return true};
+ const freshK=fresh.filter(it=>keep(it)||!!it.group),picks=[];
+ for(const d of drawn){if(picks.length>=N-used)break;if(keep(d.it))picks.push(d.it)}
+ const R0={...P,fresh:freshK,fixSel:picks.filter(it=>pile(it.id)==='fix'),revSel:picks.filter(it=>pile(it.id)!=='fix'),due:[],why:null,cut:false};
+ return {...assembleRound(R0,{bursts:false}),plan:{met:met.length,below,fresh:freshK.length,picks:picks.length,at}}}
 function currentStage(){const it=ORDER.find(it=>!hidden(it)&&(!S[it.id]||S[it.id].b<2));return it?it.stage:STAGES.length-1}
 const hintOf=q=>{const a=q.accept?q.accept[0]:(q.mcAnswer||q.answer);const w=a.replace(/[.!?]$/,'').split(' ');
  return w.length>2?w.slice(0,Math.ceil(w.length/2)).join(' ')+' …':w.length===2?w[0]+' …':a.slice(0,Math.max(1,Math.ceil(a.length/2)))+'…'};
 
 const GRADE_EN={'niedostateczny':'insufficient (fail)','dopuszczający':'passing','dostateczny':'satisfactory','dobry':'good','bardzo dobry':'very good','celujący':'excellent'};
 const DECK_IC={qa:'qa',verbs:'verbs',kraje:'kraje',num:'num',klasa:'klasa',words:'words'};
+/* readiness, as shown on the Twardy orzech tile: the expected score on the test if you stopped practising now */
+function readyLabel(){const R=MEM.readiness(vis()),pct=Math.round(R.score*100),when=EXAM.at>Date.now()?`on the test (${EXAM.en})`:'a day from now';
+ return L(`gotowość ${pct}%`,`ready: ${pct}%`,'gotowość = readiness',`Expected score ${when} if you stopped practising now: the average chance over all ${R.n} terms (a term not met yet counts 0). ${R.below.length} of them are under 95%. 100% = you are expected to get any question right.`)}
+function startNut(){const r=planNut();if(!r.queue.length){const g=app.querySelector('#go-nut .gx');return g?showTip(g):home()}
+ start(r.queue,'Twardy orzech',false,{nut:1,mode:'nut',ready0:MEM.readiness(vis()).score})}
+/* when a new fit arrives, the numbers on the home screen follow */
+MEM.onUpdate(()=>{if(sess)return;if(view==='home'){const el=document.getElementById('nut-ready');if(el)el.innerHTML=readyLabel()}else if(view==='set')drawModel()});
 function home(){sheetOff();delete app.dataset.mode;
  hideTip();closeReview();view='home';sess=null;nav.hidden=false;app.className='app';setTab('home');
  const m=mastery(vis()),g=gradeOf(m),known=vis().filter(it=>isKnown(it.id)).length;
@@ -1627,7 +1993,7 @@ function home(){sheetOff();delete app.dataset.mode;
  const goal=dl>0?Math.ceil(u0/dl):u0,left=Math.max(0,goal-met),onTrack=met>=goal,rToGo=Math.max(1,Math.ceil(left/pace()));
  const frac=goal?Math.min(1,met/goal):1,C=2*Math.PI*15;
  const when=dl>1?L(`za ${dl} dni`,`in ${dl} days`,'za + accusative · dni = plural of dzień (day)'):dl===1?L('jutro','tomorrow'):dl===0?L('dziś','today'):L('po teście','after the test');
- const o=savedSess(),h=hardest(10),fixN=P.fix.length;
+ const o=savedSess(),fixN=P.fix.length;MEM.ensure(false);
  const chips=[L(`${P.fresh.length} ${plN(P.fresh.length,'nowe','nowe','nowych')}`,`${P.fresh.length} new`,'nowy (new): plural, genitive plural after 5+',P.why?'Fewer new terms this round: '+P.why:''),
   L(`${P.fixSel.length} do poprawy`,`${P.fixSel.length} to fix`,'do + genitive of poprawa (correction)'),
   L(`${P.revSel.length} ${plN(P.revSel.length,'powtórka','powtórki','powtórek')}`,`${P.revSel.length} review${P.revSel.length===1?'':'s'}`,'powtórka (review): 2–4 powtórki, 5+ powtórek')];
@@ -1649,7 +2015,7 @@ function home(){sheetOff();delete app.dataset.mode;
    <span class="mixrow2">${chips.map(c=>`<i>${c}</i>`).join('')}</span>`}</span></button>
  ${o?`<button class="sy-link newr" id="go-learn">${L('albo zacznij nową rundę','or start a new round','zacząć, imperative · nową rundę = nowa runda in the accusative')}</button>`:''}
  <div class="tiles2">
-  <button class="tile2 t-nut${h.length>=3?'':' off'}" id="go-nut">${ic('nut','ti')}${L('Twardy orzech','tough nut: a hard problem','twardy (hard) + orzech (nut)',h.length>=3?`Drill your ${h.length} hardest terms; a miss comes back up to 3 times. Does not use up a round.`:'Available once you have 3 terms with mistakes.')}</button>
+  <button class="tile2 t-nut" id="go-nut">${ic('nut','ti')}<span class="tlab">${L('Twardy orzech','tough nut: a hard problem','twardy (hard) + orzech (nut)','A round of the terms you are most likely to get wrong on the test: drawn at random, weighted toward the weakest. A miss comes back until you get it right twice; it counts as a round.')}<small class="tsub" id="nut-ready">${readyLabel()}</small></span></button>
   <button class="tile2 t-fix${fixN?'':' off'}" id="go-weak">${ic('fix','ti')}${L('Popraw błędy','fix the mistakes','poprawić (to correct), imperative · błędy = błąd (mistake), accusative plural',fixN?`A round with only the ${fixN} terms to fix.`:'Nothing to fix right now.')}</button>
   <button class="tile2 t-test" id="go-test">${ic('test','ti')}${L('Próbny test','practice test','próbny = trial, practice','20 written questions from everything you have met, no warm-ups or hints.')}</button>
  </div>
@@ -1660,12 +2026,40 @@ function home(){sheetOff();delete app.dataset.mode;
  $('#gradeb').onclick=()=>showTip(app.querySelector('#gradeb .gx'));
  $('#go-learn').onclick=()=>{const r=buildRound(vis());start(r.queue,'Nauka',false)};
  const rs=$('#go-resume');if(rs)rs.onclick=()=>{if(!resumeSess())home()};
- $('#go-nut').onclick=()=>{const hh=hardest(10);if(hh.length<3)return showTip(app.querySelector('#go-nut .gx'));start(shuffle(hh).map(it=>({it,st:'write',slot:'fix'})),'Twardy orzech',false,{nut:1})};
+ $('#go-nut').onclick=startNut;
  $('#go-test').onclick=()=>start(wsample(vis().filter(it=>S[it.id]).length>=20?vis().filter(it=>S[it.id]):vis(),20).map(it=>({it,st:'write'})),'Próbny test',true);
  $('#go-weak').onclick=()=>{if(!P.fix.length)return showTip(app.querySelector('#go-weak .gx'));start(shuffle(P.fix).slice(0,total).map(it=>({it,st:warm(it)?'pick':'write',slot:'fix'})),'Popraw błędy',false)};
  app.querySelectorAll('.pill3').forEach(b=>b.onclick=()=>{const r=buildRound(ITEMS.filter(i=>i.deck===b.dataset.deck));start(r.queue,DECKS[b.dataset.deck].pl,false)});
 }
 
+/* the memory model, laid open: what it estimates, from how much, and how well it predicted your newest answers */
+function drawModel(){const el=document.getElementById('model');if(!el)return;
+ const f=MEM.model(),rep=f&&f.report,P=f?f.params:ENGINE.model.DEFAULTS,R=MEM.readiness(vis()),pct=x=>Math.round(x*100),n=AL.count();
+ const dur=d=>d<1?`${Math.max(1,Math.round(d*24))} h`:d<10?`${d.toFixed(1)} days`:`${Math.round(d)} days`;
+ const status=AL.frozen()?'This device holds an answer log from a newer version of the app; it is left as it is.'
+  :!f?(MEM.running()?'Fitting…':`Not fitted yet (${n} events logged).`)
+  :f.chosen==='default'?`Starting values: ${rep.n} of the ${rep.minFit} answers after a break (an hour or more away from the term) it needs before it fits them to you.`
+  :`Fitted to your ${rep.n} answers after a break (an hour or more away from the term): one forgetting rate for everything${f.chosen==='family'?', plus a rate per kind of question, which predicted your newest answers better':rep.test?'. Rates per kind of question are not used: they did not predict your newest answers better':` (rates per kind of question are tried from ${rep.minCompare} answers)`}.`;
+ const fams=f&&(f.chosen==='family'?f.mult:rep&&rep.familyIfUsed)||{},cnt=rep&&rep.familyCounts||{};
+ const famRows=Object.keys(fams).filter(k=>cnt[k]).sort((a,b)=>fams[a]-fams[b]).map(k=>{const m=fams[k];
+  return `<tr><td>${esc(ENGINE.families.label(k))}</td><td>${m<0.95?`${(1/m).toFixed(1)}× faster`:m>1.05?`${m.toFixed(1)}× slower`:'as everything'}</td><td>${cnt[k]}</td></tr>`}).join('');
+ const cal=(rep&&(rep.testCalib||rep.calib)||[]).filter(b=>b.n>=5);
+ const rows=[
+  ['Readiness',`${pct(R.score)}% ${EXAM.at>Date.now()?`on the test (${esc(EXAM.en)})`:'a day from now'} if you stopped now · ${R.below.length} of ${R.n} terms under 95%`],
+  ['Status',esc(status)],
+  ['After a first right answer',`90% recall for ${dur(P.s0)}, 50% after ${dur(P.s0*ENGINE.model.HALF)}`],
+  ['A right answer after a break',`makes it last up to ${(1+P.gain).toFixed(1)}× longer (more when it was nearly forgotten, less for a difficult term)`],
+  ['After a miss',`it lasts ${pct(P.lapse)}% as long (and starts again from a first answer at most)`],
+  ['Slips',`${pct(P.slip)}% of the time on a term you know (typo, ogonek)`]];
+ if(rep&&rep.test)rows.push(['Check on your newest 20%',`fitted on the older ${rep.test.train}, tested on ${rep.test.n}: log loss ${rep.test.global.toFixed(3)} with one rate, ${rep.test.family.toFixed(3)} per kind (lower is better)`]);
+ rows.push(['Answer log',`${n} events · ${Math.round(AL.bytes()/1024)} kB on this device${f?` · fitted ${new Date(MEM.fittedAt()).toLocaleString([],{weekday:'short',hour:'2-digit',minute:'2-digit'})}`:''}`]);
+ el.innerHTML=`<div class="tw"><table class="mtab"><tbody>${rows.map(([k,v])=>`<tr><th>${k}</th><td>${v}</td></tr>`).join('')}</tbody></table></div>
+  ${famRows?`<p class="note"><b>Forgetting per kind of question</b>${f.chosen==='family'?'':' (estimated, not used)'}: pulled toward the overall rate until there are enough answers.</p><div class="tw"><table><thead><tr><th>kind</th><th>forgets</th><th>answers</th></tr></thead><tbody>${famRows}</tbody></table></div>`:''}
+  ${cal.length?`<p class="note"><b>Does it hold?</b> ${rep.testCalib?'On your newest answers (not used for fitting):':'On your answers so far:'} predicted chance → how often you were right.</p><div class="tw"><table><thead><tr><th>predicted</th><th>right</th><th>answers</th></tr></thead><tbody>${cal.map(b=>`<tr><td>${pct(b.p)}%</td><td>${pct(b.y)}%</td><td>${b.n}</td></tr>`).join('')}</tbody></table></div>`:''}
+  <div class="sy-row"><button class="ghost" id="m-refit">${L('Przelicz teraz','fit again now','przeliczyć = to recalculate')}</button><button class="ghost" id="m-exp">${L('Pobierz dane','download the answer log (JSON)','pobrać = to download')}</button></div>`;
+ $('#m-refit').onclick=()=>{MEM.refit();drawModel()};
+ $('#m-exp').onclick=()=>{try{const blob=new Blob([JSON.stringify({exported:new Date().toISOString(),log:AL.wire(),model:MEM.model()})],{type:'application/json'}),a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);a.download='polski-answers.json';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000)}catch(e){}}}
 function settingsView(){
  hideTip();closeReview();view='set';sess=null;nav.hidden=false;app.className='app';setTab('set');
  const M=mix(),hid=ITEMS.filter(hidden);
@@ -1676,19 +2070,22 @@ function settingsView(){
  ${canSpeak?`<section class="setc"><label class="toggle"><input type="checkbox" id="aud" ${autoAudio?'checked':''}> ${L('Czytaj odpowiedź na głos','read the answer aloud','czytać, imperative · na głos = aloud')}</label></section>`:''}
  <section class="setc"><h2>${L('Synchronizacja','sync between devices')}</h2><p class="note" id="sync"></p></section>
  ${hid.length?`<section class="setc"><details class="hidl"><summary>${L(`Ukryte słowa (${hid.length})`,`hidden terms (${hid.length})`,'ukryty = hidden','They stay out of your rounds and counts. Tap one to bring it back.')}</summary><div class="hidrow">${hid.map(it=>{const q=it.make();return `<button class="ghost" data-show="${esc(it.id)}">${esc((q.mcAnswer||q.answer||'').replace(/^For example: /,''))} <span class="muted">· ${esc(q.prompt.replace('___','…'))}</span></button>`}).join('')}</div></details></section>`:''}
+ <section class="setc"><details class="hidl" id="modeld"><summary>${L('Model pamięci','memory model','pamięć = memory','How the app estimates your chance of getting each term right, and how well that estimate has held up.')}</summary><div id="model" class="model"></div></details></section>
  <section class="setc"><button class="ghost" id="reset">${L('Wyzeruj postęp','reset progress','wyzerować (to set to zero), imperative · postęp = progress')}</button></section>`;
  updSync();
  const a=$('#aud');if(a)a.onchange=()=>{autoAudio=a.checked;try{localStorage.setItem('pl-test1-audio',a.checked?'1':'0')}catch(e){}};
  app.querySelectorAll('.stp button').forEach(b=>b.onclick=()=>{const M=mix(),k=b.dataset.k;M[k]=Math.max(0,Math.min(20,M[k]+ +b.dataset.d));if(M.n+M.m+M.c>0){S._mix=M;save()}settingsView()});
  app.querySelectorAll('[data-show]').forEach(b=>b.onclick=()=>{showTerm(b.dataset.show);settingsView()});
- const r=$('#reset');r.onclick=()=>{if(r.classList.contains('armed')){S={};save();home()}else{r.classList.add('armed');r.innerHTML=L('Dotknij jeszcze raz, aby wszystko usunąć','tap again to erase all progress','dotknąć, imperative · usunąć = to delete')}};
+ drawModel();
+ const r=$('#reset');r.onclick=()=>{if(r.classList.contains('armed')){S={_z:Date.now()};save();AL.reset();MEM.clear();home()}else{r.classList.add('armed');r.innerHTML=L('Dotknij jeszcze raz, aby wszystko usunąć','tap again to erase all progress','dotknąć, imperative · usunąć = to delete')}};
 }
 
 /* an unfinished round is kept on this device, so stopping (✕, closing the app) resumes at the same exercise */
 const SK='pl-test1-round';
 function saveSess(){if(!sess)return;try{localStorage.setItem(SK,JSON.stringify({title:sess.title,test:!!sess.test,nut:!!sess.nut,drill:!!sess.drill,i:sess.i,answeredAt:sess.answeredAt,fresh:sess.fresh,stage0:sess.stage0,
- queue:sess.queue.map(e=>({id:e.it.id,st:e.st,slot:e.slot,retry:!!e.retry,again:!!e.again,tries:e.tries||0,practice:!!e.practice,burst:e.burst||null})),
- log:sess.log.map(l=>({id:l.it.id,res:l.res,given:l.given,retry:!!l.retry,counts:!!l.counts,firstTry:!!l.firstTry,slot:l.slot})),done:[...(sess.done||[])],at:Date.now()}))}catch(e){}}
+ sid:sess.sid,mode:sess.mode,extra:sess.extra||0,nutStatus:sess.nutStatus||null,ready0:sess.ready0??null,introduced:[...(sess.introduced||[])],
+ queue:sess.queue.map(e=>({id:e.it.id,st:e.st,slot:e.slot,retry:!!e.retry,again:!!e.again,tries:e.tries||0,practice:!!e.practice,burst:e.burst||null,...(e.confirm?{confirm:true}:{})})),
+ log:sess.log.map(l=>({id:l.it.id,res:l.res,given:l.given,retry:!!l.retry,counts:!!l.counts,firstTry:!!l.firstTry,slot:l.slot,...(l.eid?{eid:l.eid}:{})})),done:[...(sess.done||[])],at:Date.now()}))}catch(e){}}
 function savedSess(){try{const o=JSON.parse(localStorage.getItem(SK)||'null');if(!o||!o.queue||o.i>=o.queue.length)return null;
  if(Date.now()-(o.at||0)>3*864e5)return null;return o}catch(e){return null}}
 function clearSess(){try{localStorage.removeItem(SK)}catch(e){}}
@@ -1696,8 +2093,12 @@ function resumeSess(){const o=savedSess();if(!o)return false;const byId=id=>ITEM
  const queue=o.queue.map(e=>({...e,it:byId(e.id)})).filter(e=>e.it);
  const log=o.log.map(l=>{const it=byId(l.id);return it?{...l,it,q:it.make()}:null}).filter(Boolean);
  let i=Math.min(o.i,queue.length);if(o.answeredAt===o.i)i++;if(i>=queue.length){clearSess();return false}
- start(queue,o.title,o.test,{i,log,fresh:o.fresh||0,done:new Set(o.done||[]),stage0:o.stage0,nut:!!o.nut,drill:!!o.drill});return true}
-function start(queue,title,test,restore){clearSess();sess={title,test,queue,i:0,log:[],fresh:0,stage0:currentStage(),...(restore||{})};
+ start(queue,o.title,o.test,{i,log,fresh:o.fresh||0,done:new Set(o.done||[]),stage0:o.stage0,nut:!!o.nut,drill:!!o.drill,
+  ...(o.sid?{sid:o.sid}:{}),...(o.mode?{mode:o.mode}:{}),extra:o.extra||0,nutStatus:o.nutStatus||null,ready0:o.ready0??null,introduced:new Set(o.introduced||[])});return true}
+/* the kind of round, as the answer log records it */
+const sessMode=(title,test,o)=>o.mode||(test?'test':o.nut?'nut':o.drill?'drill':title==='Nauka'?'learn':title==='Popraw błędy'?'fix':title==='Powtórka'?'again':'deck');
+function start(queue,title,test,restore){clearSess();restore=restore||{};
+ sess={title,test,queue,i:0,log:[],fresh:0,stage0:currentStage(),...restore,sid:restore.sid||Date.now().toString(36)+Math.random().toString(36).slice(2,5),mode:sessMode(title,test,restore)};
  const put=(e,off)=>sess.queue.splice(Math.min(sess.queue.length,sess.i+off),0,e);sess.put=put;nav.hidden=true;app.className='app quiz';saveSess();ask()}
 
 function promptHTML(q,fill,g){let p;if(g)p=fill!=null?gl(q.prompt.replace('___','\u0001'+fill+'\u0002')):gl(q.prompt).replace('___','<span class="blank"></span>');
@@ -1743,14 +2144,14 @@ function showBlock(cur,name){
   <p class="note">${canSpeak?'Tap a row to hear it. ':''}${mem.length?`${mem.length} new terms, practised one at a time.`:'The words below use this pattern one by one.'}</p></article>
  <div class="two"><button class="check" id="got">${L('Mam!','got it','lit. “I have (it)” · mieć, ja-form')}</button>${mem.length?'<button class="next" id="knowit" style="background:var(--blue-soft);color:var(--blue)">'+L('Znam to · sprawdź później','I know this · test me later','znać = to know · sprawdzić = to check, imperative')+'</button>':''}</div>`;
  $('#qx').onclick=home;
- const mark=(bx,due)=>{S._bk={...(S._bk||{}),[name]:1};let n=0;mem.forEach(it=>{if(!S[it.id]){S[it.id]={b:bx,n:0,w:0,due,f:dayKey()};(sess.introduced=sess.introduced||new Set()).add(it.id);n++}});sess.fresh+=n;save()};
+ const mark=(bx,due,ev)=>{S._bk={...(S._bk||{}),[name]:1};let n=0;mem.forEach(it=>{if(!S[it.id]){S[it.id]={b:bx,n:0,w:0,due,f:dayKey()};(sess.introduced=sess.introduced||new Set()).add(it.id);AL.add({term:it.id,ev:ev||'seen',sid:sess.sid,mode:sess.mode});n++}});sess.fresh+=n;save()};
  const concept=!!(BLOCKS[name]&&BLOCKS[name].concept);
  $('#got').onclick=()=>{mark(concept?1:0,round());
   if(isMem){const fresh=shuffle(mem.filter(it=>S[it.id]&&S[it.id].n===0));
    if(concept)fresh.forEach((it,k)=>sess.put({it,st:'write',slot:'new',burst:{name:B.title,k:k+1,n:fresh.length}},1+k));
    else fresh.forEach((it,k)=>sess.put({it,st:'pick',slot:'new'},2+k*2));next()}
   else ask()};
- const kb=$('#knowit');if(kb)kb.onclick=()=>{mark(1,round()+2);if(isMem){mem.filter(it=>S[it.id].n===0).forEach((it,k)=>sess.put({it,st:'write',slot:'new'},2+k*2));next()}else ask()};
+ const kb=$('#knowit');if(kb)kb.onclick=()=>{mark(1,round()+2,'known');if(isMem){mem.filter(it=>S[it.id].n===0).forEach((it,k)=>sess.put({it,st:'write',slot:'new'},2+k*2));next()}else ask()};
  $('#got').focus({preventScroll:true});
 }
 function showTable(cur,q,level){
@@ -1814,7 +2215,8 @@ function subOf(q){const t=String(q.sub||'');if(!t)return '';
  if(/^(Write a full sentence about you|Write the verb form|Write the missing verb|Ask the same question.*)$/.test(t)||/: write the form after z$/.test(t))return '';
  const m=t.match(/^Answer in Polish: (“.*”)$/);return m?m[1]:t}
 function headHTML(cur,q){const M=modeOf(cur.it,q),m=MODES[M.m],x=[];
- if(cur.retry)x.push(`<span class="mx r">${L('2. próba','second try','próba = try, attempt')}</span>`);
+ if(cur.retry)x.push(cur.confirm?`<span class="mx r">${L('sprawdzenie','check: right again after a break?','sprawdzenie = a check')}</span>`
+  :`<span class="mx r">${L(`${cur.tries||2}. próba`,`attempt ${cur.tries||2}`,'próba = try, attempt')}</span>`);
  if(q.kind==='mc'&&!sess.test)x.push(`<span class="mx">${L('rozgrzewka · nie liczy się','warm-up · does not count yet','rozgrzewka = warm-up · liczyć się = to count')}${cur.slot==='fix'&&S[cur.it.id]&&S[cur.it.id].dr?' · '+L('spadek poziomu','dropped a level','after 3 wrong in a row'):''}</span>`);
  if(q.kind==='intro')x.push(`<span class="mx">${L('nowe','new')}</span>`);
  if(cur.practice)x.push(`<span class="mx">${L('dodatkowe','extra, does not count')}</span>`);
@@ -1832,7 +2234,7 @@ function ask(){hideTip();sheetOff();delete app.dataset.mode;
  if(cur.it.pattern&&cur.st==='pick')cur.st='write';
  if(!sess.test&&cur.st==='pick'&&!cur.again&&written(cur.it)&&!(S[cur.it.id]&&S[cur.it.id].dr)&&!(sess.introduced&&sess.introduced.has(cur.it.id)))cur.st='write';
  if(!sess.test&&cur.it.block&&!blockSeen(cur.it.block)&&(cur.st==='intro'||!cur.it.member))return showBlock(cur,cur.it.block);
- if(cur.st==='intro'&&cur.it.pattern){if(!S[cur.it.id]){S[cur.it.id]={b:1,n:0,w:0,due:round(),f:dayKey()};sess.fresh++;save()}cur.st='write'}
+ if(cur.st==='intro'&&cur.it.pattern){if(!S[cur.it.id]){S[cur.it.id]={b:1,n:0,w:0,due:round(),f:dayKey()};sess.fresh++;AL.add({term:cur.it.id,ev:'seen',sid:sess.sid,mode:sess.mode});save()}cur.st='write'}
  q.kind=cur.st==='intro'?'intro':cur.st==='pick'?'mc':q.reveal?'reveal':'type';
  const canHint=!sess.test&&q.kind==='type';let usedHint=false;
  const H=headHTML(cur,q);app.dataset.mode=H.m;const sub=subOf(q);
@@ -1851,9 +2253,9 @@ function ask(){hideTip();sheetOff();delete app.dataset.mode;
   <button class="ghost ov" id="hideit">${L('Ukryj · nie teraz','hide · not now','ukryć (to hide), imperative')}</button>`;
   $('#qx').onclick=home;
   if(autoAudio)say(q.sayAns);
-  $('#knowit').onclick=()=>{S[cur.it.id]={b:1,n:0,w:0,due:round()+2,f:dayKey()};save();sess.fresh++;sess.put({it:cur.it,st:'write',slot:'new'},3);next()};
+  $('#knowit').onclick=()=>{S[cur.it.id]={b:1,n:0,w:0,due:round()+2,f:dayKey()};AL.add({term:cur.it.id,ev:'known',sid:sess.sid,mode:sess.mode});save();sess.fresh++;sess.put({it:cur.it,st:'write',slot:'new'},3);next()};
   $('#hideit').onclick=()=>hideAndSkip(cur.it.id);
-  $('#got').onclick=()=>{(sess.introduced=sess.introduced||new Set()).add(cur.it.id);S[cur.it.id]={b:0,n:0,w:0,due:round(),f:dayKey()};save();sess.fresh++;sess.put({it:cur.it,st:'pick',slot:'new'},3);next()};
+  $('#got').onclick=()=>{(sess.introduced=sess.introduced||new Set()).add(cur.it.id);S[cur.it.id]={b:0,n:0,w:0,due:round(),f:dayKey()};AL.add({term:cur.it.id,ev:'seen',sid:sess.sid,mode:sess.mode});save();sess.fresh++;sess.put({it:cur.it,st:'pick',slot:'new'},3);next()};
   $('#got').focus({preventScroll:true});
   return;
  }
@@ -1897,11 +2299,9 @@ function finish(res,given,msg,quick){
  const warmup=q.kind==='mc'&&!sess.test,counts=!warmup&&!cur.retry&&!sess.done.has(id)&&!cur.it.tmp&&!cur.practice;if(counts)sess.done.add(id);
  if(counts)record(id,res,given);else{S._d={d:dayKey(),n:todayCount()+1};save()}
  const entry={it:cur.it,q,res,given,retry:cur.retry,counts,firstTry:!warmup&&!cur.retry,slot:cur.slot};sess.log.push(entry);
- let requeued=false;
- /* warm-up: a miss gets one more warm-up; after that (right or not) the written answer follows, exactly once */
- if(warmup){if(res!=='right'&&!cur.again)sess.put({it:cur.it,st:'pick',slot:cur.slot,again:1},2);else sess.put({it:cur.it,st:'write',slot:cur.slot},3)}
- else if(res!=='right'&&sess.nut&&(cur.tries||1)<3){sess.put({it:cur.it,st:'write',retry:true,tries:(cur.tries||1)+1,slot:cur.slot},3);requeued=true}
- else if(res!=='right'&&!cur.retry&&!sess.nut&&!cur.practice){sess.queue.push({it:cur.it,st:'write',retry:true,slot:cur.slot});requeued=true}
+ /* the answer log gets every answer to a real term (practice cases made up on the spot are not terms) */
+ if(!cur.it.tmp){const ev=AL.add({term:id,ev:'answer',kind:q.table?'table':q.kind,res,sid:sess.sid,att:AL.answersIn(sess.sid,id)+1,mode:sess.mode});if(ev)entry.eid=ev.id}
+ const placed=requeueAfter(cur,res,warmup);
  sess.answeredAt=sess.i;saveSess();
  if(quick)return next();
  let shown=q.kind==='mc'?(q.mcAnswer||q.answer):q.answer;
@@ -1954,8 +2354,11 @@ function finish(res,given,msg,quick){
  $('#nx').onclick=next;const hb2=$('#hideit');if(hb2)hb2.onclick=()=>hideAndSkip(id);
  const dr=$('#drill');if(dr)dr.onclick=()=>drill(tgt,q,given);
  const ez=$('#easy');if(ez)ez.onclick=()=>{
-  const t=S[id];t.b=Math.min(t.b+1,6);t.due=round()+1+GAP[t.b];save();next()};
- const ov=$('#ov');if(ov)ov.onclick=()=>{if(prev)S[id]=prev;else delete S[id];if(prevDay)S._d=prevDay;record(id,'right');entry.res='right';if(requeued)sess.queue.pop();next()};
+  const t=S[id];t.b=Math.min(t.b+1,6);t.due=round()+1+GAP[t.b];save();AL.add({term:id,ev:'easy',sid:sess.sid,mode:sess.mode});next()};
+ /* “my answer was correct too”: the answer becomes right everywhere: the level, the log (a correction event), and what comes back */
+ const ov=$('#ov');if(ov)ov.onclick=()=>{if(prev)S[id]=prev;else delete S[id];if(prevDay)S._d=prevDay;record(id,'right');entry.res='right';
+  if(entry.eid)AL.add({term:id,ev:'amend',ref:entry.eid,res:'right',sid:sess.sid,mode:sess.mode});
+  unplace(placed);requeueAfter(cur,'right',false);saveSess();next()};
  /* the sheet sits over the bottom of the screen: leave room under the answer so nothing is hidden behind it */
  const sh=app.querySelector('#fb .sheet'),pad=app.querySelector('#fb .fbpad');
  const fit=()=>{if(pad&&sh&&sh.isConnected){pad.style.height=sh.offsetHeight+'px';document.body.classList.add('has-sheet');document.documentElement.style.setProperty('--sheet-h',sh.offsetHeight+'px')}};fit();
@@ -1965,6 +2368,22 @@ function finish(res,given,msg,quick){
  requestAnimationFrame(()=>{if(pad)pad.scrollIntoView({block:'end',behavior:'smooth'})});
  if(autoAudio)say(q.sayAns);
 }
+/* what comes back after an answer. Returns the entry it put back in the queue (so “Była dobra” can take it out again), or null.
+   · warm-up (multiple choice): a miss gets one more warm-up; after that (right or not) the written answer follows, once
+   · Twardy orzech: drilled until it sticks (ENGINE.nut.step): a miss after 2 others, a right retry checked again after 6
+   · other rounds: a written miss comes back once, at the end */
+function requeueAfter(cur,res,warmup){
+ if(warmup){if(res!=='right'&&!cur.again)sess.put({it:cur.it,st:'pick',slot:cur.slot,again:1},2);else sess.put({it:cur.it,st:'write',slot:cur.slot},3);return null}
+ if(sess.nut&&!cur.practice&&!cur.it.tmp){
+  const fresh=!cur.retry&&!!(sess.introduced&&sess.introduced.has(cur.it.id));
+  const d=ENGINE.nut.step({retry:!!cur.retry,confirm:!!cur.confirm,tries:cur.tries||1,fresh},res,sess.extra||0);
+  sess.nutStatus={...(sess.nutStatus||{}),[cur.it.id]:d.status};
+  if(!d.next)return null;
+  const e={it:cur.it,st:'write',slot:cur.slot,retry:true,confirm:d.next.confirm,tries:d.next.tries};
+  sess.put(e,d.next.gap);sess.extra=(sess.extra||0)+1;return e}
+ if(res!=='right'&&!cur.retry&&!cur.practice){const e={it:cur.it,st:'write',retry:true,slot:cur.slot};sess.queue.push(e);return e}
+ return null}
+function unplace(e){if(!e)return;const k=sess.queue.indexOf(e);if(k>sess.i){sess.queue.splice(k,1);if(sess.nut)sess.extra=Math.max(0,(sess.extra||0)-1)}}
 function sheetOff(){document.body.classList.remove('has-sheet')}
 function hideAndSkip(id){hideTerm(id);for(let k=sess.queue.length-1;k>sess.i;k--)if(sess.queue[k].it.id===id)sess.queue.splice(k,1);next()}
 function next(){sheetOff();kbuf='';if(sess){sess.answeredAt=null;app.querySelectorAll('input').forEach(x=>x.setAttribute('value',x.value));sess.hist=sess.hist||[];sess.hist.push(app.innerHTML);if(sess.hist.length>40)sess.hist.shift()}sess.i++;saveSess();ask()}
@@ -2021,17 +2440,38 @@ function drill(t,q,given){sheetOff();let n=0;const fb=$('#fb');
  draw('');
 }
 
+/* one question with its correct answer, as listed after a round */
+const missItem=l=>`<li><p class="q">${(l.q.say||l.q.prompt.includes('___')?gl:esc)(l.q.prompt.replace('___','…'))}${l.q.sub?' · '+esc(l.q.sub):''}</p><p class="a">${l.q.table?l.q.rows.map(r=>`${esc(r.label)}: ${gl(r.answer)}`).join(' · '):l.q.reveal?esc(l.q.answer):glQ(l.q.answer,l.q)}</p></li>`;
+/* after a Twardy orzech round: how many terms were cracked, readiness before → after, and what is still open */
+function nutResults(first,ok){
+ const st=sess.nutStatus||{},ids=Object.keys(st).filter(k=>!hidden(k)),cracked=ids.filter(k=>st[k]==='cracked');
+ const lastOf=id=>{for(let k=sess.log.length-1;k>=0;k--)if(sess.log[k].it.id===id)return sess.log[k];return null};
+ const open=ids.filter(k=>st[k]!=='cracked').map(lastOf).filter(Boolean);
+ const R=MEM.readiness(vis()),r0=sess.ready0,pct=x=>Math.round(x*100);
+ app.innerHTML=`
+ <header class="row"><p class="eyebrow">${esc(sess.title)} · round ${round()} done</p>
+  <p class="score">${cracked.length}<small> / ${ids.length} ${L(plN(ids.length,'rozgryziony','rozgryzione','rozgryzionych'),'cracked','rozgryźć = to crack (a nut)','Cracked: right the first time, or right again a few questions after a miss.')}</small></p>
+  <p class="lede">${ok} of ${first.length} written right the first time. ${r0!=null?`Readiness for the test: <b>${pct(r0)}% → ${pct(R.score)}%</b>. `:''}${R.below.length?`${R.below.length} of ${R.n} terms are still under 95%.`:'Every term is over 95%.'}${open.length?' Not cracked yet:':''}</p></header>
+ ${open.length?`<div class="miss"><ul>${open.map(missItem).join('')}</ul></div>`:''}
+ <div class="row">
+  <button class="cta" id="more"><span>${L('Następny orzech','next tough nut','następny = next')}</span><small>${L(`${R.below.length} ${plN(R.below.length,'słowo','słowa','słów')} poniżej 95%`,`${R.below.length} terms under 95%`,'poniżej = below')}</small></button>
+  <button class="ghost" id="learn">${L('Zwykła runda','a normal round','zwykły = ordinary')}</button>
+  <button class="ghost" id="hm">${L('Wróć','go back','wrócić, imperative')}</button></div>`;
+ $('#more').onclick=startNut;$('#learn').onclick=()=>{const r=buildRound(vis());start(r.queue,'Nauka',false)};$('#hm').onclick=home}
 function results(){delete app.dataset.mode;
  hideTip();clearSess();
  const first=sess.drill?sess.log.filter(l=>l.firstTry):sess.log.filter(l=>l.counts),ok=first.filter(l=>l.res==='right').length;
- if(!sess.counted){sess.counted=1;if(!sess.nut&&!sess.drill){S._r=round()+1;today().r++;if(!sess.test&&first.length)S._acc={ok,n:first.length}}save()}
+ /* a finished round moves the round counter on (rapid fire does not); only a normal round's score can cut new terms next time */
+ if(!sess.counted){sess.counted=1;if(!sess.drill){S._r=round()+1;today().r++;if(!sess.test&&!sess.nut&&first.length)S._acc={ok,n:first.length}}save()}
+ MEM.ensure(false);
+ if(sess.nut)return nutResults(first,ok);
  const missed=[];first.forEach(l=>{if(l.res!=='right'&&!missed.find(m=>m.it===l.it))missed.push(l)});
  const cs=currentStage(),up=cs>sess.stage0;
  app.innerHTML=`
  <header class="row"><p class="eyebrow">${esc(sess.title)} · round ${round()} done</p>
   <p class="score">${ok}<small> / ${first.length} ${L('dobrze napisanych','written right','dobrze = well · napisanych = genitive plural of napisany (written)')}</small></p>
   <p class="lede">${sess.fresh?`${sess.fresh} new term${sess.fresh>1?'s':''} this round. `:''}${!sess.test&&first.length&&ok/first.length<0.5?'Next round brings fewer new terms, so you can fix these first. ':''}${up?`<b>Next stage unlocked: ${esc(STAGES[cs].n)}.</b> `:''}${missed.length?'Missed questions came back once at the end. Here they are again:':'Clean round.'}</p></header>
- ${missed.length?`<div class="miss"><ul>${missed.map(l=>`<li><p class="q">${(l.q.say||l.q.prompt.includes('___')?gl:esc)(l.q.prompt.replace('___','…'))}${l.q.sub?' · '+esc(l.q.sub):''}</p><p class="a">${l.q.table?l.q.rows.map(r=>`${esc(r.label)}: ${gl(r.answer)}`).join(' · '):l.q.reveal?esc(l.q.answer):glQ(l.q.answer,l.q)}</p></li>`).join('')}</ul></div>`:''}
+ ${missed.length?`<div class="miss"><ul>${missed.map(missItem).join('')}</ul></div>`:''}
  <div class="row">
   ${sess.drill?`<button class="cta2" id="again-drill">Another 5 · ${esc(sess.title.replace('Rapid fire · ',''))}</button>`:''}
   <button class="cta" id="more"><span>${sess.test?'Ucz się dalej':'Następna runda'}</span><small>${sess.test?L('Wróć do nauki','back to learning','do + genitive of nauka'):L(`${mix().n+mix().m+mix().c} odpowiedzi`,`${mix().n+mix().m+mix().c} written answers`)}</small></button>
@@ -2132,6 +2572,8 @@ document.addEventListener('keydown',e=>{
 });
 document.addEventListener('click',e=>{const b=e.target.closest('[data-say]');if(b&&!e.target.closest('.gw'))say(b.dataset.say)});
 drawNav();$('#t-home').onclick=()=>home();$('#t-sheet').onclick=sheet;$('#t-set').onclick=()=>settingsView();
+/* progress from before the answer log: one seed per term, once (and again for terms another device adds) */
+AL.seedFrom(S);
 if(!resumeSess())home();
 </script>
 
@@ -2146,15 +2588,26 @@ if(!resumeSess())home();
  async function findGist(){let id=get(GI);if(id)return id;
   const list=await gh('/gists?per_page=100');const g=list.find(x=>x.description===DESC);
   if(g){set(GI,g.id);return g.id}
-  const c=await gh('/gists',{method:'POST',body:JSON.stringify({description:DESC,public:false,files:{'progress.json':{content:JSON.stringify(S)}}})});set(GI,c.id);return c.id}
+  const c=await gh('/gists',{method:'POST',body:JSON.stringify({description:DESC,public:false,files:{'progress.json':{content:JSON.stringify(S)},'answers.json':{content:JSON.stringify(AL.wire())}}})});set(GI,c.id);return c.id}
+ /* a gist file's text (GitHub cuts long files short in the API answer: the full text is at raw_url) */
+ async function fileText(f){if(!f)return null;if(f.truncated){const r=await fetch(f.raw_url);if(!r.ok)throw new Error('GitHub answered '+r.status+'.');return r.text()}return f.content}
  async function syncNow(){if(!get(TK)||state.busy)return;state.busy=true;state.msg='Syncing…';draw();
   try{const id=await findGist();let g;try{g=await gh('/gists/'+id)}catch(e){if(e.status===404){set(GI,null);state.busy=false;return syncNow()}throw e}
    const f=g.files&&g.files['progress.json'];let remote={};
-   if(f){let txt=f.content;if(f.truncated){txt=await (await fetch(f.raw_url)).text()}try{remote=JSON.parse(txt)||{}}catch(e){remote={}}}
+   if(f){const txt=await fileText(f);try{remote=JSON.parse(txt)||{}}catch(e){remote={}}}
+   /* the answer log (answers.json): merged as a union of events, so no answer is lost or counted twice */
+   const fa=g.files&&g.files['answers.json'];let ra=null,raTxt=null;
+   if(fa){raTxt=await fileText(fa);try{ra=JSON.parse(raTxt)}catch(e){ra=null}}
    const merged=mergeS(S,remote);
    /* always take in the other device's progress (the more-practised copy of each term wins, so a running round is safe) */
-   {const before=JSON.stringify(S);S=merged;saveLocal();if(JSON.stringify(S)!==before&&!sess&&view==='home')home()}
-   if(JSON.stringify(merged)!==JSON.stringify(remote))await gh('/gists/'+id,{method:'PATCH',body:JSON.stringify({files:{'progress.json':{content:JSON.stringify(merged)}}})});
+   {const before=JSON.stringify(S),logV=AL.version();S=merged;saveLocal();
+    var aw=AL.mergeWire(ra);AL.seedFrom(S);if(aw)aw=AL.wire();
+    if((JSON.stringify(S)!==before||AL.version()!==logV)&&!sess&&view==='home')home()}
+   const files={};
+   if(JSON.stringify(merged)!==JSON.stringify(remote))files['progress.json']={content:JSON.stringify(merged)};
+   /* aw is null when the remote log was written by a newer version of the app: it is left as it is */
+   if(aw){const t=JSON.stringify(aw);if(t!==raTxt)files['answers.json']={content:t}}
+   if(Object.keys(files).length)await gh('/gists/'+id,{method:'PATCH',body:JSON.stringify({files})});
    state.last=new Date();state.msg=''}
   catch(e){state.msg=e.message||'Could not reach GitHub. Progress is safe on this device and syncs next time.'}
   state.busy=false;draw()}
