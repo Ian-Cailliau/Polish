@@ -42,15 +42,26 @@ tail='''
  async function findGist(){let id=get(GI);if(id)return id;
   const list=await gh('/gists?per_page=100');const g=list.find(x=>x.description===DESC);
   if(g){set(GI,g.id);return g.id}
-  const c=await gh('/gists',{method:'POST',body:JSON.stringify({description:DESC,public:false,files:{'progress.json':{content:JSON.stringify(S)}}})});set(GI,c.id);return c.id}
+  const c=await gh('/gists',{method:'POST',body:JSON.stringify({description:DESC,public:false,files:{'progress.json':{content:JSON.stringify(S)},'answers.json':{content:JSON.stringify(AL.wire())}}})});set(GI,c.id);return c.id}
+ /* a gist file's text (GitHub cuts long files short in the API answer: the full text is at raw_url) */
+ async function fileText(f){if(!f)return null;if(f.truncated){const r=await fetch(f.raw_url);if(!r.ok)throw new Error('GitHub answered '+r.status+'.');return r.text()}return f.content}
  async function syncNow(){if(!get(TK)||state.busy)return;state.busy=true;state.msg='Syncing…';draw();
   try{const id=await findGist();let g;try{g=await gh('/gists/'+id)}catch(e){if(e.status===404){set(GI,null);state.busy=false;return syncNow()}throw e}
    const f=g.files&&g.files['progress.json'];let remote={};
-   if(f){let txt=f.content;if(f.truncated){txt=await (await fetch(f.raw_url)).text()}try{remote=JSON.parse(txt)||{}}catch(e){remote={}}}
+   if(f){const txt=await fileText(f);try{remote=JSON.parse(txt)||{}}catch(e){remote={}}}
+   /* the answer log (answers.json): merged as a union of events, so no answer is lost or counted twice */
+   const fa=g.files&&g.files['answers.json'];let ra=null,raTxt=null;
+   if(fa){raTxt=await fileText(fa);try{ra=JSON.parse(raTxt)}catch(e){ra=null}}
    const merged=mergeS(S,remote);
    /* always take in the other device's progress (the more-practised copy of each term wins, so a running round is safe) */
-   {const before=JSON.stringify(S);S=merged;saveLocal();if(JSON.stringify(S)!==before&&!sess&&view==='home')home()}
-   if(JSON.stringify(merged)!==JSON.stringify(remote))await gh('/gists/'+id,{method:'PATCH',body:JSON.stringify({files:{'progress.json':{content:JSON.stringify(merged)}}})});
+   {const before=JSON.stringify(S),logV=AL.version();S=merged;saveLocal();
+    var aw=AL.mergeWire(ra);AL.seedFrom(S);if(aw)aw=AL.wire();
+    if((JSON.stringify(S)!==before||AL.version()!==logV)&&!sess&&view==='home')home()}
+   const files={};
+   if(JSON.stringify(merged)!==JSON.stringify(remote))files['progress.json']={content:JSON.stringify(merged)};
+   /* aw is null when the remote log was written by a newer version of the app: it is left as it is */
+   if(aw){const t=JSON.stringify(aw);if(t!==raTxt)files['answers.json']={content:t}}
+   if(Object.keys(files).length)await gh('/gists/'+id,{method:'PATCH',body:JSON.stringify({files})});
    state.last=new Date();state.msg=''}
   catch(e){state.msg=e.message||'Could not reach GitHub. Progress is safe on this device and syncs next time.'}
   state.busy=false;draw()}
