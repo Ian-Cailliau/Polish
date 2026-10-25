@@ -1,29 +1,35 @@
 <title>Polski Test 1</title>
 <meta name="claude:viewport-fit-sides" content="cover">
+<script>/* the look chosen in Ustawienia → Wygląd (jasny / ciemny), set before the page is drawn; without one the system decides */
+try{const t=localStorage.getItem('pl-theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Caveat:wght@600;700&family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Lato:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Poltawski+Nowy:ital,wght@0,400..700;1,400..700&display=swap">
 <style>
-/* Layout: one-column phone app on squared notebook paper; teacher's red pen for grades and marks, ink blue for actions */
+/* Layout: one-column phone app. Theme “Kraków”, after the folk costume: granat (navy) for actions, coral of the
+   korale necklace for the teacher's red pen, grades and the progress beads, on cream. Low contrast on purpose.
+   Type: Półtawski Nowy (revival of Adam Półtawski's Polish book typeface) for headings and Polish sentences, Lato for the rest. */
 :root{
-  --slate:#ECEFF4;
-  --paper:#F4F6FA; --slate:#E9EDF3; --grid:rgba(60,100,170,.09); --card:#FFFFFF; --ink:#18202E; --muted:#5A667A; --line:#D7DFEA;
-  --blue:#2450C4; --blue-soft:#E5ECFB; --on-blue:#FFFFFF;
-  --pen:#CC2237; --pen-soft:#FCE7EA; --ok:#17794A; --ok-soft:#E2F3E9;
-  --f-display:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif;
-  --f-body:'Source Sans 3',system-ui,-apple-system,sans-serif;
+  --paper:#F2EDE5; --slate:#E6DFD3; --grid:transparent; --card:#FBF8F3; --ink:#252D44; --muted:#66697A; --line:#E2D9CB;
+  --blue:#3B4A79; --blue-soft:#E2E5EF; --on-blue:#FBF8F3;
+  --pen:#C25A4C; --pen-soft:#F6E2DD; --ok:#4F7A57; --ok-soft:#E2ECDF;
+  --btn:#2F3B62; --on-btn:#FBF8F3; --tile:#3B4A79; --on-tile:#FBF8F3; --bead:#C25A4C; --bead-off:#ECD3CD; --shade:rgba(47,59,98,.35);
+  --f-display:'Poltawski Nowy',Georgia,'Times New Roman',serif;
+  --f-body:'Lato',system-ui,-apple-system,sans-serif;
   --f-hand:'Caveat','Bradley Hand','Comic Sans MS',cursive;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --paper:#10151F; --slate:#222B3A; --grid:rgba(130,165,230,.07); --card:#18202D; --ink:#E7ECF4; --muted:#95A2B6; --line:#2B3547;
-  --blue:#88A8FF; --blue-soft:#1D2A49; --on-blue:#0E1526;
-  --pen:#FF6577; --pen-soft:#3A1C25; --ok:#4FCB8E; --ok-soft:#14322A; color-scheme:dark}}
+  --paper:#161A24; --slate:#262C3B; --grid:transparent; --card:#1E2330; --ink:#E3DED5; --muted:#A2A4B2; --line:#2F3546;
+  --blue:#9AA9DE; --blue-soft:#262E49; --on-blue:#151925;
+  --pen:#EE8A7C; --pen-soft:#3B2426; --ok:#86C391; --ok-soft:#1D3227;
+  --btn:#46548C; --on-btn:#ECE7DE; --tile:#38446F; --on-tile:#ECE7DE; --bead:#EE8A7C; --bead-off:#3E2D31; --shade:rgba(0,0,0,.35); color-scheme:dark}}
 :root[data-theme="dark"]{
-  --paper:#10151F; --slate:#222B3A; --grid:rgba(130,165,230,.07); --card:#18202D; --ink:#E7ECF4; --muted:#95A2B6; --line:#2B3547;
-  --blue:#88A8FF; --blue-soft:#1D2A49; --on-blue:#0E1526;
-  --pen:#FF6577; --pen-soft:#3A1C25; --ok:#4FCB8E; --ok-soft:#14322A; color-scheme:dark}
+  --paper:#161A24; --slate:#262C3B; --grid:transparent; --card:#1E2330; --ink:#E3DED5; --muted:#A2A4B2; --line:#2F3546;
+  --blue:#9AA9DE; --blue-soft:#262E49; --on-blue:#151925;
+  --pen:#EE8A7C; --pen-soft:#3B2426; --ok:#86C391; --ok-soft:#1D3227;
+  --btn:#46548C; --on-btn:#ECE7DE; --tile:#38446F; --on-tile:#ECE7DE; --bead:#EE8A7C; --bead-off:#3E2D31; --shade:rgba(0,0,0,.35); color-scheme:dark}
 
-body{background-color:var(--paper);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:22px 22px;color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.45;min-height:100vh}
+body{background-color:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.45;min-height:100vh}
 button{font:inherit;color:inherit;cursor:pointer}
 :focus-visible{outline:3px solid var(--blue);outline-offset:2px}
 .app{max-width:560px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:18px calc(92px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:16px}
@@ -42,7 +48,7 @@ p{margin:0}
 .grade-wrap{display:flex;flex-direction:column;align-items:center;gap:2px}
 .grade{font-family:var(--f-hand);font-weight:700;font-size:62px;line-height:1;color:var(--pen);width:88px;height:88px;display:grid;place-items:center;border:3px solid var(--pen);border-radius:52% 46% 55% 44% / 48% 55% 45% 52%;transform:rotate(-7deg)}
 .grade-lbl{font-family:var(--f-hand);font-size:21px;color:var(--pen);line-height:1}
-.cta{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;border:0;border-radius:16px;padding:18px 20px;background:var(--blue);color:var(--on-blue);text-align:left}
+.cta{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;border:0;border-radius:16px;padding:18px 20px;background:var(--tile);color:var(--on-tile);text-align:left}
 .cta>span{font-family:var(--f-display);font-weight:800;font-size:24px}
 .cta small{font-size:15px;opacity:.85}
 .cta2{width:100%;border:2px solid var(--pen);background:var(--pen-soft);color:var(--pen);border-radius:14px;padding:13px 18px;font-weight:700;text-align:left}
@@ -65,8 +71,12 @@ p{margin:0}
 .qx{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--card);display:grid;place-items:center;flex:none}
 .bar{flex:1;height:8px;background:var(--blue-soft);border-radius:4px;overflow:hidden}
 .bar i{display:block;height:100%;background:var(--blue);transition:width .25s}
+/* progress through a round as a string of coral beads (korale krakowskie): done, the current one as a ring, still to come */
+.beads{flex:1;min-width:0;display:flex;align-items:center;gap:4px;height:12px}
+.beads i{flex:1 1 0;max-width:10px;aspect-ratio:1;border-radius:50%;background:var(--bead-off)}
+.beads i.on{background:var(--bead)}.beads i.now{background:transparent;box-shadow:inset 0 0 0 2px var(--bead)}
 .count{font-variant-numeric:tabular-nums;font-size:14.5px;color:var(--muted);flex:none}
-.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px 18px 22px;display:flex;flex-direction:column;gap:10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px 18px 22px;display:flex;flex-direction:column;gap:10px;box-shadow:0 8px 22px -16px var(--shade)}
 .prow{display:flex;gap:10px;align-items:flex-start}
 .prompt{font-family:var(--f-display);font-weight:600;font-size:26px;line-height:1.2;flex:1;min-width:0;overflow-wrap:anywhere}
 .prompt.big{font-size:56px;font-weight:800}
@@ -84,7 +94,7 @@ p{margin:0}
 .typed input:focus{border-color:var(--blue);outline:none}
 .keys{display:flex;flex-wrap:wrap;gap:6px}
 .keys button{min-width:40px;height:42px;border-radius:10px;border:1px solid var(--line);background:var(--card);font-size:19px;font-weight:600}
-.check{width:100%;border:0;border-radius:13px;padding:14px;background:var(--blue);color:var(--on-blue);font-weight:700;font-size:18px}
+.check{width:100%;border:0;border-radius:13px;padding:14px;background:var(--tile);color:var(--on-tile);font-weight:700;font-size:18px}
 .fb{display:flex;flex-direction:column;gap:8px;border-radius:16px;padding:14px 16px;border:1.5px solid var(--line);background:var(--card)}
 .fb.r{border-color:var(--ok)} .fb.w,.fb.a{border-color:var(--pen)}
 .mark{font-family:var(--f-hand);font-weight:700;font-size:32px;line-height:1}
@@ -92,14 +102,14 @@ p{margin:0}
 .ansline{display:flex;gap:10px;align-items:center}
 .ansline p{flex:1;min-width:0;font-size:19px;font-weight:700}
 /* modes: colour of the label, the top of the question card and the answer box */
-.app[data-mode="rozmowa"]{--mc:#0E7C86;--ms:#DCF1F2}.app[data-mode="tlum"]{--mc:#2450C4;--ms:#E5ECFB}.app[data-mode="przeksz"]{--mc:#6D3FC0;--ms:#EEE7FB}
-.app[data-mode="konj"]{--mc:#A35A06;--ms:#FBEEDC}.app[data-mode="dekl"]{--mc:#5E7210;--ms:#EEF2D9}.app[data-mode="znacz"]{--mc:#4F5D75;--ms:#E8ECF2}
+.app[data-mode="rozmowa"]{--mc:#3B4A79;--ms:#E2E5EF}.app[data-mode="tlum"]{--mc:#2E7A78;--ms:#DDEDEC}.app[data-mode="przeksz"]{--mc:#7A4E7E;--ms:#EEE4EF}
+.app[data-mode="konj"]{--mc:#A77D2A;--ms:#F5ECD7}.app[data-mode="dekl"]{--mc:#5F7A4A;--ms:#E6EDDF}.app[data-mode="znacz"]{--mc:#66697A;--ms:#E8E8EC}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .app[data-mode]{--ms:color-mix(in srgb,var(--mc) 22%,var(--card))}
- :root:not([data-theme="light"]) .app[data-mode="rozmowa"]{--mc:#4FC7CF}:root:not([data-theme="light"]) .app[data-mode="tlum"]{--mc:#88A8FF}:root:not([data-theme="light"]) .app[data-mode="przeksz"]{--mc:#B79BFF}
- :root:not([data-theme="light"]) .app[data-mode="konj"]{--mc:#F0A85A}:root:not([data-theme="light"]) .app[data-mode="dekl"]{--mc:#B5CC5A}:root:not([data-theme="light"]) .app[data-mode="znacz"]{--mc:#A9B6CC}}
+ :root:not([data-theme="light"]) .app[data-mode="rozmowa"]{--mc:#9AA9DE}:root:not([data-theme="light"]) .app[data-mode="tlum"]{--mc:#6CC0BC}:root:not([data-theme="light"]) .app[data-mode="przeksz"]{--mc:#C9A0CC}
+ :root:not([data-theme="light"]) .app[data-mode="konj"]{--mc:#DDBA6C}:root:not([data-theme="light"]) .app[data-mode="dekl"]{--mc:#A8C58E}:root:not([data-theme="light"]) .app[data-mode="znacz"]{--mc:#A9ABBA}}
 :root[data-theme="dark"] .app[data-mode]{--ms:color-mix(in srgb,var(--mc) 22%,var(--card))}
-:root[data-theme="dark"] .app[data-mode="rozmowa"]{--mc:#4FC7CF}:root[data-theme="dark"] .app[data-mode="tlum"]{--mc:#88A8FF}:root[data-theme="dark"] .app[data-mode="przeksz"]{--mc:#B79BFF}
-:root[data-theme="dark"] .app[data-mode="konj"]{--mc:#F0A85A}:root[data-theme="dark"] .app[data-mode="dekl"]{--mc:#B5CC5A}:root[data-theme="dark"] .app[data-mode="znacz"]{--mc:#A9B6CC}
+:root[data-theme="dark"] .app[data-mode="rozmowa"]{--mc:#9AA9DE}:root[data-theme="dark"] .app[data-mode="tlum"]{--mc:#6CC0BC}:root[data-theme="dark"] .app[data-mode="przeksz"]{--mc:#C9A0CC}
+:root[data-theme="dark"] .app[data-mode="konj"]{--mc:#DDBA6C}:root[data-theme="dark"] .app[data-mode="dekl"]{--mc:#A8C58E}:root[data-theme="dark"] .app[data-mode="znacz"]{--mc:#A9ABBA}
 .app[data-mode] .qtop+.card{border-top:4px solid var(--mc)}
 .app[data-mode] .typed input{border-color:color-mix(in srgb,var(--mc) 55%,var(--line))}.app[data-mode] .typed input:focus{border-color:var(--mc)}
 .app[data-mode] .card .blank{border-bottom-color:var(--mc)}
@@ -141,7 +151,7 @@ p{margin:0}
 .ser{white-space:nowrap}
 .rv-body .fb.sheet{position:static;max-height:none;box-shadow:none;border:1px solid var(--line);border-radius:16px;animation:none}.rv-body .fbpad,.rv-body .grip,.rv-body .acts{display:none}
 .note{color:var(--muted);font-size:15px}
-.next{width:100%;border:0;border-radius:13px;padding:14px;background:var(--ink);color:var(--paper);font-weight:700;font-size:18px}
+.next{width:100%;border:0;border-radius:13px;padding:14px;background:var(--btn);color:var(--on-btn);font-weight:700;font-size:18px}
 
 /* results */
 .score{font-family:var(--f-display);font-weight:800;font-size:64px;line-height:1;font-variant-numeric:tabular-nums}
@@ -191,7 +201,8 @@ td.say:active{opacity:.6}
 .seg{display:flex;align-items:center;flex-wrap:wrap;gap:6px}
 .seg span{font-size:14px;color:var(--muted);margin-right:4px}
 .seg button{min-width:46px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--paper);font-weight:700;font-variant-numeric:tabular-nums}
-.seg button[aria-pressed="true"]{background:var(--blue);border-color:var(--blue);color:var(--on-blue)}
+.seg button[aria-pressed="true"]{background:var(--tile);border-color:var(--tile);color:var(--on-tile)}
+.theme-seg button{flex:1;padding:0 12px;font-weight:600;color:var(--ink)}.theme-seg button[aria-pressed="true"]{color:var(--on-tile)}.theme-seg button .gw,.theme-seg button .gx{color:inherit}
 
 .gw{border-bottom:1.5px dotted currentColor;cursor:pointer;border-radius:3px;-webkit-tap-highlight-color:transparent}
 .gw.on{background:var(--blue-soft)}
@@ -253,7 +264,7 @@ p.diff{font-size:21px;font-weight:600;letter-spacing:.01em;line-height:1.5;overf
 #review{position:fixed;inset:0;z-index:20;overflow-y:auto;background:var(--paper);padding-top:env(safe-area-inset-top,0px);padding-bottom:calc(24px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .rv-bar{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:10px;background:var(--paper);padding:12px 0;max-width:560px;margin:0 auto;border-bottom:1px solid var(--line)}
 .rv-bar span{flex:1;min-width:0;font-size:14px;color:var(--muted)}
-.rv-back{border:0;border-radius:11px;padding:10px 12px;background:var(--blue);color:var(--on-blue);font-weight:700;font-size:14.5px}
+.rv-back{border:0;border-radius:11px;padding:10px 12px;background:var(--tile);color:var(--on-tile);font-weight:700;font-size:14.5px}
 .rv-body{max-width:560px;margin:14px auto 0;display:flex;flex-direction:column;gap:16px;opacity:.95}
 .qx:disabled{opacity:.35}
 
@@ -291,7 +302,7 @@ p.diff{font-size:21px;font-weight:600;letter-spacing:.01em;line-height:1.5;overf
 .today2 .tx{display:flex;flex-direction:column;min-width:0}.today2 .tx b{font-family:var(--f-display);font-weight:800;font-size:23px;font-variant-numeric:tabular-nums}.today2 .tx .gx{color:var(--muted);font-size:14px}
 .pill2{margin-left:auto;font-size:12.5px;font-weight:700;border-radius:99px;padding:5px 10px;white-space:nowrap;flex:none}
 .pill2.ok{background:var(--ok-soft);color:var(--ok)}.pill2.behind{background:var(--pen-soft);color:var(--pen)}
-.go2{display:flex;align-items:center;gap:12px;width:100%;border:0;border-radius:20px;background:var(--blue);color:var(--on-blue);padding:16px 18px;text-align:left;box-shadow:0 8px 20px rgba(36,80,196,.22)}
+.go2{display:flex;align-items:center;gap:12px;width:100%;border:0;border-radius:20px;background:var(--tile);color:var(--on-tile);padding:16px 18px;text-align:left;box-shadow:0 10px 24px -10px var(--shade)}
 .go2 .gi{width:38px;height:38px;flex:none}.go2 .l{display:flex;flex-direction:column;gap:2px;min-width:0}
 .go2 b{font-family:var(--f-display);font-weight:800;font-size:26px;line-height:1.1}.go2 .sub{font-size:14px;opacity:.9;color:inherit}
 .mixrow2{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}.mixrow2 i{font-style:normal;font-size:11.5px;font-weight:700;border-radius:99px;padding:3px 8px;background:rgba(255,255,255,.18);white-space:nowrap}
@@ -300,7 +311,7 @@ p.diff{font-size:21px;font-weight:600;letter-spacing:.01em;line-height:1.5;overf
 .tile2{border:0;border-radius:16px;padding:14px 12px;min-height:104px;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;gap:10px;text-align:left;font-weight:700;font-size:14.5px;line-height:1.2;color:var(--ink)}
 .tile2 .ti{width:32px;height:32px}
 .tile2 .tlab{display:flex;flex-direction:column;gap:4px}.tile2 .tsub{font-size:12.5px;font-weight:600;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
-.t-nut{background:var(--slate)}.t-nut .ti{color:var(--ink)}.t-fix{background:var(--pen-soft)}.t-fix .ti{color:var(--pen)}.t-test{background:var(--blue-soft)}.t-test .ti{color:var(--blue)}
+.t-nut{background:var(--card);box-shadow:inset 0 0 0 1px var(--line)}.t-nut .ti{color:var(--ink)}.t-fix{background:var(--card);box-shadow:inset 0 0 0 1px var(--line)}.t-fix .ti{color:var(--pen)}.t-test{background:var(--card);box-shadow:inset 0 0 0 1px var(--line)}.t-test .ti{color:var(--blue)}
 .tile2.off .ti,.tile2.off>.gx{opacity:.45}
 .sec2{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-top:4px}.sec2 h2{font-size:19px}.sec2>span{font-size:13.5px;color:var(--muted)}
 .pills{display:flex;flex-direction:column;gap:8px}
@@ -1765,6 +1776,14 @@ function say(t){if(!canSpeak||!t)return;try{const u=new SpeechSynthesisUtterance
 const SPK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4z" fill="currentColor"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>';
 const spkBtn=t=>canSpeak&&t?`<button class="spk" data-say="${esc(t)}" aria-label="Play audio">${SPK}</button>`:'';
 let autoAudio=true;try{autoAudio=localStorage.getItem('pl-test1-audio')!=='0'}catch(e){}
+/* look: light, dark, or follow the system (kept on this device, like the audio setting); the colours are the
+   :root[data-theme] blocks at the top. The status-bar colour follows the choice too. */
+const THEME_KEY='pl-theme',THEME_BG={light:'#F2EDE5',dark:'#161A24'};
+function themeGet(){try{const t=localStorage.getItem(THEME_KEY);return t==='light'||t==='dark'?t:'system'}catch(e){return 'system'}}
+function applyTheme(){const t=themeGet(),r=document.documentElement;if(t==='system')delete r.dataset.theme;else r.dataset.theme=t;
+ document.querySelectorAll('meta[name="theme-color"]').forEach(m=>{if(!m.dataset.orig)m.dataset.orig=m.content;m.content=t==='system'?m.dataset.orig:THEME_BG[t]})}
+function themeSet(t){try{if(t==='system')localStorage.removeItem(THEME_KEY);else localStorage.setItem(THEME_KEY,t)}catch(e){}applyTheme()}
+applyTheme();
 
 /* ---------- word glosses (tap or hover a Polish word on teaching screens) ----------
    Each gloss is “meaning | form | why”, generated from the word list and the rules (glossAt) for the word in its sentence.
@@ -2047,12 +2066,14 @@ function settingsView(){
  <section class="setc"><h2>${L('Mieszanka rundy','round mix','mieszanka = mixture · rundy = genitive of runda','Only written answers count. New terms are cut first when a round goes badly or mistakes pile up; a group card of k terms counts as 60% of k.')}</h2>
   <div class="mix">${[['n','nowe','new'],['m','do poprawy','to fix'],['c','powtórki','reviews']].map(([k,pl,en])=>`<span class="stp"><button data-k="${k}" data-d="-1" aria-label="fewer ${en}">−</button><b>${M[k]}</b><button data-k="${k}" data-d="1" aria-label="more ${en}">+</button><small>${L(pl,en)}</small></span>`).join('')}</div></section>
  ${canSpeak?`<section class="setc"><label class="toggle"><input type="checkbox" id="aud" ${autoAudio?'checked':''}> ${L('Czytaj odpowiedź na głos','read the answer aloud','czytać, imperative · na głos = aloud')}</label></section>`:''}
+ <section class="setc"><h2>${L('Wygląd','look','wygląd = appearance')}</h2><div class="seg theme-seg" role="group" aria-label="Look">${[['light','Jasny','light'],['dark','Ciemny','dark'],['system','Systemowy','like the phone (system setting)']].map(([k,pl,en])=>`<button type="button" data-theme-k="${k}" aria-pressed="${themeGet()===k}">${L(pl,en)}</button>`).join('')}</div></section>
  <section class="setc"><h2>${L('Synchronizacja','sync between devices')}</h2><p class="note" id="sync"></p></section>
  ${hid.length?`<section class="setc"><details class="hidl"><summary>${L(`Ukryte słowa (${hid.length})`,`hidden terms (${hid.length})`,'ukryty = hidden','They stay out of your rounds and counts. Tap one to bring it back.')}</summary><div class="hidrow">${hid.map(it=>{const q=it.make();return `<button class="ghost" data-show="${esc(it.id)}">${esc((q.mcAnswer||q.answer||'').replace(/^For example: /,''))} <span class="muted">· ${esc(q.prompt.replace('___','…'))}</span></button>`}).join('')}</div></details></section>`:''}
  <section class="setc"><details class="hidl" id="modeld"><summary>${L('Model pamięci','memory model','pamięć = memory','How the app estimates your chance of getting each term right, and how well that estimate has held up.')}</summary><div id="model" class="model"></div></details></section>
  <section class="setc"><button class="ghost" id="reset">${L('Wyzeruj postęp','reset progress','wyzerować (to set to zero), imperative · postęp = progress')}</button></section>`;
  updSync();
  const a=$('#aud');if(a)a.onchange=()=>{autoAudio=a.checked;try{localStorage.setItem('pl-test1-audio',a.checked?'1':'0')}catch(e){}};
+ app.querySelectorAll('[data-theme-k]').forEach(b=>b.onclick=()=>{themeSet(b.dataset.themeK);settingsView()});
  app.querySelectorAll('.stp button').forEach(b=>b.onclick=()=>{const M=mix(),k=b.dataset.k;M[k]=Math.max(0,Math.min(20,M[k]+ +b.dataset.d));if(M.n+M.m+M.c>0){S._mix=M;save()}settingsView()});
  app.querySelectorAll('[data-show]').forEach(b=>b.onclick=()=>{showTerm(b.dataset.show);settingsView()});
  drawModel();
@@ -2082,7 +2103,10 @@ function start(queue,title,test,restore){clearSess();restore=restore||{};
 
 function promptHTML(q,fill,g){let p;if(g)p=fill!=null?gl(q.prompt.replace('___','\u0001'+fill+'\u0002')):gl(q.prompt).replace('___','<span class="blank"></span>');
  else{p=esc(q.prompt);p=fill!=null?p.replace('___',`<b class="fill">${esc(fill)}</b>`):p.replace('___','<span class="blank"></span>')}return `<h2 class="prompt${q.big?' big':''}">${p}</h2>`}
-const topBar=(cur)=>`<div class="qtop"><button class="qx" id="qx" aria-label="Stop and go home">✕</button>${sess.hist&&sess.hist.length?'<button class="qx" id="qb" aria-label="Look at the previous exercise">←</button>':''}<div class="bar"><i style="width:${Math.round(sess.i/sess.queue.length*100)}%"></i></div><span class="count">${sess.i+1}/${sess.queue.length}</span></div>`;
+/* one coral bead per exercise in the round (korale krakowskie); a long round (retries pile up) falls back to a line */
+const beads=(i,n)=>n>0&&n<=30?`<div class="beads" role="progressbar" aria-valuemin="0" aria-valuemax="${n}" aria-valuenow="${i}">${Array.from({length:n},(_,k)=>`<i${k<i?' class="on"':k===i?' class="now"':''}></i>`).join('')}</div>`
+ :`<div class="bar"><i style="width:${n?Math.round(i/n*100):0}%"></i></div>`;
+const topBar=(cur)=>`<div class="qtop"><button class="qx" id="qx" aria-label="Stop and go home">✕</button>${sess.hist&&sess.hist.length?'<button class="qx" id="qb" aria-label="Look at the previous exercise">←</button>':''}${beads(sess.i,sess.queue.length)}<span class="count">${sess.i+1}/${sess.queue.length}</span></div>`;
 
 /* ---------- blocks: taught as one unit ---------- */
 const AM_FAM=Object.keys(VERBS).filter(v=>VERBS[v].fam==='am'&&v!=='mieć');

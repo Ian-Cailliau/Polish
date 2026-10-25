@@ -2,7 +2,8 @@
 
 - `app.html` – the whole app (single file, no framework). It is also the Claude artifact version; blocks between `<!--CLAUDE-ONLY-->` and `<!--/CLAUDE-ONLY-->` are removed for GitHub Pages.
 - `build.py` – builds the GitHub Pages version into the repo root: `python3 src/build.py` (or `python3 src/build.py /some/out/dir`). Adds the iPhone/PWA head, service worker, icons, gist sync between devices, and the feedback button. Needs Pillow.
-- `icon.png` – app icon source.
+- `icon.png` – app icon source (navy ą in Półtawski Nowy with a coral tick, on cream).
+- **Theme “Kraków”** (colour tokens at the top of `app.html`, light and dark): granat navy for actions, coral (the korale necklace) for the red pen, grades and the round's progress beads, on cream; kept low in contrast on purpose. Headings and Polish sentences in Półtawski Nowy, everything else in Lato, marks in Caveat. Big filled surfaces use `--tile` / `--btn`, so dark mode can keep them muted.
 - **Grammar layer** (top of the script in `app.html`, between the helpers and the content):
   - `LEX` – the word list: every word the app uses (plus vocabulary from the grammar modules, tagged `L:'later'`), with its type, gender (`m1` masculine personal, `m2` animate, `m3` inanimate, `f`, `n`; plural-only nouns `pl` + `vir`), verb pattern (`am` -am/-asz, `em` -em/-esz, `esz` -ę/-esz, `isz` -ę/-isz/-ysz, `irr`) and all its forms. `FORMS` indexes every form with its tags (case, number, person, gender). Adjective endings are generated (`adjTable`).
   - `RULES` – the constructions from module-01 … module-12, each with a short explanation (`x`, listed in Ściąga → Gramatyka), the reason given for a mistake (`why`) and for a gloss (`gl`); `pair` lists words that are easily confused.

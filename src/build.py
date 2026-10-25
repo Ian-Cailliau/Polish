@@ -16,15 +16,16 @@ head='''<!doctype html>
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Polski">
-<meta name="theme-color" content="#F4F6FA" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#10151F" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F2EDE5" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#161A24" media="(prefers-color-scheme: dark)">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="manifest" href="manifest.webmanifest">
 <style>
 :root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-html{-webkit-text-size-adjust:100%;background:#F4F6FA}
-@media (prefers-color-scheme: dark){html{background:#10151F}}
+html{-webkit-text-size-adjust:100%;background:#F2EDE5}
+@media (prefers-color-scheme: dark){html:not([data-theme="light"]){background:#161A24}}
+html[data-theme="dark"]{background:#161A24}
 body{margin:0;font:14px/1.4 system-ui,-apple-system,sans-serif}
 img{max-width:100%}[hidden]{display:none!important}
 </style>
@@ -173,7 +174,7 @@ im=Image.open(HERE+'icon.png').convert('RGB')
 for n,sz in [('apple-touch-icon.png',180),('icon-192.png',192),('icon-512.png',512)]:
     im.resize((sz,sz),Image.LANCZOS).save(OUT+n,optimize=True)
 json.dump({"name":"Polski · Test 1","short_name":"Polski","start_url":"./","scope":"./","display":"standalone",
- "background_color":"#F4F6FA","theme_color":"#2450C4",
+ "background_color":"#F2EDE5","theme_color":"#3B4A79",
  "icons":[{"src":"icon-192.png","sizes":"192x192","type":"image/png"},{"src":"icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}]},
  open(OUT+'manifest.webmanifest','w'),ensure_ascii=False,indent=1)
 open(OUT+'sw.js','w').write('''// network first, so updates arrive straight away; cached copy when offline
