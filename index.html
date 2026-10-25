@@ -133,6 +133,13 @@ p{margin:0}
 .plate{display:flex;align-items:baseline;gap:4px 10px;flex-wrap:wrap;background:var(--ms,var(--blue-soft));border-radius:12px;padding:10px 14px}
 .plate b{font-family:var(--f-display);font-size:30px;font-weight:800;color:var(--mc,var(--blue));line-height:1.05}
 .plate>span{font-size:15.5px}.plate em{font-style:normal;font-size:12.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--mc,var(--blue))}
+.mirw{position:relative}.mirw .mir{display:none}
+.mirw.on .mir{display:block;position:absolute;inset:0;box-sizing:border-box;padding:13px 14px;border:1.5px solid transparent;font-size:23px;font-weight:600;line-height:normal;white-space:pre;overflow:hidden;color:var(--ink);pointer-events:none;display:flex;align-items:center}
+.mirw.on input{color:transparent;-webkit-text-fill-color:transparent;caret-color:var(--ink);background:transparent;position:relative}
+.mirw.on{background:var(--card);border-radius:13px}
+.mir ins,.done-typed ins{color:var(--ok);background:var(--ok-soft);text-decoration:none;border-radius:3px}
+.done-typed{font-size:21px;font-weight:600}
+.dw{background:var(--ms,var(--blue-soft));border-radius:5px;padding:0 3px}.dgap{font-size:19px;font-weight:600}
 /* the result sheet after an answer: slides up over the bottom of the screen */
 .fb.sheet{position:fixed;left:0;right:0;bottom:0;z-index:6;max-width:560px;margin:0 auto;box-sizing:border-box;border:0;border-top:1px solid var(--line);border-radius:24px 24px 0 0;
  box-shadow:0 -10px 30px rgba(10,16,28,.16);padding:8px max(18px,env(safe-area-inset-left,0px)) calc(16px + env(safe-area-inset-bottom,0px));gap:12px;max-height:calc(100dvh - 96px);overflow-y:auto;overscroll-behavior:contain;animation:sheetup .22s ease-out}
@@ -1161,14 +1168,14 @@ function youSaid0(given,q){given=String(given==null?'':given);if(!q||q.table||q.
 /* ---------- content (from the Test 1 overview slide + lessons 0–1) ----------
    Verb forms, countries, cities, numbers and the answers to sentence gaps come from the word list (LEX) and the rules. */
 const QA=[
- {k:'imie',en:"What's your first name?",en3:"Ask about her: what's her first name?",inf:"Jak masz na imię?",form:"Jak ma pan / pani na imię?",formAlt:["Jak pan / pani ma na imię?"],trap:"Jak masz pani na imię?",third:"Jak ona ma na imię?",thirdAlt:["Jak ma ona na imię?"],fact:"Her first name is Anna.",ans:"Mam na imię Jan.",ans3:"Ona ma na imię Anna.",acc3:["Ma na imię Anna."],pat:/^mam na imię \S+/},
- {k:'nazwisko',en:"What's your surname?",en3:"Ask about him: what's his surname?",inf:"Jak masz na nazwisko?",form:"Jak ma pan / pani na nazwisko?",formAlt:["Jak pan / pani ma na nazwisko?"],trap:"Jak masz pan na nazwisko?",third:"Jak on ma na nazwisko?",thirdAlt:["Jak ma on na nazwisko?"],fact:"His surname is Kowalski.",ans:"Mam na nazwisko Kowalski.",ans3:"On ma na nazwisko Kowalski.",acc3:["Ma na nazwisko Kowalski."],pat:/^mam na nazwisko \S+/},
- {k:'nazywa',en:"What's your (full) name?",en3:"Ask about him: what's he called?",inf:"Jak się nazywasz?",form:"Jak się pan / pani nazywa?",formAlt:["Jak pan / pani się nazywa?"],trap:"Jak się pani nazywasz?",third:"Jak on się nazywa?",thirdAlt:["Jak się on nazywa?"],fact:"His name is Jan Kowalski.",ans:"Nazywam się Jan Kowalski.",ans3:"On nazywa się Jan Kowalski.",acc3:["Nazywa się Jan Kowalski.","On się nazywa Jan Kowalski."],pat:/^nazywam się \S+/},
- {k:'ma',en:"How are you?",en3:"Ask about her: how is she?",inf:"Jak się masz?",form:"Jak się pan / pani ma?",formAlt:["Jak pan / pani się ma?"],trap:"Jak się pani masz?",third:"Jak ona się ma?",thirdAlt:["Jak się ona ma?"],fact:"She is doing well.",ans:"Świetnie, dziękuję.",ans3:"Ona ma się dobrze.",acc3:["Ma się dobrze.","Ona się ma dobrze.","Dobrze.","Ona ma się bardzo dobrze."],pat:/(dobrze|świetnie|nieźle|w porządku|tak sobie|źle|super)/},
- {k:'skad',en:"Where are you from?",en3:"Ask about him: where is he from?",inf:"Skąd jesteś?",form:"Skąd pan / pani jest?",formAlt:["Skąd jest pan / pani?"],trap:"Skąd pani jesteś?",third:"Skąd on jest?",thirdAlt:["Skąd jest on?"],fact:"He is from Poland.",ans:"Jestem z Belgii.",ans3:"On jest z Polski.",acc3:["Jest z Polski.","Z Polski."],pat:/^jestem ze? \S+/},
- {k:'gdzie',en:"Where do you live?",en3:"Ask about her: where does she live?",inf:"Gdzie mieszkasz?",form:"Gdzie pan / pani mieszka?",formAlt:["Gdzie mieszka pan / pani?"],trap:"Gdzie pani mieszkasz?",third:"Gdzie ona mieszka?",thirdAlt:["Gdzie mieszka ona?"],fact:"She lives in Warsaw.",ans:"Mieszkam w Gandawie.",ans3:"Ona mieszka w Warszawie.",acc3:["Mieszka w Warszawie.","W Warszawie."],pat:/^mieszkam we? \S+/},
- {k:'adres',en:"What's your address?",en3:"Ask about him: what's his address?",inf:"Jaki masz adres?",form:"Jaki ma pan / pani adres?",formAlt:["Jaki pan / pani ma adres?"],trap:"Jaki masz pani adres?",third:"Jaki on ma adres?",thirdAlt:["Jaki ma on adres?"],fact:"His address is 7 Mickiewicz Street (write it the Polish way).",ans:"Ulica Prosta 69.",ans3:"Ulica Mickiewicza 7.",acc3:["ul. Mickiewicza 7","On ma adres ulica Mickiewicza 7","On ma adres ul. Mickiewicza 7"],pat:/^(ul|ulica|al|aleja|pl|plac|os|osiedle) \S+/},
- {k:'tel',en:"What's your phone number?",en3:"Ask about her: what's her phone number?",inf:"Jaki masz numer telefonu?",form:"Jaki ma pan / pani numer telefonu?",formAlt:["Jaki pan / pani ma numer telefonu?"],trap:"Jaki pani masz numer telefonu?",third:"Jaki ona ma numer telefonu?",thirdAlt:["Jaki ma ona numer telefonu?"],fact:"Her number is 0123 456 789 (digits are fine).",ans:"Zero, cztery, siedem, pięć…",ans3:"0123 456 789",acc3:[],pat3:/\d{3}/,pat:/(\d|zero|jeden|dwa|trzy|cztery|pięć|sześć|siedem|osiem|dziewięć)/}
+ {k:'imie',en:"What's your first name?",en3:"What's her first name?",inf:"Jak masz na imię?",form:"Jak ma pan / pani na imię?",formAlt:["Jak pan / pani ma na imię?"],trap:"Jak masz pani na imię?",third:"Jak ona ma na imię?",thirdAlt:["Jak ma ona na imię?"],fact:"Her first name is Anna.",ans:"Mam na imię Jan.",ans3:"Ona ma na imię Anna.",acc3:["Ma na imię Anna."],pat:/^mam na imię \S+/},
+ {k:'nazwisko',en:"What's your surname?",en3:"What's his surname?",inf:"Jak masz na nazwisko?",form:"Jak ma pan / pani na nazwisko?",formAlt:["Jak pan / pani ma na nazwisko?"],trap:"Jak masz pan na nazwisko?",third:"Jak on ma na nazwisko?",thirdAlt:["Jak ma on na nazwisko?"],fact:"His surname is Kowalski.",ans:"Mam na nazwisko Kowalski.",ans3:"On ma na nazwisko Kowalski.",acc3:["Ma na nazwisko Kowalski."],pat:/^mam na nazwisko \S+/},
+ {k:'nazywa',en:"What's your (full) name?",en3:"What's he called?",inf:"Jak się nazywasz?",form:"Jak się pan / pani nazywa?",formAlt:["Jak pan / pani się nazywa?"],trap:"Jak się pani nazywasz?",third:"Jak on się nazywa?",thirdAlt:["Jak się on nazywa?"],fact:"His name is Jan Kowalski.",ans:"Nazywam się Jan Kowalski.",ans3:"On nazywa się Jan Kowalski.",acc3:["Nazywa się Jan Kowalski.","On się nazywa Jan Kowalski."],pat:/^nazywam się \S+/},
+ {k:'ma',en:"How are you?",en3:"How is she?",inf:"Jak się masz?",form:"Jak się pan / pani ma?",formAlt:["Jak pan / pani się ma?"],trap:"Jak się pani masz?",third:"Jak ona się ma?",thirdAlt:["Jak się ona ma?"],fact:"She is doing well.",ans:"Świetnie, dziękuję.",ans3:"Ona ma się dobrze.",acc3:["Ma się dobrze.","Ona się ma dobrze.","Dobrze.","Ona ma się bardzo dobrze."],pat:/(dobrze|świetnie|nieźle|w porządku|tak sobie|źle|super)/},
+ {k:'skad',en:"Where are you from?",en3:"Where is he from?",inf:"Skąd jesteś?",form:"Skąd pan / pani jest?",formAlt:["Skąd jest pan / pani?"],trap:"Skąd pani jesteś?",third:"Skąd on jest?",thirdAlt:["Skąd jest on?"],fact:"He is from Poland.",ans:"Jestem z Belgii.",ans3:"On jest z Polski.",acc3:["Jest z Polski.","Z Polski."],pat:/^jestem ze? \S+/},
+ {k:'gdzie',en:"Where do you live?",en3:"Where does she live?",inf:"Gdzie mieszkasz?",form:"Gdzie pan / pani mieszka?",formAlt:["Gdzie mieszka pan / pani?"],trap:"Gdzie pani mieszkasz?",third:"Gdzie ona mieszka?",thirdAlt:["Gdzie mieszka ona?"],fact:"She lives in Warsaw.",ans:"Mieszkam w Gandawie.",ans3:"Ona mieszka w Warszawie.",acc3:["Mieszka w Warszawie.","W Warszawie."],pat:/^mieszkam we? \S+/},
+ {k:'adres',en:"What's your address?",en3:"What's his address?",inf:"Jaki masz adres?",form:"Jaki ma pan / pani adres?",formAlt:["Jaki pan / pani ma adres?"],trap:"Jaki masz pani adres?",third:"Jaki on ma adres?",thirdAlt:["Jaki ma on adres?"],fact:"His address is 7 Mickiewicz Street (write it the Polish way).",ans:"Ulica Prosta 69.",ans3:"Ulica Mickiewicza 7.",acc3:["ul. Mickiewicza 7","On ma adres ulica Mickiewicza 7","On ma adres ul. Mickiewicza 7"],pat:/^(ul|ulica|al|aleja|pl|plac|os|osiedle) \S+/},
+ {k:'tel',en:"What's your phone number?",en3:"What's her phone number?",inf:"Jaki masz numer telefonu?",form:"Jaki ma pan / pani numer telefonu?",formAlt:["Jaki pan / pani ma numer telefonu?"],trap:"Jaki pani masz numer telefonu?",third:"Jaki ona ma numer telefonu?",thirdAlt:["Jaki ma ona numer telefonu?"],fact:"Her number is 0123 456 789 (digits are fine).",ans:"Zero, cztery, siedem, pięć…",ans3:"0123 456 789",acc3:[],pat3:/\d{3}/,pat:/(\d|zero|jeden|dwa|trzy|cztery|pięć|sześć|siedem|osiem|dziewięć)/}
 ];
 /* the verbs taught as tables, in this order; forms, family and notes come from the word list */
 const VERBS=Object.fromEntries(['być','mieć','mieszkać','nazywać się','czytać','pytać','przepraszać'].map(l=>{const e=LEMMA.get(l);
@@ -1938,7 +1945,7 @@ function finish(res,given,msg,quick){
   <button class="next" id="nx">${L('Dalej','next','lit. “further”')} →</button>
   ${acts.length?`<div class="acts" style="--n:${acts.length}">${acts.join('')}</div>`:''}</div><div class="fbpad" aria-hidden="true"></div>`;
  $('#nx').onclick=next;const hb2=$('#hideit');if(hb2)hb2.onclick=()=>hideAndSkip(id);
- const dr=$('#drill');if(dr)dr.onclick=()=>drill(tgt,q);
+ const dr=$('#drill');if(dr)dr.onclick=()=>drill(tgt,q,given);
  const ez=$('#easy');if(ez)ez.onclick=()=>{
   const t=S[id];t.b=Math.min(t.b+1,6);t.due=round()+1+GAP[t.b];save();next()};
  const ov=$('#ov');if(ov)ov.onclick=()=>{if(prev)S[id]=prev;else delete S[id];if(prevDay)S._d=prevDay;record(id,'right');entry.res='right';if(requeued)sess.queue.pop();next()};
@@ -1965,24 +1972,43 @@ function closeReview(){const r=document.getElementById('review');if(r)r.remove()
 document.addEventListener('click',e=>{if(e.target&&e.target.id==='qb'&&sess&&sess.hist&&sess.hist.length)review(sess.hist.length-1)});
 
 /* optional copy drill after a miss: twice with the answer visible, the third time from memory */
-function drill(t,q){sheetOff();let n=0;const fb=$('#fb');
+/* the letters you got wrong the first time, as places in the answer: they stay green while you copy it */
+function missedSet(given,t){const a=[...lo(String(given||''))],b=[...lo(t)],S=new Set();if(!a.length)return S;let j=0;
+ editOps(a,b).ops.forEach(([o])=>{if(o==='-')return;if(o!=='='&&/\p{L}/u.test(b[j]))S.add(j);j++});return S}
+function markFromSet(t,S){const st=[];let pos=0;String(t).split(PL_LETTER).forEach((p,i)=>{if(i%2)st.push(pos);pos+=p.length});
+ return (k,w)=>[...w].map((ch,i)=>S.has(st[k]+i)?`<ins>${esc(ch)}</ins>`:esc(ch)).join('').replace(/<\/ins><ins>/g,'')}
+/* what you are typing, with the letters that were wrong before and are right now in green */
+function typedMarks(v,t,S){const a=[...String(v)],b=[...lo(t)];if(!a.length)return '';let i=0,j=0;const parts=[];
+ editOps(a.map(lo),b).ops.forEach(([o])=>{if(o==='+'){j++;return}const ch=a[i++];parts.push(o==='='&&S.has(j)?`<ins>${esc(ch)}</ins>`:esc(ch));if(o!=='-')j++});
+ return parts.join('').replace(/<\/ins><ins>/g,'')}
+/* optional copy drill after a miss: twice with the answer visible, the third time from memory */
+function drill(t,q,given){sheetOff();let n=0;const fb=$('#fb');
+ /* only one word wrong (w Warsjawie): practise just that word, shown inside its sentence */
+ const TW=String(t).split(PL_LETTER).filter((x,i)=>i%2),G=norm(String(given||'')).split(/[^A-Za-zÀ-ÿĄąĆćĘęŁłŃńÓóŚśŹźŻż]+/).filter(Boolean);let one=null;
+ if(G.length&&TW.length>1){const ops=alignW(G,TW.map(lo)).ops,bad=ops.filter(o=>o[0]!=='=');if(bad.length===1&&bad[0][0]==='~'){let k=0;for(const o of ops){if(o===bad[0])break;k++}one={k,word:TW[k],given:bad[0][1]}}}
+ const tw=one?one.word:t,S=missedSet(one?one.given:given,tw);
+ const letters=w=>[...w].map((ch,i)=>S.has(i)?`<ins>${esc(ch)}</ins>`:esc(ch)).join('').replace(/<\/ins><ins>/g,'');
+ const mk=one?(k,w)=>k===one.k?`<span class="dw">${letters(w)}</span>`:esc(w):S.size?markFromSet(t,S):null;
+ const gap=()=>{let k=0;return String(t).split(PL_LETTER).map((p,i)=>i%2?(k++===one.k?'<span class="blank"></span>':esc(p)):esc(p)).join('')};
  const draw=msg=>{
-  fb.innerHTML=`<div class="fb"><p class="eyebrow">${L('Napisz 3 razy','write it 3 times')} · ${n}/3</p>
-   ${n<2?`<div class="ansline"><p>${glQ(t,q)}</p>${spkBtn(q.sayAns)}</div>`
-     :`<p class="note">Last one: from memory.</p><div class="ansline" id="pk" hidden><p>${glQ(t,q)}</p></div><button type="button" class="ghost ov" id="peek">Show it</button>`}
-   <form class="typed" id="df"><input id="di" type="text" lang="pl" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Write the answer" placeholder="Write it…">
+  fb.innerHTML=`<div class="fb"><p class="eyebrow">${L('Napisz 3 razy','write it 3 times')}${one?' · '+L('tylko to słowo','just this word','słowo = word'):''} · ${n}/3</p>
+   ${n<2?`<div class="ansline"><p>${glQ(t,q,mk)}</p>${spkBtn(q.sayAns)}</div>`
+     :`<p class="note">Last one: from memory.</p>${one?`<p class="dgap">${gap()}</p>`:''}<div class="ansline" id="pk" hidden><p>${glQ(t,q,mk)}</p></div><button type="button" class="ghost ov" id="peek">Show it</button>`}
+   <form class="typed" id="df"><div class="mirw${n<2&&S.size?' on':''}"><div class="mir" aria-hidden="true"></div><input id="di" type="text" lang="pl" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Write the answer" placeholder="${one?'Write the word…':'Write it…'}"></div>
     <div class="keys">${'ąćęłńóśźż'.split('').map(c=>`<button type="button" data-k="${c}">${c}</button>`).join('')}</div>
     <button class="check" type="submit">${L('Sprawdź','check','sprawdzić, imperative')}</button></form>
    ${msg?`<p class="note">${msg}</p>`:''}
    <button class="ghost ov" id="dskip">${L('Przerwij','stop and continue','przerwać (to interrupt), imperative')} →</button></div>`;
-  const di=$('#di');di.focus();
-  fb.querySelectorAll('.keys button').forEach(k=>k.onclick=()=>{const s0=di.selectionStart??di.value.length,e0=di.selectionEnd??s0;di.value=di.value.slice(0,s0)+k.dataset.k+di.value.slice(e0);di.focus();di.setSelectionRange(s0+1,s0+1)});
+  const di=$('#di'),mir=fb.querySelector('.mir'),live=n<2&&S.size;di.focus();
+  const paint=()=>{if(!live)return;mir.innerHTML=typedMarks(di.value,tw,S);mir.scrollLeft=di.scrollLeft};
+  di.addEventListener('input',paint);di.addEventListener('scroll',paint);di.addEventListener('keyup',paint);
+  fb.querySelectorAll('.keys button').forEach(k=>k.onclick=()=>{const s0=di.selectionStart??di.value.length,e0=di.selectionEnd??s0;di.value=di.value.slice(0,s0)+k.dataset.k+di.value.slice(e0);di.focus();di.setSelectionRange(s0+1,s0+1);paint()});
   const pk=$('#peek');if(pk)pk.onclick=()=>{$('#pk').hidden=false;pk.hidden=true;di.focus()};
   $('#dskip').onclick=next;
   $('#df').onsubmit=e=>{e.preventDefault();if(!di.value.trim())return;
-   if(norm(di.value)===norm(t)){n++;if(autoAudio&&n===3)say(q.sayAns);
-    if(n>=3){fb.innerHTML='<div class="fb r"><p class="mark">Gotowe!</p></div>';setTimeout(next,700)}else draw('✓ Dobrze.')}
-   else draw(norm(di.value)&&strip(norm(di.value))===strip(norm(t))?'Almost: check the ogonki (ą ę ł ó ś ż…).':'Not quite. Write it exactly as shown.')};
+   if(norm(di.value)===norm(tw)||one&&norm(di.value)===norm(t)){n++;if(autoAudio&&n===3)say(q.sayAns);
+    if(n>=3){const v=di.value;fb.innerHTML=`<div class="fb r"><p class="mark">Gotowe!</p>${S.size?`<p class="done-typed">${typedMarks(v,norm(v)===norm(tw)?tw:t,norm(v)===norm(tw)?S:missedSet(given,t))}</p>`:''}</div>`;setTimeout(next,S.size?1600:700)}else draw('✓ Dobrze.')}
+   else draw(norm(di.value)&&(strip(norm(di.value))===strip(norm(tw))||strip(norm(di.value))===strip(norm(t)))?'Almost: check the ogonki (ą ę ł ó ś ż…).':'Not quite. Write it exactly as shown.')};
   fb.scrollIntoView({block:'nearest',behavior:'smooth'});
  };
  draw('');

@@ -118,6 +118,7 @@ p{margin:0}
 .mirw.on{background:var(--card);border-radius:13px}
 .mir ins,.done-typed ins{color:var(--ok);background:var(--ok-soft);text-decoration:none;border-radius:3px}
 .done-typed{font-size:21px;font-weight:600}
+.dw{background:var(--ms,var(--blue-soft));border-radius:5px;padding:0 3px}.dgap{font-size:19px;font-weight:600}
 /* the result sheet after an answer: slides up over the bottom of the screen */
 .fb.sheet{position:fixed;left:0;right:0;bottom:0;z-index:6;max-width:560px;margin:0 auto;box-sizing:border-box;border:0;border-top:1px solid var(--line);border-radius:24px 24px 0 0;
  box-shadow:0 -10px 30px rgba(10,16,28,.16);padding:8px max(18px,env(safe-area-inset-left,0px)) calc(16px + env(safe-area-inset-bottom,0px));gap:12px;max-height:calc(100dvh - 96px);overflow-y:auto;overscroll-behavior:contain;animation:sheetup .22s ease-out}
@@ -1960,26 +1961,33 @@ function typedMarks(v,t,S){const a=[...String(v)],b=[...lo(t)];if(!a.length)retu
  editOps(a.map(lo),b).ops.forEach(([o])=>{if(o==='+'){j++;return}const ch=a[i++];parts.push(o==='='&&S.has(j)?`<ins>${esc(ch)}</ins>`:esc(ch));if(o!=='-')j++});
  return parts.join('').replace(/<\/ins><ins>/g,'')}
 /* optional copy drill after a miss: twice with the answer visible, the third time from memory */
-function drill(t,q,given){sheetOff();let n=0;const fb=$('#fb');const S=missedSet(given,t),mk=S.size?markFromSet(t,S):null;
+function drill(t,q,given){sheetOff();let n=0;const fb=$('#fb');
+ /* only one word wrong (w Warsjawie): practise just that word, shown inside its sentence */
+ const TW=String(t).split(PL_LETTER).filter((x,i)=>i%2),G=norm(String(given||'')).split(/[^A-Za-zÀ-ÿĄąĆćĘęŁłŃńÓóŚśŹźŻż]+/).filter(Boolean);let one=null;
+ if(G.length&&TW.length>1){const ops=alignW(G,TW.map(lo)).ops,bad=ops.filter(o=>o[0]!=='=');if(bad.length===1&&bad[0][0]==='~'){let k=0;for(const o of ops){if(o===bad[0])break;k++}one={k,word:TW[k],given:bad[0][1]}}}
+ const tw=one?one.word:t,S=missedSet(one?one.given:given,tw);
+ const letters=w=>[...w].map((ch,i)=>S.has(i)?`<ins>${esc(ch)}</ins>`:esc(ch)).join('').replace(/<\/ins><ins>/g,'');
+ const mk=one?(k,w)=>k===one.k?`<span class="dw">${letters(w)}</span>`:esc(w):S.size?markFromSet(t,S):null;
+ const gap=()=>{let k=0;return String(t).split(PL_LETTER).map((p,i)=>i%2?(k++===one.k?'<span class="blank"></span>':esc(p)):esc(p)).join('')};
  const draw=msg=>{
-  fb.innerHTML=`<div class="fb"><p class="eyebrow">${L('Napisz 3 razy','write it 3 times')} · ${n}/3</p>
+  fb.innerHTML=`<div class="fb"><p class="eyebrow">${L('Napisz 3 razy','write it 3 times')}${one?' · '+L('tylko to słowo','just this word','słowo = word'):''} · ${n}/3</p>
    ${n<2?`<div class="ansline"><p>${glQ(t,q,mk)}</p>${spkBtn(q.sayAns)}</div>`
-     :`<p class="note">Last one: from memory.</p><div class="ansline" id="pk" hidden><p>${glQ(t,q,mk)}</p></div><button type="button" class="ghost ov" id="peek">Show it</button>`}
-   <form class="typed" id="df"><div class="mirw${n<2&&S.size?' on':''}"><div class="mir" aria-hidden="true"></div><input id="di" type="text" lang="pl" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Write the answer" placeholder="Write it…"></div>
+     :`<p class="note">Last one: from memory.</p>${one?`<p class="dgap">${gap()}</p>`:''}<div class="ansline" id="pk" hidden><p>${glQ(t,q,mk)}</p></div><button type="button" class="ghost ov" id="peek">Show it</button>`}
+   <form class="typed" id="df"><div class="mirw${n<2&&S.size?' on':''}"><div class="mir" aria-hidden="true"></div><input id="di" type="text" lang="pl" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Write the answer" placeholder="${one?'Write the word…':'Write it…'}"></div>
     <div class="keys">${'ąćęłńóśźż'.split('').map(c=>`<button type="button" data-k="${c}">${c}</button>`).join('')}</div>
     <button class="check" type="submit">${L('Sprawdź','check','sprawdzić, imperative')}</button></form>
    ${msg?`<p class="note">${msg}</p>`:''}
    <button class="ghost ov" id="dskip">${L('Przerwij','stop and continue','przerwać (to interrupt), imperative')} →</button></div>`;
   const di=$('#di'),mir=fb.querySelector('.mir'),live=n<2&&S.size;di.focus();
-  const paint=()=>{if(!live)return;mir.innerHTML=typedMarks(di.value,t,S);mir.scrollLeft=di.scrollLeft};
+  const paint=()=>{if(!live)return;mir.innerHTML=typedMarks(di.value,tw,S);mir.scrollLeft=di.scrollLeft};
   di.addEventListener('input',paint);di.addEventListener('scroll',paint);di.addEventListener('keyup',paint);
   fb.querySelectorAll('.keys button').forEach(k=>k.onclick=()=>{const s0=di.selectionStart??di.value.length,e0=di.selectionEnd??s0;di.value=di.value.slice(0,s0)+k.dataset.k+di.value.slice(e0);di.focus();di.setSelectionRange(s0+1,s0+1);paint()});
   const pk=$('#peek');if(pk)pk.onclick=()=>{$('#pk').hidden=false;pk.hidden=true;di.focus()};
   $('#dskip').onclick=next;
   $('#df').onsubmit=e=>{e.preventDefault();if(!di.value.trim())return;
-   if(norm(di.value)===norm(t)){n++;if(autoAudio&&n===3)say(q.sayAns);
-    if(n>=3){const v=di.value;fb.innerHTML=`<div class="fb r"><p class="mark">Gotowe!</p>${S.size?`<p class="done-typed">${typedMarks(v,t,S)}</p>`:''}</div>`;setTimeout(next,S.size?1600:700)}else draw('✓ Dobrze.')}
-   else draw(norm(di.value)&&strip(norm(di.value))===strip(norm(t))?'Almost: check the ogonki (ą ę ł ó ś ż…).':'Not quite. Write it exactly as shown.')};
+   if(norm(di.value)===norm(tw)||one&&norm(di.value)===norm(t)){n++;if(autoAudio&&n===3)say(q.sayAns);
+    if(n>=3){const v=di.value;fb.innerHTML=`<div class="fb r"><p class="mark">Gotowe!</p>${S.size?`<p class="done-typed">${typedMarks(v,norm(v)===norm(tw)?tw:t,norm(v)===norm(tw)?S:missedSet(given,t))}</p>`:''}</div>`;setTimeout(next,S.size?1600:700)}else draw('✓ Dobrze.')}
+   else draw(norm(di.value)&&(strip(norm(di.value))===strip(norm(tw))||strip(norm(di.value))===strip(norm(t)))?'Almost: check the ogonki (ą ę ł ó ś ż…).':'Not quite. Write it exactly as shown.')};
   fb.scrollIntoView({block:'nearest',behavior:'smooth'});
  };
  draw('');
