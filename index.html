@@ -125,7 +125,8 @@ p{margin:0}
 .yb{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}.yb.side{grid-template-columns:repeat(2,minmax(0,1fr))}
 .yb .box{background:var(--paper);border-radius:12px;padding:9px 12px 10px;display:flex;flex-direction:column;gap:4px;font-size:15px;line-height:1.4;min-width:0}
 .yb .box small{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-.yb .box p{margin:0}.yb .said{font-size:16.5px}.yb .said b{color:var(--pen)}.yb .same{color:var(--ok);font-weight:600}
+.yb .box p{margin:0}.yb .said,.yb .want{font-size:16.5px}.yb .said b{color:var(--pen)}.yb .want{color:var(--ok)}.yb .same{color:var(--ok);font-weight:600}
+.yb .box{gap:10px}.yb .yr{display:flex;flex-direction:column;gap:2px}.yb .yr+.yr{border-top:1px solid var(--line);padding-top:9px}.yb .yr small{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .acts{display:grid;grid-template-columns:repeat(var(--n,3),minmax(0,1fr));gap:6px;margin-top:-4px}
 .act{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:0;border-radius:10px;padding:6px 2px;font-size:13.5px;font-weight:600;color:var(--muted)}
 .act svg{width:22px;height:22px;color:var(--blue)}.act:hover{background:var(--blue-soft)}
@@ -1121,7 +1122,7 @@ function youSaid0(given,q){given=String(given==null?'':given);if(!q||q.table||q.
  if(E&&reps.every(([f])=>f)){let s=E,ok=true;const H=[];
   for(const [f,t] of reps){const m=s.match(new RegExp(`(^|[^\\p{L}'\\u0001\\u0002])(${reEsc(f)})(?![\\p{L}])`,'iu'));if(!m){ok=false;break}
    const at=m.index+m[1].length,k=H.length;H.push(t?`<b>${esc(/^\p{Lu}/u.test(s.slice(at))?cap(t):t)}</b>`:'');s=s.slice(0,at)+`\u0001${k}\u0002`+s.slice(at+f.length)}
-  if(ok){const html=esc(s).replace(/\u0001(\d+)\u0002/g,(m,k)=>H[+k]).replace(/\s{2,}/g,' ').replace(/\s+([.,!?])/g,'$1').trim();return {kind:'meaning',html:/\s/.test(E)?cap(html):html}}}
+  if(ok){const html=esc(s).replace(/\u0001(\d+)\u0002/g,(m,k)=>H[+k]).replace(/\s{2,}/g,' ').replace(/\s+([.,!?])/g,'$1').trim();return {kind:'meaning',html:/\s/.test(E)?cap(html):html,want:/\s/.test(E)?esc(cap(E)):esc(E)}}}
  /* 2. word by word */
  const gapCl=CG.toks[CG.off]&&CG.toks[CG.off].cl;const ctxOk=!String(q.prompt||'').includes('→');
  const idx=AG.map((a,i)=>i).filter(i=>i>=CG.off&&i<CG.off+G2.length||ctxOk&&(CG.toks[i].cl||0)===(gapCl||0));
@@ -1130,7 +1131,11 @@ function youSaid0(given,q){given=String(given==null?'':given);if(!q||q.table||q.
  /* enOrder may move words; mark the changed chunks again by position of their text */
  let html=esc(plain);const done=new Set();parts.forEach(([c,ch])=>{if(!ch||done.has(c))return;done.add(c);html=html.replace(new RegExp(`(^|[^\\p{L}>])(${reEsc(esc(c))})(?![\\p{L}<])`,'u'),'$1<b>$2</b>')});
  const many=parts.length>1;html=many?cap(html):html;if(many)html+=isQ?'?':'.';
- return {kind:'meaning',html}}
+ /* what it should be, read the same way */
+ const tGap=CT.toks[CT.off]&&CT.toks[CT.off].cl;
+ const tParts=AT.map((a,i)=>i).filter(i=>i>=CT.off&&i<CT.off+T.length||ctxOk&&(CT.toks[i].cl||0)===(tGap||0)).map(i=>chT[i]).filter(Boolean);
+ let want=esc(enOrder(tParts.join(' ')));if(tParts.length>1)want=cap(want)+(isQ?'?':'.');
+ return {kind:'meaning',html,want:E?(/\s/.test(E)?esc(cap(E)):esc(E)):want}}
 
 /* ---------- content (from the Test 1 overview slide + lessons 0–1) ----------
    Verb forms, countries, cities, numbers and the answers to sentence gaps come from the word list (LEX) and the rules. */
@@ -1832,16 +1837,22 @@ function finish(res,given,msg,quick){
  const cls=res==='right'||res==='hint'?'r':res==='accent'?'a':'w';
  /* the result sheet: the correct answer (what you missed in green), what you actually said, why, then Dalej */
  const typedMiss=res!=='right'&&res!=='hint'&&q.kind==='type';
- const ns=typedMiss?diagnose(given,q):[],ys=typedMiss&&res==='wrong'?youSaid(given,q):null;
+ /* your answer is a phrase that exists but means something else (Jak on ma na imię? for Jak on się nazywa?):
+    “You said” gives its meaning, and the word-by-word notes are left out */
+ const conf0=typedMiss&&norm(given).includes(' ')?confusedWith(given,{...q,id:id}):null,conf=conf0&&conf0.en?conf0:null,confEn=conf&&(conf.en||String(conf.mean||'').replace(/ \(word by word\)$/,''));
+ const ns=conf?[]:typedMiss?diagnose(given,q):[];
+ const ys=conf?(confEn?{kind:'meaning',html:esc(cap(confEn)),want:enRef(q)?esc(cap(enRef(q))):null}:null):typedMiss&&res==='wrong'?youSaid(given,q):null;
  let ansHTML='';
  if(!q.table){if(q.reveal)ansHTML=esc(shown);
   else if(typedMiss){const A=answerFor(given,shown);ansHTML=esc(A.pre)+glQ(A.best,q,missedMarks(given,A.best))+A.rest.map(r=>' / '+glQ(r,q)).join('')}
   else ansHTML=glQ(shown,q)}
  const txt=h=>String(h).replace(/<[^>]+>/g,'');
  const why=ns.map(([k,t])=>`<p>${t}</p>`).join('');
- const said=ys?(ys.kind==='meaning'?`<p class="said">“${ys.html}”</p>`:`<p class="same">${ys.html}</p>`):'';
- const side=ys&&ns.length===1&&txt(ys.html).length<44&&txt(ns[0][1]).length<110;
- const conf=typedMiss&&!(ys&&ys.kind==='meaning')?confusedWith(given,{...q,id:id}):null;
+ /* one box: what you said (in English) · what it should be · why */
+ const rows=[];
+ if(ys&&ys.kind==='meaning'){rows.push(['You said',`<p class="said">“${ys.html}”</p>`]);if(ys.want&&txt(ys.want)!==txt(ys.html))rows.push(['Should be',`<p class="want">“${ys.want}”</p>`])}
+ else if(ys)rows.push(['',`<p class="same">${ys.html}</p>`]);
+ if(why)rows.push(['Why',why]);
  const IC={pen:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg>',
   ok:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 5 5 9-10"/></svg>',
   later:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>',
@@ -1852,7 +1863,6 @@ function finish(res,given,msg,quick){
  if(res==='right'&&counts&&!sess.test)acts.push(`<button class="act ov" id="easy">${IC.later}${L('Za łatwe','too easy · later','za łatwe = too easy (za + adjective)','Pushes this term further back.')}</button>`);
  if(!(sess.test||cur.it.tmp||cur.practice))acts.push(`<button class="act ov hidebtn" id="hideit">${IC.hide}${L('Ukryj','hide this term','ukryć, imperative')}</button>`);
  const notes=[msg?esc(msg):'',
-  conf?`You wrote <b>${gl(conf.text)}</b> = ${esc(conf.mean)}. That is another term you are learning, so you mixed the two up.`:'',
   q.note&&res!=='right'&&!ns.length?esc(q.note):'',
   q.also?`<b>${L('Też dobrze:','also correct:','też = also · dobrze = well, fine')}</b> ${gl(q.also)}`:'',
   res==='hint'?'Write it once without the hint and it counts as known.':'',
@@ -1861,7 +1871,7 @@ function finish(res,given,msg,quick){
  $('#fb').innerHTML=`<div class="fb sheet ${cls}" role="region" aria-label="Result"><span class="grip" aria-hidden="true"></span>
   <p class="mark">${pick(MARKS[res])}</p>
   ${q.table?'':`<div class="ansline"><p>${ansHTML}</p>${spkBtn(q.sayAns)}</div>`}
-  ${said||why?`<div class="yb${side?' side':''}">${said?`<div class="box"><small>You said</small>${said}</div>`:''}${why?`<div class="box"><small>Why</small>${why}</div>`:''}</div>`:''}
+  ${rows.length?`<div class="yb"><div class="box">${rows.map(([l,h])=>`<div class="yr">${l?`<small>${l}</small>`:''}${h}</div>`).join('')}</div></div>`:''}
   ${notes.map(n=>`<p class="note">${n}</p>`).join('')}
   <button class="next" id="nx">${L('Dalej','next','lit. “further”')} →</button>
   ${acts.length?`<div class="acts" style="--n:${acts.length}">${acts.join('')}</div>`:''}</div><div class="fbpad" aria-hidden="true"></div>`;
@@ -1996,7 +2006,7 @@ let ANS=null;
 function answerIndex(){if(ANS)return ANS;ANS=new Map();const isEn=t=>!/[ąćęłńóśźż]/i.test(t)&&/\b(the|is|you|my|your|what|how|where|i|he|she|it|we|they|please|thank|good|from|live|street|nice|sorry)\b/i.test(t);
  ITEMS.forEach(it=>{for(let k=0;k<6;k++){const q=it.make();const cands=[...(q.accept||[]),...(q.valid||[]),q.mcAnswer||q.answer].filter(Boolean);
   cands.forEach(a=>{a=String(a).replace(/^For example: /,'');if(isEn(a)||/^\d+$/.test(a))return;const key=strip(norm(a));if(!key||ANS.has(key))return;
-   let mn=meaningOf(a,q);if(!mn&&isEn(q.prompt))mn=q.prompt;if(mn)ANS.set(key,{text:a,mean:mn,id:it.id})})}});
+   let mn=meaningOf(a,q);if(!mn&&isEn(q.prompt))mn=q.prompt;const en=String(q.prompt||'').includes('___')?null:enRef(q);if(mn||en)ANS.set(key,{text:a,mean:mn||en,en,id:it.id})})}});
  return ANS}
 function confusedWith(given,q){const g=strip(norm(given));if(!g)return null;const own=new Set([...(q.accept||[]),...(q.valid||[]),q.mcAnswer||q.answer].filter(Boolean).map(a=>strip(norm(String(a).replace(/^For example: /,'')))));
  const idx=answerIndex();let hit=idx.get(g);

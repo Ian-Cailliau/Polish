@@ -37,6 +37,10 @@ const CASES=[
     for(let k=0;k<80;k++){q=it.make('write');if(!need||String((q.accept||q.valid||[q.answer])[0]).includes(need))break}}
    let r;try{r=youSaid(given,q)}catch(e){r={kind:'CRASH',html:e.message}}
    const got=r?r.html.replace(/<[^>]+>/g,''):'(none)';out.push({id:typeof id==='string'?id:'—',given,ok:!!r&&r.kind===kind&&got===line.replace(/&/g,'&amp;')||!!r&&r.kind===kind&&got.replace(/&#39;/g,"'")===line,got:(r?r.kind+' · ':'')+got,want:kind+' · '+line,html:r&&r.html})});
+  /* answering with another phrase you are learning: the feedback says what that phrase means, in English */
+  {const it=ITEMS.find(x=>x.id==='qa:nazywa:3');let q;for(let k=0;k<60;k++){q=it.make('write');if(q.accept[0].includes('on '))break}
+   const c=confusedWith('Jak on ma na imię?',{...q,id:it.id});const got=c?cap(c.en||''):'(none)';
+   out.push({id:'qa:nazywa:3',given:'Jak on ma na imię?',ok:got==="What's his first name?",got:'mixed up · '+got,want:"mixed up · What's his first name?"})}
   /* sweep: every term, automatic slips; nothing may crash, and a meaning line must never be empty */
   const sw={n:0,bad:[]};ITEMS.forEach(it=>{for(let k=0;k<4;k++){const q=it.make('write');if(!q.accept)continue;const a=q.accept[0];
    [strip(a),a.replace(/ę/g,'e'),a.split(' ').slice(1).join(' '),a.replace(/\bw\b/,'z'),a.replace(/\bz\b/,'w')].forEach(g=>{if(!g||norm(g)===norm(a))return;sw.n++;
