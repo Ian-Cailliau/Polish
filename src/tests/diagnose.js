@@ -13,6 +13,7 @@ const TERMS=[
  ['qa:nazywa:en','Jak nazywasz','','missing się','nazywać się'],
  ['qa:skad:a3','Ona jest z Polski','On ','he / she','on = he'],
  ['oni:1','One','','oni / one','Jacek is a man'],
+ ['qa:adres:a3','On ma adres ulica Mickiewicza 7','','^phrase$','Jego adres to'],  // feedback #5
  ['v:mieć:1','mam','','verb person','ja-form mam; the subject is ty'],
  ['qa:gdzie:a3','Ona mieszka w Warszawa','','^case$','Warszawa is the nominative.*after w .*locative'],
  ['kr:Polska:g','Polska','','^case$','Polska is the nominative.*after z .*genitive'],

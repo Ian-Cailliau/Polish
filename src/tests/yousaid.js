@@ -41,6 +41,14 @@ const CASES=[
   {const it=ITEMS.find(x=>x.id==='qa:nazywa:3');let q;for(let k=0;k<60;k++){q=it.make('write');if(q.accept[0].includes('on '))break}
    const c=confusedWith('Jak on ma na imię?',{...q,id:it.id});const got=c?cap(c.en||''):'(none)';
    out.push({id:'qa:nazywa:3',given:'Jak on ma na imię?',ok:got==="What's his first name?",got:'mixed up · '+got,want:"mixed up · What's his first name?"})}
+  /* feedback #4: a real word that differs (ma for masz) is not a spelling slip of another phrase */
+  {const it=ITEMS.find(x=>x.id==='qa:imie:3');let q;for(let k=0;k<60;k++){q=it.make('write');if(q.accept[0].includes('ona '))break}
+   const c=confusedWith('Jak ma na imię',{...q,id:it.id});const got=c?cap(c.en||c.text||''):'(none)';
+   out.push({id:'qa:imie:3',given:'Jak ma na imię',ok:got==='(none)',got:'mixed up · '+got,want:'mixed up · (none)'})}
+  /* a genuine spelling slip of another phrase is still named */
+  {const it=ITEMS.find(x=>x.id==='qa:nazywa:3');let q;for(let k=0;k<60;k++){q=it.make('write');if(q.accept[0].includes('on '))break}
+   const c=confusedWith('Jak on ma na imje',{...q,id:it.id});const got=c?cap(c.en||''):'(none)';
+   out.push({id:'qa:nazywa:3',given:'Jak on ma na imje',ok:got==="What's his first name?",got:'mixed up · '+got,want:"mixed up · What's his first name?"})}
   /* sweep: every term, automatic slips; nothing may crash, and a meaning line must never be empty */
   const sw={n:0,bad:[]};ITEMS.forEach(it=>{for(let k=0;k<4;k++){const q=it.make('write');if(!q.accept)continue;const a=q.accept[0];
    [strip(a),a.replace(/ę/g,'e'),a.split(' ').slice(1).join(' '),a.replace(/\bw\b/,'z'),a.replace(/\bz\b/,'w')].forEach(g=>{if(!g||norm(g)===norm(a))return;sw.n++;

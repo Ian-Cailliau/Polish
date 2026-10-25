@@ -563,6 +563,8 @@ ADJ('który','which','którzy',{wh:1,role:'which (of several): agrees with its n
 lx({pos:'adj',lemma:'mój',en:'my',L:'later',forms:[['mój','nom','m'],['mojego','gen','m'],['mojemu','dat','m'],['mój','acc','m','inan'],['mojego','acc','m','anim'],['moim','ins','m'],['moim','loc','m'],
  ['moja','nom','f'],['mojej','gen','f'],['mojej','dat','f'],['moją','acc','f'],['moją','ins','f'],['mojej','loc','f'],['moje','nom','n'],['mojego','gen','n'],['mojemu','dat','n'],['moje','acc','n'],['moim','ins','n'],['moim','loc','n'],
  ['moi','nom','vir'],['moje','nom','nonvir'],['moich','gen','pl'],['moim','dat','pl'],['moich','acc','vir'],['moje','acc','nonvir'],['moimi','ins','pl'],['moich','loc','pl']]});
+/* his / her: the same word for every case and gender (Jego adres to … · Jej numer telefonu to …) */
+[['jego','his'],['jej','her']].forEach(([w,en])=>lx({pos:'adj',lemma:w,en,poss:1,role:'possessive: never changes form',forms:adjTable({lemma:'xy',vir:w}).map(([f,c,g,a])=>[w,c,g,a])}));
 
 /* pronouns: every case form; para 'pers' groups the personal pronouns so ja / ty / on … compare by person, number and gender */
 const PRN=(lemma,person,num,en,forms,x)=>lx({pos:'pron',lemma,person,num,en,para:'pers',forms,...(x||{})});
@@ -1045,11 +1047,16 @@ function ctxOf(q,T){const p=String(q.prompt||''),qtoks=tokens(p).map(z=>z.w);
   const ans=T.map(w=>({w,raw:w,hint:false,cl:full[k].cl}));return {toks:[...pre,...ans,...post],off:pre.length,pre,post,qtoks}}
  return {toks:T.map(w=>({w,raw:w,hint:false,cl:0})),off:0,pre:[],post:[],qtoks}}
 const words=s=>String(s).replace(/[.,!?;:…]/g,' ').split(/\s+/).filter(Boolean);
+/* phrases copied word for word from English that Polish doesn't use: one note instead of a word-by-word comparison */
+const PHRASE_TRAPS=[
+ [/\b(mam|masz|ma|mamy|macie|mają) adres\b/,q=>{const p=(q.accept||[]).map(String).find(a=>/^(mój|jego|jej) adres to /i.test(a));const who=p?p.split(' to ')[0]:'Mój adres';
+  return `Polish doesn’t say “has the address …”. Give the address itself, or say <b>${esc(who)} to …</b> (“${esc({'mój adres':'my','jego adres':'his','jej adres':'her'}[lo(who)]||'my')} address is …”).`}]];
 function diagnose(given,q){given=String(given==null?'':given);
  if(!q||q.open||q.check)return [];
  const G=norm(given).split(' ').filter(Boolean);if(!G.length)return [];
  let best=null;(q.accept||[q.mcAnswer||q.answer]).forEach(a=>{const T=norm(String(a)).split(' ').filter(Boolean);const r=editOps(G,T);if(!best||r.dist<best.dist)best={...r,T,a:String(a)}});
  if(!best||best.dist===0)return [];
+ {const ph=PHRASE_TRAPS.find(([re])=>re.test(norm(given))&&!(q.accept||[]).some(a=>re.test(norm(String(a)))));if(ph)return [['phrase',ph[1](q)]]}
  const T=best.T,C=ctxOf(q,T),A=analyse(C.toks),notes=[];
  RAW=new Map();[...words(given),...words(best.a),...C.pre.map(z=>z.raw),...C.post.map(z=>z.raw)].forEach(w=>{if(w!==lo(w)&&!RAW.has(lo(w)))RAW.set(lo(w),w)});
  [...words(best.a),...C.pre.map(z=>z.raw),...C.post.map(z=>z.raw)].forEach(w=>RAW.set(lo(w),w));
@@ -1174,7 +1181,7 @@ const QA=[
  {k:'ma',en:"How are you?",en3:"How is she?",inf:"Jak się masz?",form:"Jak się pan / pani ma?",formAlt:["Jak pan / pani się ma?"],trap:"Jak się pani masz?",third:"Jak ona się ma?",thirdAlt:["Jak się ona ma?"],fact:"She is doing well.",ans:"Świetnie, dziękuję.",ans3:"Ona ma się dobrze.",acc3:["Ma się dobrze.","Ona się ma dobrze.","Dobrze.","Ona ma się bardzo dobrze."],pat:/(dobrze|świetnie|nieźle|w porządku|tak sobie|źle|super)/},
  {k:'skad',en:"Where are you from?",en3:"Where is he from?",inf:"Skąd jesteś?",form:"Skąd pan / pani jest?",formAlt:["Skąd jest pan / pani?"],trap:"Skąd pani jesteś?",third:"Skąd on jest?",thirdAlt:["Skąd jest on?"],fact:"He is from Poland.",ans:"Jestem z Belgii.",ans3:"On jest z Polski.",acc3:["Jest z Polski.","Z Polski."],pat:/^jestem ze? \S+/},
  {k:'gdzie',en:"Where do you live?",en3:"Where does she live?",inf:"Gdzie mieszkasz?",form:"Gdzie pan / pani mieszka?",formAlt:["Gdzie mieszka pan / pani?"],trap:"Gdzie pani mieszkasz?",third:"Gdzie ona mieszka?",thirdAlt:["Gdzie mieszka ona?"],fact:"She lives in Warsaw.",ans:"Mieszkam w Gandawie.",ans3:"Ona mieszka w Warszawie.",acc3:["Mieszka w Warszawie.","W Warszawie."],pat:/^mieszkam we? \S+/},
- {k:'adres',en:"What's your address?",en3:"What's his address?",inf:"Jaki masz adres?",form:"Jaki ma pan / pani adres?",formAlt:["Jaki pan / pani ma adres?"],trap:"Jaki masz pani adres?",third:"Jaki on ma adres?",thirdAlt:["Jaki ma on adres?"],fact:"His address is 7 Mickiewicz Street (write it the Polish way).",ans:"Ulica Prosta 69.",ans3:"Ulica Mickiewicza 7.",acc3:["ul. Mickiewicza 7","On ma adres ulica Mickiewicza 7","On ma adres ul. Mickiewicza 7"],pat:/^(ul|ulica|al|aleja|pl|plac|os|osiedle) \S+/},
+ {k:'adres',en:"What's your address?",en3:"What's his address?",inf:"Jaki masz adres?",form:"Jaki ma pan / pani adres?",formAlt:["Jaki pan / pani ma adres?"],trap:"Jaki masz pani adres?",third:"Jaki on ma adres?",thirdAlt:["Jaki ma on adres?"],fact:"His address is 7 Mickiewicz Street (write it the Polish way).",ans:"Ulica Prosta 69.",ans3:"Jego adres to ulica Mickiewicza 7.",acc3:["Ulica Mickiewicza 7.","ul. Mickiewicza 7","Jego adres to ul. Mickiewicza 7."],pat:/^(mój adres to )?(ul|ulica|al|aleja|pl|plac|os|osiedle) \S+/},
  {k:'tel',en:"What's your phone number?",en3:"What's her phone number?",inf:"Jaki masz numer telefonu?",form:"Jaki ma pan / pani numer telefonu?",formAlt:["Jaki pan / pani ma numer telefonu?"],trap:"Jaki pani masz numer telefonu?",third:"Jaki ona ma numer telefonu?",thirdAlt:["Jaki ma ona numer telefonu?"],fact:"Her number is 0123 456 789 (digits are fine).",ans:"Zero, cztery, siedem, pięć…",ans3:"0123 456 789",acc3:[],pat3:/\d{3}/,pat:/(\d|zero|jeden|dwa|trzy|cztery|pięć|sześć|siedem|osiem|dziewięć)/}
 ];
 /* the verbs taught as tables, in this order; forms, family and notes come from the word list */
@@ -1260,7 +1267,7 @@ const OPEN={
   traps:[[/^jestem w /,'“From” is z, not w: Jestem z …'],[/^jestem (?!ze? )/,'Don’t forget z: Jestem z …']],also:'Jestem z + genitive: z Belgii · z Polski · z Holandii · z Niemiec …'},
  gdzie:{pat:/^(mieszkam )?we? \S+( \S+)?$/,valid:['Mieszkam w Gandawie.','Mieszkam w Brukseli.','Mieszkam w Krakowie.'],bad:['Mieszkam w Gandawa.','Mieszkam z Gandawie.','Mieszkam Gandawie.','Jestem z Belgii.'],
   traps:[[/^mieszkam z /,'“In” is w, not z: Mieszkam w …'],[/^mieszkam (?!we? )/,'Don’t forget w: Mieszkam w …']],also:'Mieszkam w + locative: w Gandawie · w Brukseli · w Krakowie · we Wrocławiu …'},
- adres:{pat:/^(ul|ulica|al|aleja|pl|plac|os|osiedle) \S+/,valid:['Ulica Prosta 69.','Aleja Wolności 5.','Plac Zamkowy 1.'],bad:['Mam na imię Jan.','Jestem z Belgii.','Zero, cztery, siedem…'],traps:[],also:'ulica (ul.) · aleja (al.) · plac (pl.) · osiedle (os.) + name + number'},
+ adres:{pat:/^(mój adres to )?(ul|ulica|al|aleja|pl|plac|os|osiedle) \S+/,valid:['Ulica Prosta 69.','Aleja Wolności 5.','Plac Zamkowy 1.'],bad:['Mam na imię Jan.','Jestem z Belgii.','Zero, cztery, siedem…'],traps:[[/^mam adres/,'Polish doesn’t say “I have address …”: give the address, or Mój adres to …']],also:'ulica (ul.) · aleja (al.) · plac (pl.) · osiedle (os.) + name + number · Mój adres to …'},
  tel:{pat:/(\d|zero|jeden|dwa|trzy|cztery|pięć|sześć|siedem|osiem|dziewięć)/,valid:['Zero, cztery, siedem, pięć…','Dwa, trzy, pięć, osiem…'],bad:['Mam na imię Jan.','Mieszkam w Gandawie.','Ulica Prosta 69.'],traps:[],also:'Say the digits one by one: zero, cztery, siedem…'},
  slychac:{pat:MOOD_RE,valid:['Wszystko w porządku.','Dobrze, dziękuję.','Nieźle.'],bad:['Jestem w porządku.','Mam na imię Jan.','Dobry.'],
   traps:[[/^jestem /,'Just Wszystko w porządku or Dobrze, without jestem.'],[/\bdobry\b/,'Use the adverb dobrze, not dobry.']],also:'Wszystko w porządku · Dobrze · Nieźle · Tak sobie'}
@@ -2098,7 +2105,10 @@ function answerIndex(){if(ANS)return ANS;ANS=new Map();const isEn=t=>!/[ąćęł
  return ANS}
 function confusedWith(given,q){const g=strip(norm(given));if(!g)return null;const own=new Set([...(q.accept||[]),...(q.valid||[]),q.mcAnswer||q.answer].filter(Boolean).map(a=>strip(norm(String(a).replace(/^For example: /,'')))));
  const idx=answerIndex();let hit=idx.get(g);
- if(!hit){let best=null;idx.forEach((v,k)=>{if(Math.abs(k.length-g.length)>2)return;const d=editOps(g,k).dist,lim=k.length>=8?2:1;if(d<=lim&&(!best||d<best.d))best={d,v}});hit=best&&best.v}
+ /* a near miss only counts as that other answer when the difference is a spelling slip: a word you wrote that is itself
+    a real form (ma for masz) is a different word, so “Jak ma na imię” is not read as “Jak masz na imię?” (feedback #4) */
+ const slipOnly=(a,b)=>{const A=a.split(' '),B=b.split(' ');return A.length===B.length&&A.every((w,i)=>w===B[i]||!foldLookup(w).length)};
+ if(!hit){let best=null;idx.forEach((v,k)=>{if(Math.abs(k.length-g.length)>2)return;const d=editOps(g,k).dist,lim=k.length>=8?2:1;if(d<=lim&&(!best||d<best.d)&&slipOnly(g,k))best={d,v}});hit=best&&best.v}
  if(!hit||own.has(strip(norm(hit.text)))||hit.id===q.id)return null;return hit}
 function meaningOf(opt,q){if(q.mean&&q.mean[opt])return q.mean[opt];if(/^\d+$/.test(opt)&&NUMS[+opt])return '= '+NUMS[+opt];const t=meanTable().get(opt);if(t)return t;
  const ws=String(opt).split(PL_LETTER).filter((x,i)=>i%2);if(!ws.length)return null;
