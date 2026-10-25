@@ -3,9 +3,20 @@
 - `app.html` – the whole app (single file, no framework). It is also the Claude artifact version; blocks between `<!--CLAUDE-ONLY-->` and `<!--/CLAUDE-ONLY-->` are removed for GitHub Pages.
 - `build.py` – builds the GitHub Pages version into the repo root: `python3 src/build.py` (or `python3 src/build.py /some/out/dir`). Adds the iPhone/PWA head, service worker, icons, gist sync between devices, and the feedback button. Needs Pillow.
 - `icon.png` – app icon source.
+- **Grammar layer** (top of the script in `app.html`, between the helpers and the content):
+  - `LEX` – the word list: every word the app uses (plus vocabulary from the grammar modules, tagged `L:'later'`), with its type, gender (`m1` masculine personal, `m2` animate, `m3` inanimate, `f`, `n`; plural-only nouns `pl` + `vir`), verb pattern (`am` -am/-asz, `em` -em/-esz, `esz` -ę/-esz, `isz` -ę/-isz/-ysz, `irr`) and all its forms. `FORMS` indexes every form with its tags (case, number, person, gender). Adjective endings are generated (`adjTable`).
+  - `RULES` – the constructions from module-01 … module-12, each with a short explanation (`x`, listed in Ściąga → Gramatyka), the reason given for a mistake (`why`) and for a gloss (`gl`); `pair` lists words that are easily confused.
+  - `analyse()` reads a sentence: each word's form and what governs it (preposition, verb, nie, number, noun, miło), the noun an adjective agrees with, and the verb's subject (pronoun, pan / pani, name, or a group joined by i).
+  - `diagnose()` lines your answer up with the closest correct one and, per word, compares the tags and names every feature that differs (case, number, person, gender, infinitive), with the reason from the sentence. Different words that a rule pairs (jak / jaki / co, z / w, dobry / dobrze, być / mieć) get that rule. Words not in the list fall back to spelling: ogonki, rz / ż, rz / sz, ó / u, ch / h, ci / ć, -ii / -ji, stem changes (Kraków → Krakowie), a wrong ending, a different word.
+  - `glossAt()` builds every tap / hover gloss (meaning | form | why) from the same data; `gl(text, pre, post)` glosses a text in its sentence.
+  - Content built from it: `VERBS`, `COUNTRIES`, `CITIES`, `NUMS`, the sentence-gap answers (`SENT`, from the subject) and oni / one (`ONI`, from the group). To add a word, add it to `LEX`; to add a rule, add it to `RULES` (and the preposition or verb that triggers it).
 - `tests/` – Playwright checks (need `playwright-core`; set `CHROME` to a Chromium binary). Serve the built folder first, e.g. `python3 -m http.server 8765`.
   - `rounds.js PORT` – plays ~14 rounds and checks the six round rules (no card for a written term, no warm-up for a written term, easy direction never counted, a term counts once per round, no same answer twice in a round, review only when due).
-  - `diagnose.js PORT` – wrong answers and the explanation each gets.
+  - `diagnose.js PORT` – realistic wrong answers for every grammatical feature (on real terms and made-up sentences) and the explanation each must get, plus a sweep that makes typical slips on every term (case, verb person, ogonki) and checks each is named. Exits 1 on any failure; `VERBOSE=1` prints every explanation.
+  - `grammar.js PORT` – the word list and rules are consistent (verb endings match their pattern, every noun has all its cases, accusative = genitive for people, generated adjectives), every word of every term is in the word list, and every Polish word on a teaching screen has a gloss.
+  - `scoring.js PORT` – through the real screens: accent / hint slips never lower a level, multiple choice never lowers a level, a level drops only after 3 wrong written answers in a row.
+  - `terms.js PORT` – every term id, the learning order and every term's prompts, accepted answers and options are unchanged against `terms-fixture.json` (record a new fixture with `node terms.js PORT write terms-fixture.json` only when a change is intended).
+  - `progress.js PORT` – a copy of saved progress (every term id, an open round) loads unchanged and the round resumes.
   - `feedback.js` / `feedback-round.js` (`PORT` env) – feedback button against a fake GitHub API.
 
 Progress lives in localStorage `pl-test1` (term id → state), the open round in `pl-test1-round`, and is synced through a private gist (`pl-gh-token`, `pl-gh-gist`). Term ids are the keys of that progress: keep them stable.
