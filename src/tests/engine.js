@@ -115,4 +115,11 @@ function simulate(truth,days,seed){const r=E.pick.rng(seed),events=[],steps=new 
  F(seq(false,['accent','hint','right','right'])==='pending+2 pending+2 pending+6 cracked','ogonki and hints count as misses');
  F(S({},'wrong',20).status==='failed'&&S({retry:true},'right',20).status==='unconfirmed','when the round has used its 20 repeats, nothing more comes back')}
 
+/* ---------- hint ladder: only the first hint (the verb's name) is a near miss; more help is a miss ---------- */
+{const ev=(id,res,x)=>({id,t:T0,term:'v:być:0',ev:'answer',kind:'type',res,sid:'s1',att:1,mode:'nut',...(x?{x}:{})});
+ const g=e=>E.model.prepare([e]).get('v:być:0')[0].g;
+ F(g(ev('h1','hint',{h:1}))==='near'&&g(ev('h2','hint',{h:2}))==='lapse'&&g(ev('h0','hint'))==='lapse','one hint (the verb) is a near miss; two or more hints, or an old hint answer, a miss');
+ const L={v:1,resetAt:0,events:[ev('h1','hint',{h:1})]},rt=E.log.decode(JSON.parse(JSON.stringify(E.log.encode(L))));
+ F(rt&&rt.events[0].x&&rt.events[0].x.h===1,'the number of hints survives encode → JSON → decode')}
+
 console.log(fails.length?`✗ ${fails.length} engine checks failed`:'✓ engine checks hold');process.exitCode=fails.length?1:0;

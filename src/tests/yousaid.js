@@ -21,7 +21,7 @@ const CASES=[
  // Ian's screenshot
  ['qa:gdzie:a3','Ona mieszka z Warszawie','','meaning','She lives from Warsaw.'],
  // more
- ['v:być:0','jesteś','','meaning','I are.'],
+ ['v:być:0','jesteś','','meaning','You are'],  // the card asks “I am” in English, so jesteś reads as itself
  ['pn:ja','ty','','meaning','you'],
  ['w:0','plac','','meaning','square'],
  ['kr:Polska:g','Polska','','form','Same meaning, only the ending.'],

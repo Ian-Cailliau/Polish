@@ -14,7 +14,7 @@ const TERMS=[
  ['qa:skad:a3','Ona jest z Polski','On ','he / she','on = he'],
  ['oni:1','One','','oni / one','Jacek is a man'],
  ['qa:adres:a3','On ma adres ulica Mickiewicza 7','','^phrase$','Jego adres to'],  // feedback #5
- ['v:mieć:1','mam','','verb person','ja-form mam; the subject is ty'],
+ ['v:mieć:1','mam','','verb person','ja-form mam.*ty-form'],  // English prompt (you have): no ty on screen to name
  ['qa:gdzie:a3','Ona mieszka w Warszawa','','^case$','Warszawa is the nominative.*after w .*locative'],
  ['kr:Polska:g','Polska','','^case$','Polska is the nominative.*after z .*genitive'],
  ['cl:21','Miło ja','','^case$','ja \\(I\\) is the nominative.*miło.*dative'],
@@ -23,9 +23,9 @@ const TERMS=[
  ['kr:Hiszpania:g','Hiszpanji','','-ii / -ji','Hiszpania → z Hiszpanii'],
  ['city:Wrocław','Mieszkam w Wrocławiu','Mieszkam','z / ze, w / we','we Wrocławiu'],
  ['city:Kraków','Mieszkam w Krakówie','Mieszkam','stem change','ó becomes o'],
- ['vs:13','mieszkam','','verb person','Michael is one person'],
- ['vs:18','nazywasz','','verb person','subject is pani'],
- ['vs:2','jesteście','','verb person','subject is One'],
+ ['vs:13','Michael teraz mieszkam w Krakowie.','Krakowie','verb person','Michael is one person'],  // whole-sentence translation
+ ['vs:18','Jak się pani nazywasz?','pani','verb person','subject is pani'],
+ ['vs:2','One jesteście z Polski.','Polski','verb person','subject is One'],
  ['oni:0','Oni','','oni / one','no man in the group'],
  ['oni:6','Oni','','oni / one','no man in the group'],
  ['qa:skad:form','Skąd pani jesteś?','pani','verb person','subject is pani'],

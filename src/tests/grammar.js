@@ -37,7 +37,7 @@ const {chromium}=require('playwright-core');const PORT=process.argv[2]||'8765';
   const missing=new Map();const isEn=t=>/^(Say it|Zaimki ·|Formal|Ask a|Ask about|Skąd jesteś\? ·|Skąd on|Gdzie mieszka|Liczby · write)/.test(t||'');
   const chk=(t,id)=>tokens(String(t||'').replace(/^For example: /,'')).forEach(z=>{if(!lookup(z.w).length&&!/^[A-ZĄĆĘŁŃÓŚŹŻ]/.test(z.raw)){if(!missing.has(z.w))missing.set(z.w,id)}});
   ITEMS.forEach(it=>{for(let k=0;k<12;k++)for(const st of ['write','pick']){const q=it.make(st);if(q.reveal)continue;
-   if(!isEn(q.eyebrow))chk(q.prompt,it.id);[...(q.accept||[]),...(q.valid||[]),q.mcAnswer,q.sayAns].forEach(a=>chk(a,it.id));if(q.also&&!/^Say /.test(q.also))chk(q.also.replace(/\[[^\]]*\]|\(\+ dziękuję\)|\+ (genitive|locative|name|number)/g,''),it.id)}});
+   if(!isEn(q.eyebrow)&&!q.en)chk(q.prompt,it.id); /* q.en: the prompt is English */[...(q.accept||[]),...(q.valid||[]),q.mcAnswer,q.sayAns].forEach(a=>chk(a,it.id));if(q.also&&!/^Say /.test(q.also))chk(q.also.replace(/\[[^\]]*\]|\(\+ dziękuję\)|\+ (genitive|locative|name|number)/g,''),it.id)}});
   missing.forEach((id,w)=>fail.push(`not in the word list: “${w}” (term ${id})`));
   /* every Polish word on a teaching screen gets a gloss */
   const noGloss=new Set();

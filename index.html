@@ -213,6 +213,7 @@ td.say:active{opacity:.6}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .next.alt{background:var(--pen-soft);color:var(--pen)}
 .hint{font-family:var(--f-hand);font-size:24px;color:var(--blue);line-height:1.1}
+.hint p{margin:2px 0}
 .intro .meaning{color:var(--muted);font-size:16px}
 .intro .prompt b,.fill{color:var(--blue)}
 .tag{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-radius:999px;padding:2px 9px;background:var(--blue-soft);color:var(--blue);margin-left:6px;vertical-align:2px}
@@ -1117,7 +1118,7 @@ function litOf(A,i){const a=A[i];if(!a||a.t.hint)return '';const an=a.an,nx=A[i+
   return enClean(c&&e.mean&&e.mean[c]||(e.mean?Object.values(e.mean)[0]:e.en))}
  return enClean(anMean(an)||e.en)}
 /* the English of the question, when the app has it: “…” in the instruction, or an English prompt */
-function enRef(q){const s=String(q.sub||'').match(/“([^”]+)”/);if(s&&!/[ąćęłńóśźż]/i.test(s[1]))return s[1];
+function enRef(q){if(q.en)return q.en;const s=String(q.sub||'').match(/“([^”]+)”/);if(s&&!/[ąćęłńóśźż]/i.test(s[1]))return s[1];
  const p=String(q.prompt||'').replace(/[“”]/g,'').replace(/^(ask|answer|say|tell)\b[^:]*:\s*/i,'').trim();if(!p||p.includes('___')||/[ąćęłńóśźż]/i.test(p))return null;
  const tk=tokens(p).filter(t=>!t.hint);if(!tk.length)return null;return tk.filter(t=>lookup(t.w).length).length/tk.length<.5?p:null}
 const reEsc=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
@@ -1317,10 +1318,68 @@ QA.forEach(q=>{
 add('qa','qa:slychac',()=>openQ('slychac',{eyebrow:'Answer naturally · any fitting answer counts',prompt:'Co słychać?',say:'Co słychać?',sub:"How's it going?"}));
 add('qa','qa:milo',()=>({eyebrow:'Say it in Polish',prompt:'Nice to meet you.',answer:'Miło mi. / Bardzo mi miło.',accept:['Miło mi','Bardzo mi miło'],options:shuffle(['Miło mi. / Bardzo mi miło.','Nie rozumiem.','Mam pytanie!','Dobranoc.']),sayAns:'Bardzo mi miło.'}));
 
-Object.entries(VERBS).forEach(([inf,v])=>v.f.forEach((f,i)=>{add('verbs',`v:${inf}:${i}`,()=>{const p=pick(PERS[i]);const acc=[f];if(f.endsWith(' się'))acc.push('się '+f.replace(' się',''));
- return{eyebrow:`${inf} · ${v.en}${v.fam==='am'?' · -am / -asz family':' · irregular'}`,prompt:`${p} ___`,sub:'Write the verb form',answer:f,accept:acc,options:mc(f,v.f),sayAns:`${p} ${f}`,note:v.note}});
+/* verb forms are asked from the meaning: “we live” → mieszkamy. The verb is not shown, so you find the verb and its form
+   yourself. Help comes in steps (q.hints, one per tap of Podpowiedź): the verb, then its family, then the first letters. */
+const PRON_EN={ja:['I',''],ty:['you','one person, informal · ty'],on:['he',''],ona:['she',''],pan:['you','formal, to a man · pan'],pani:['you','formal, to a woman · pani'],
+ my:['we',''],wy:['you','several people, informal · wy'],oni:['they','men, or a mixed group · oni'],one:['they','no men in the group · one'],państwo:['you','formal, to a mixed group · państwo']};
+function enVerb(inf,subj){const e=LEMMA.get(inf),base=e.en.replace(/^to /,''),third=subj==='he'||subj==='she';
+ if(/^be\b/.test(base))return `${subj} ${base.replace(/^be/,third?'is':subj==='I'?'am':'are')}`;
+ return `${subj} ${third?(e.s3||base+'s'):base}`}
+const famHint=v=>v.fam==='am'?'-am / -asz family: -am, -asz, -a, -amy, -acie, -ają':'irregular: no family to copy from';
+/* the last step: for a form, its first letters; for a sentence, the sentence with the verb left out (you still write the form) */
+const verbHints=(inf,v,last)=>[`${inf} · ${v.en}`,famHint(v),last];
+const firstLetters=w=>w.slice(0,Math.max(1,Math.ceil(w.length/2)))+'…';
+Object.entries(VERBS).forEach(([inf,v])=>v.f.forEach((f,i)=>{add('verbs',`v:${inf}:${i}`,()=>{const p=pick(PERS[i]),[s,d]=PRON_EN[p];const en=enVerb(inf,s);
+ const acc=[f,`${p} ${f}`];if(f.endsWith(' się')){const g=f.replace(' się','');acc.push('się '+g,`${p} się ${g}`)}
+ const others=Object.keys(VERBS).filter(x=>x!==inf).map(x=>VERBS[x].f[i]);
+ const q={eyebrow:`${inf} · ${v.en}${v.fam==='am'?' · -am / -asz family':' · irregular'}`,prompt:en,en,sub:d,answer:f,accept:acc,
+  options:shuffle([f,...shuffle(v.f.filter(x=>x!==f)).slice(0,2),pick(others)]),sayAns:`${p} ${f}`,note:v.note};
+ q.hints=verbHints(inf,v,firstLetters(f.replace(' się',''))+(f.endsWith(' się')?' się':''));return q});
  const it=ITEMS[ITEMS.length-1];it.group=`verb:${inf}:${i<3?'sg':'pl'}`}));
-SENT.forEach(([s,a,v],i)=>add('verbs',`vs:${i}`,()=>({eyebrow:`${v} · fill the gap`,prompt:s,sub:'Write the missing verb',answer:a,accept:[a],options:mc(a,VERBS[v].f.map(x=>x.replace(' się',''))),sayAns:s.replace('___',a).replace(/\((ja|ty|my|wy)\) /,''),note:VERBS[v].note})));
+/* verbs in sentences: translate the whole English sentence. Each term keeps its verb and person and draws one of several
+   sentences ({K} a country, {M} a city, {O} a thing, {I} a first name); a pronoun in brackets may be left out. */
+const SENT_O=[['problem','a problem'],['pytanie','a question'],['dom','a house'],['nowe auto','a new car']];
+const SENT_I=['Andrzej','Anna','Jan','Magda','Ewa','Piotrek'];
+const SENT_TR=[
+ [['Skąd (ty) jesteś?','Where are you from?'],['Czy (ty) jesteś {K}?','Are you from {K}?']],
+ [['(Ja) jestem {K}.','I am from {K}.']],
+ [['One są {K}.','They are from {K}.']],
+ [['Skąd (wy) jesteście?','Where are you from?'],['Czy (wy) jesteście {K}?','Are you from {K}?']],
+ [['Ona jest {K}.','She is from {K}.']],
+ [['(My) jesteśmy {K}.','We are from {K}.']],
+ [['Jak (ty) masz na imię?','What is your first name?']],
+ [['Oni mają {O}.','They have {O}.']],
+ [['(My) mamy dom {M}.','We have a house in {M}.'],['(My) mamy {O}.','We have {O}.']],
+ [['(Ja) mam na imię {I}.','My first name is {I}.']],
+ [['On ma {O}.','He has {O}.']],
+ [['Czy (wy) macie nowe auto?','Do you have a new car?'],['Czy (wy) macie dom {M}?','Do you have a house in {M}?']],
+ [['Gdzie on mieszka?','Where does he live?'],['Czy on mieszka {M}?','Does he live in {M}?']],
+ [['Michael teraz mieszka {M}.','Michael lives in {M} now.']],
+ [['(My) mieszkamy {M}.','We live in {M}.']],
+ [['Oni mieszkają {M}.','They live in {M}.']],
+ [['Czy (wy) teraz mieszkacie {M}?','Do you live in {M} now?'],['Gdzie (wy) mieszkacie?','Where do you live?']],
+ [['Teraz (ja) mieszkam {M}.','I live in {M} now.']],
+ [['Jak się pani nazywa?','What is your name?'],['Jak się pan nazywa?','What is your name?']],
+ [['(My) nazywamy się Nowak.','Our surname is Nowak.']]];
+/* who the English “you” or “they” is, so the person is never a guess */
+const SENT_WHO=s=>/\(ty\)/.test(s)?'to one friend · ty':/\(wy\)/.test(s)?'to several friends · wy':/^One /.test(s)?'no men in the group':/^Oni /.test(s)?'men, or a mixed group':/ pani /.test(s)?'formal, to a woman · pani':/ pan /.test(s)?'formal, to a man · pan':'';
+/* every accepted way to write a sentence: with or without the bracketed pronoun, czy optional, teraz before or after the verb */
+function sentForms(s){const out=new Set(),cap=t=>t.replace(/^\p{Ll}/u,c=>c.toUpperCase());
+ const base=[s.replace(/\((\p{L}+)\) ?/u,'').replace(/ {2,}/g,' '),s.replace(/\((\p{L}+)\)/u,'$1')].map(cap);
+ for(const b of base){out.add(b);if(/^Czy /.test(b))out.add(cap(b.replace(/^Czy /,'')));
+  const m=b.match(/^(.*?)\bteraz (\S+) (.*)$/i);if(m)out.add(cap(`${m[1]}${m[2]} teraz ${m[3]}`.trim()));
+  const t=b.match(/^Teraz (.*)$/);if(t)out.add(cap(`${t[1].replace(/[.?!]$/,'')} teraz${b.slice(-1)}`))}
+ if(/ się pani | się pan /.test(s))[...out].forEach(x=>out.add(x.replace(/ się (pani|pan) /,' $1 się ')));
+ [...out].forEach(x=>{const m=x.match(/^(On|Ona|Oni|One) (.*)$/);if(m)out.add(cap(m[2]))}); // Polish may leave out on / ona / oni / one too
+ return [...out]}
+SENT.forEach(([s0,a,v],i)=>add('verbs',`vs:${i}`,()=>{const vv=VERBS[v];let [pl,en]=pick(SENT_TR[i]);
+ if(/\{K\}/.test(pl)){const c=pick(COUNTRIES.filter(c=>c[1]!=='Ameryka · Stany Zjednoczone'));pl=pl.replace('{K}',c[2]);en=en.replace('{K}',c[0])}
+ if(/\{M\}/.test(pl)){const c=pick(CITIES);pl=pl.replace('{M}',c[2]);en=en.replace('{M}',c[0])}
+ if(/\{O\}/.test(pl)){const o=pick(SENT_O);pl=pl.replace('{O}',o[0]);en=en.replace('{O}',o[1])}
+ if(/\{I\}/.test(pl)){const n=pick(SENT_I);pl=pl.replace('{I}',n);en=en.replace('{I}',n)}
+ const acc=sentForms(pl),ans=acc[0];
+ const q={eyebrow:`${v} · translate the sentence`,prompt:en,en,sub:SENT_WHO(pl),answer:ans,accept:acc,sayAns:ans,note:vv.note};
+ q.hints=verbHints(v,vv,ans.replace(new RegExp(`(^|\\s)${a}(?=[\\s.?!])`,'i'),'$1___'));return q}));
 
 /* countries: 1) the structure “Jestem z …” once, 2) the genitive of each country, taught in small groups by ending */
 const KR_GROUPS={'kraje:ii':['Belgia','Anglia','Holandia','Flandria','Japonia'],'kraje:ji':['Hiszpania','Francja','Rosja'],'kraje:ki':['Polska','Ameryka','Niemcy','Włochy']};
@@ -1413,7 +1472,7 @@ const ENGINE=(()=>{
     res   answers: 'right' · 'wrong' · 'accent' (ogonki) · 'hint'; amend: the corrected result
     sid   the round it was given in · att: attempt number of this term in that round (1 = first) · mode: the kind of round
     ref   amend: the id of the corrected answer · x: extra data (seed: level b, written n, wrong w and
-          last result lr of the old progress entry, and its assumed last practice)
+          last result lr of the old progress entry, and its assumed last practice; hint answers: h = hints taken)
     On the wire (sync, storage) events are arrays in FIELDS order, term ids are numbers into a term list, and common values
     get one-letter codes. Unknown values pass through unchanged, so a newer app can add values without breaking an older one. */
  const LOG_VERSION=1,MAX_EVENTS=15000;
@@ -1488,13 +1547,14 @@ const ENGINE=(()=>{
  const clampS=s=>clamp(s,S_MIN,S_MAX);
  const GRADED={ok:1,near:1,lapse:1},clampP=p=>clamp(p,1e-4,1-1e-4);
 
- /* events → per term, the steps the model reads, in time order: g = ok · near (ogonki) · lapse (wrong, or only with a hint)
+ /* events → per term, the steps the model reads, in time order: g = ok · near (ogonki, or right after only the first hint,
+    x.h = 1: you were told the verb but found the form) · lapse (wrong, or only with more help)
     · seen (shown the answer without writing it) · known · easy · seed. Corrections (amend) are applied to their answer. */
  function prepare(events){const amend=new Map(),by=new Map();
   for(const e of events)if(e.ev==='amend'&&e.ref)amend.set(e.ref,e.res);
   for(const e of events){let st;
    if(e.ev==='answer'){const res=amend.has(e.id)?amend.get(e.id):e.res;
-    st=e.kind==='type'||e.kind==='table'?{g:res==='right'?'ok':res==='accent'?'near':'lapse'}:{g:'seen'}}
+    st=e.kind==='type'||e.kind==='table'?{g:res==='right'?'ok':res==='accent'||res==='hint'&&e.x&&e.x.h===1&&!amend.has(e.id)?'near':'lapse'}:{g:'seen'}}
    else if(e.ev==='seen'||e.ev==='known'||e.ev==='easy')st={g:e.ev};
    else if(e.ev==='seed')st={g:'seed',x:e.x||{}};
    else continue;                        // kinds of event this version does not know: ignored
@@ -1995,6 +2055,8 @@ function planNut(rng){rng=rng||Math.random;MEM.ensure(true);
 function currentStage(){const it=ORDER.find(it=>!hidden(it)&&(!S[it.id]||S[it.id].b<2));return it?it.stage:STAGES.length-1}
 const hintOf=q=>{const a=q.accept?q.accept[0]:(q.mcAnswer||q.answer);const w=a.replace(/[.!?]$/,'').split(' ');
  return w.length>2?w.slice(0,Math.ceil(w.length/2)).join(' ')+' …':w.length===2?w[0]+' …':a.slice(0,Math.max(1,Math.ceil(a.length/2)))+'…'};
+/* the hint button: with several hints it shows which one comes next (Podpowiedź 1/3, 2/3 …) */
+const hintLbl=(k,n)=>n>1?L(`Podpowiedź ${k+1}/${n}`,k?'next hint':'hint: the smallest help first'):L('Podpowiedź','hint');
 
 const GRADE_EN={'niedostateczny':'insufficient (fail)','dopuszczający':'passing','dostateczny':'satisfactory','dobry':'good','bardzo dobry':'very good','celujący':'excellent'};
 const DECK_IC={qa:'qa',verbs:'verbs',kraje:'kraje',num:'num',klasa:'klasa',words:'words'};
@@ -2145,7 +2207,7 @@ const BLOCKS={
  'num:6-10':{eyebrow:'Liczby',title:'6 to 10',html:()=>`<div class="tw"><table class="btab"><tbody>${[6,7,8,9,10].map(i=>ROWSAY(NUMS[i],String(i),`<b class="end">${NUMS[i]}</b>`)).join('')}</tbody></table></div>`},
 'cf:formal':{eyebrow:'Pattern · formal questions',title:'pan / pani + the on / ona form',concept:1,html:()=>`<div class="tw"><table class="btab"><thead><tr><th>to a friend</th><th>formal</th></tr></thead><tbody>${[['Jak masz na imię?','Jak ma pan na imię?'],['Skąd jesteś?','Skąd pani jest?'],['Gdzie mieszkasz?','Gdzie pan mieszka?']].map(([a,b2])=>ROWSAY(b2,esc(a),`<b class="end">${esc(b2)}</b>`)).join('')}</tbody></table></div><div class="fam"><p>Replace <b>ty</b> by <b>pan</b> (a man) or <b>pani</b> (a woman), and put the verb in the <b>on / ona</b> form: masz → ma, jesteś → jest, mieszkasz → mieszka, nazywasz się → nazywa się.</p><p>From here every question is written straight away.</p></div>`},
  'cf:third':{eyebrow:'Pattern · about someone else',title:'on / ona + the on-form',concept:1,html:()=>`<div class="tw"><table class="btab"><thead><tr><th>to you</th><th>about him / her</th></tr></thead><tbody>${[['Jak masz na imię?','Jak ona ma na imię?'],['Skąd jesteś?','Skąd on jest?'],['Mieszkam w Gandawie.','Ona mieszka w Warszawie.']].map(([a,b2])=>ROWSAY(b2,esc(a),`<b class="end">${esc(b2)}</b>`)).join('')}</tbody></table></div><div class="fam"><p>Use <b>on</b> (he) or <b>ona</b> (she) and the same verb form as for pan / pani: ma, jest, mieszka, nazywa się. Answers about someone use that form too.</p><p>From here every question is written straight away.</p></div>`},
- 'cf:sentence':{eyebrow:'Pattern · verbs in sentences',title:'Who does it? Use that form.',concept:1,html:()=>`<div class="tw"><table class="btab"><tbody>${[['(my) ___ z Francji.','jesteśmy','my → my-form'],['Oni ___ problem.','mają','oni → oni-form'],['Michael ___ w Krakowie.','mieszka','one person (a name) → on-form']].map(([q,a,m])=>ROWSAY(q.replace('___',a).replace(/^\(my\) /,''),`${esc(q)} <span class="muted">· ${m}</span>`,`<b class="end">${a}</b>`)).join('')}</tbody></table></div><div class="fam"><p>Find who does it: the pronoun in brackets, or the name. A name or pan / pani takes the on-form; two or more people take the oni-form.</p><p>You already know the forms; these are written straight away.</p></div>`},
+ 'cf:sentence':{eyebrow:'Pattern · verbs in sentences',title:'Who does it? Use that form.',concept:1,html:()=>`<div class="tw"><table class="btab"><tbody>${[['We are from France.','Jesteśmy z Francji.','jesteśmy','we → my-form'],['They have a problem.','Oni mają problem.','mają','oni → oni-form'],['Michael lives in Kraków.','Michael mieszka w Krakowie.','mieszka','one person (a name) → on-form']].map(([en,pl,a,m])=>ROWSAY(pl,`${esc(pl)} <span class="muted">· ${esc(en)} · ${m}</span>`,`<b class="end">${a}</b>`)).join('')}</tbody></table></div><div class="fam"><p>From now on you translate the whole English sentence. Find the verb from the meaning, then who does it: a name or pan / pani takes the on-form; two or more people take the oni-form.</p><p>Polish usually leaves out ja, ty, my and wy: Mieszkamy w Krakowie. Writing them is not wrong. Stuck? Podpowiedź shows the verb first, then its family, then the start of the sentence.</p></div>`},
  ile:{eyebrow:'Ile jest…? · one idea',title:'How much is…?',concept:1,html:()=>`<div class="tw"><table class="btab"><tbody>${[['Ile jest dwa plus trzy?','pięć','2 + 3 = 5'],['Ile jest siedem minus cztery?','trzy','7 − 4 = 3']].map(([q,a,m])=>ROWSAY(q+' '+a,`${esc(q)} <span class="muted">· ${m}</span>`,`<b class="end">${a}</b>`)).join('')}</tbody></table></div><div class="fam"><p><b>Ile jest</b> = how much is. <b>plus</b> and <b>minus</b> as in English. Answer with the number word (0–10).</p><p>You go straight to writing the answers: no warm-ups for sums.</p></div>`},
  oni:{eyebrow:'Oni czy one? · one rule',title:'they = oni or one',concept:1,html:()=>`<div class="tw"><table class="btab"><tbody>${ONI_KEEP.map(i=>ROWSAY(`${ONI[i][1]} są z Polski`,`${esc(ONI[i][0])} <span class="muted">· ${ONI_WHY[i]}</span>`,`<b class="end">${ONI[i][1]}</b>`)).join('')}</tbody></table></div><div class="fam"><p><b>oni</b> as soon as there is at least one man in the group. <b>one</b> only when there is no man: women, children, animals, things.</p></div>`},
  'kraje:ii':{eyebrow:'Kraje · -ia → -ii',concept:1,title:'z Belgii, z Anglii…',html:()=>krRows('kraje:ii','After z the country goes into the genitive. Countries ending in -ia change to -ii.')},
@@ -2228,8 +2290,9 @@ function modeOf(it,q){const id=it.id,eb=String(q.eyebrow||'');
  if(/^qa:[a-z]+:a3$/.test(id))return {m:'rozmowa',d:['o kimś','about someone else: use the fact below']};
  if(/^qa:[a-z]+:form$/.test(id)){const g=/\bpani\b/i.test(String(q.answer))?'pani':'pan';return {m:'przeksz',d:[`na ${g}`,`make it formal, to a ${g==='pan'?'man':'woman'}`]}}
  if(/^(qa:[a-z]+:inf$|tmp:inf:)/.test(id))return {m:'przeksz',d:['na ty','make it informal, to a friend']};
- if(/^v:/.test(id)){const [inf,en,fam]=eb.split(' · ');return {m:'konj',plate:{w:inf,en,tag:FAM_PL(fam||'')}}}
- if(/^vs:/.test(id)){const inf=eb.split(' · ')[0],v=VERBS[inf];return {m:'konj',plate:{w:inf,en:v?v.en:'',tag:v?FAM_PL(v.fam==='am'?'-am / -asz':'irregular'):null}}}
+ /* verbs: no plate with the infinitive: finding the verb from the meaning is part of the exercise (Podpowiedź shows it) */
+ if(/^v:/.test(id))return {m:'konj'};
+ if(/^vs:/.test(id))return {m:'tlum',d:['całe zdanie','the whole sentence']};
  if(/^kr:/.test(id)){const nom=id.split(':')[1].split(' · ')[0],c=COUNTRIES.find(x=>x[1].split(' · ')[0]===nom);return {m:'dekl',plate:{w:nom,en:c?c[0]:'',tag:['z + dopełniacz','z (from) + the genitive']}}}
  if(/^oni:/.test(id))return {m:'dekl',d:['oni czy one?','oni: men or a mixed group · one: no men']};
  return {m:'tlum'}}
@@ -2259,7 +2322,7 @@ function ask(){hideTip();sheetOff();delete app.dataset.mode;
  if(!sess.test&&cur.it.block&&!blockSeen(cur.it.block)&&(cur.st==='intro'||!cur.it.member))return showBlock(cur,cur.it.block);
  if(cur.st==='intro'&&cur.it.pattern){if(!S[cur.it.id]){S[cur.it.id]={b:1,n:0,w:0,due:round(),f:dayKey()};sess.fresh++;AL.add({term:cur.it.id,ev:'seen',sid:sess.sid,mode:sess.mode});save()}cur.st='write'}
  q.kind=cur.st==='intro'?'intro':cur.st==='pick'?'mc':q.reveal?'reveal':'type';
- const canHint=!sess.test&&q.kind==='type';let usedHint=false;
+ const canHint=!sess.test&&q.kind==='type';let usedHint=false,hintN=0;const hints=q.hints||[hintOf(q)];cur.hintN=0;
  const H=headHTML(cur,q);app.dataset.mode=H.m;const sub=subOf(q);
 
  if(q.kind==='intro'){
@@ -2286,13 +2349,13 @@ function ask(){hideTip();sheetOff();delete app.dataset.mode;
  app.innerHTML=`${topBar(cur)}
  <article class="card">${H.html}
   <div class="prow">${promptHTML(q)}${spkBtn(q.say)}</div>${sub?`<p class="sub">${esc(sub)}</p>`:''}
-  <p class="hint" id="hintx" hidden>${esc(hintOf(q))}</p></article>
+  <div class="hint" id="hintx" hidden></div></article>
  ${q.kind==='mc'
   ?`<div class="opts">${q.options.map((o,i)=>`<button class="opt" data-i="${i}"><kbd class="kn">${i+1}</kbd><span class="ot">${esc(o)}</span></button>`).join('')}</div><p class="ktyped" id="ktyped" hidden></p>`
   :q.kind==='reveal'?`<button class="check" id="rv">${L('Pokaż znaczenie','show the meaning','pokazać, imperative · znaczenie = meaning')}</button>`
   :`<form class="typed" id="tf"><input id="ti" type="text" lang="pl" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Your answer" placeholder="Napisz po polsku…">
      <div class="keys">${'ąćęłńóśźż'.split('').map(c=>`<button type="button" data-k="${c}">${c}</button>`).join('')}</div>
-     <div class="two"><button class="check" type="submit">${L('Sprawdź','check','sprawdzić, imperative')}</button>${canHint?'<button class="next alt" type="button" id="hb">'+L('Podpowiedź','hint')+'</button>':''}</div></form>`}
+     <div class="two"><button class="check" type="submit">${L('Sprawdź','check','sprawdzić, imperative')}</button>${canHint?'<button class="next alt" type="button" id="hb">'+hintLbl(0,hints.length)+'</button>':''}</div></form>`}
  <div id="fb"></div>`;
  $('#qx').onclick=home;
  if(q.kind==='mc'){const right=q.mcAnswer||q.answer;app.querySelectorAll('.opt').forEach(btn=>btn.onclick=()=>{if(btn.classList.contains('done'))return;
@@ -2306,7 +2369,8 @@ function ask(){hideTip();sheetOff();delete app.dataset.mode;
    $('#kn').onclick=()=>finish('right','',null,true);$('#dk').onclick=()=>finish('wrong','',null,true)}}
  else{const ti=$('#ti');ti.focus();
    app.querySelectorAll('.keys button').forEach(k=>k.onclick=()=>{const s=ti.selectionStart??ti.value.length,e=ti.selectionEnd??s;ti.value=ti.value.slice(0,s)+k.dataset.k+ti.value.slice(e);ti.focus();ti.setSelectionRange(s+1,s+1)});
-   const hb=$('#hb');if(hb)hb.onclick=()=>{usedHint=true;$('#hintx').hidden=false;hb.disabled=true;ti.focus()};
+   const hb=$('#hb');if(hb)hb.onclick=()=>{usedHint=true;const hx=$('#hintx');hx.hidden=false;hx.insertAdjacentHTML('beforeend',`<p>${esc(hints[hintN]).replace(/-(?=\p{L})/gu,'\u2011')}</p>`);hintN++;cur.hintN=hintN;
+    if(hintN>=hints.length)hb.disabled=true;else hb.innerHTML=hintLbl(hintN,hints.length);ti.focus()};
    $('#tf').onsubmit=e=>{e.preventDefault();if(ti.readOnly){next();return}if(!ti.value.trim())return;
      const g=norm(ti.value);let r;
      if(q.check)r=q.check(g);else{const acc=q.accept.map(norm);r={res:acc.includes(g)?'right':acc.map(strip).includes(strip(g))?'accent':'wrong'}}
@@ -2323,7 +2387,7 @@ function finish(res,given,msg,quick){
  if(counts)record(id,res,given);else{S._d={d:dayKey(),n:todayCount()+1};save()}
  const entry={it:cur.it,q,res,given,retry:cur.retry,counts,firstTry:!warmup&&!cur.retry,slot:cur.slot};sess.log.push(entry);
  /* the answer log gets every answer to a real term (practice cases made up on the spot are not terms) */
- if(!cur.it.tmp){const ev=AL.add({term:id,ev:'answer',kind:q.table?'table':q.kind,res,sid:sess.sid,att:AL.answersIn(sess.sid,id)+1,mode:sess.mode});if(ev)entry.eid=ev.id}
+ if(!cur.it.tmp){const ev=AL.add({term:id,ev:'answer',kind:q.table?'table':q.kind,res,sid:sess.sid,att:AL.answersIn(sess.sid,id)+1,mode:sess.mode,...(res==='hint'&&cur.hintN?{x:{h:cur.hintN}}:{})});if(ev)entry.eid=ev.id}
  const placed=requeueAfter(cur,res,warmup);
  sess.answeredAt=sess.i;saveSess();
  if(quick)return next();
